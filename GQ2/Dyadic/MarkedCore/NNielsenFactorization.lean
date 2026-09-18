@@ -90,7 +90,8 @@ def nFamN5 (p : ℤ_[2]) : NStabParam := ⟨0, p, 0, 0, nRed p, 1⟩
 def nFamN6 (q : ℤ_[2]) : NStabParam := ⟨0, 0, q, nRed q, 0, 1⟩
 
 theorem nNielsenFacBlock_act (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) (v1 : ZMod 2) (a b c : ℤ_[2]) :
-    (nNielsenFacBlock g).act (v1, a, b, c) = (v1, a, b * g 0 0 + c * g 0 1, b * g 1 0 + c * g 1 1) := by
+    (nNielsenFacBlock g).act (v1, a, b, c)
+      = (v1, a, b * g 0 0 + c * g 0 1, b * g 1 0 + c * g 1 1) := by
   rw [nNielsenFacBlock, NStabParam.act_apply]
   refine Prod.ext ?_ (Prod.ext rfl (Prod.ext ?_ ?_)) <;> simp
 
@@ -317,6 +318,399 @@ theorem nNielsen_factorization (P : NStabParam) (hP : P.Admissible) :
   · show a * P.q + b * P.g 1 0 + c * P.g 1 1 = a * P.q + (b * P.g 1 0 + c * P.g 1 1)
     ring
 
+
+/-! ## The frame action on the actual rank-four N frame -/
+
+/-- An arbitrary coordinate map transported to the rank-four full N frame `NFrameModel 0`; the
+empty handle tail rides along untouched. It exists so that the composition calculus below is
+definitional. -/
+def nNielsenFacLift (F : NVec → NVec) (z : NFrameModel 0) : NFrameModel 0 :=
+  ofAdd ((F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.2,
+    z.toAdd.2.2.2.2)
+
+theorem nNielsenFacLift_comp (F G : NVec → NVec) (z : NFrameModel 0) :
+    nNielsenFacLift F (nNielsenFacLift G z) = nNielsenFacLift (F ∘ G) z := rfl
+
+/-- `NStabParam.act` written on the rank-four full N frame model. -/
+def nNielsenFacMap (P : NStabParam) : NFrameModel 0 → NFrameModel 0 := nNielsenFacLift P.act
+
+theorem nNielsenFacMap_eq_lift (P : NStabParam) : nNielsenFacMap P = nNielsenFacLift P.act := rfl
+
+theorem nNielsenFacMap_toAdd (P : NStabParam) (z : NFrameModel 0) :
+    (nNielsenFacMap P z).toAdd =
+      ((P.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).1,
+        (P.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.1,
+        (P.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.1,
+        (P.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.2,
+        z.toAdd.2.2.2.2) := rfl
+
+theorem nNielsenFacMap_comp_of_act (P Q : NStabParam)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (z : NFrameModel 0) :
+    nNielsenFacMap P (nNielsenFacMap Q z) = z := by
+  rw [nNielsenFacMap_eq_lift, nNielsenFacMap_eq_lift, nNielsenFacLift_comp]
+  have hid : P.act ∘ Q.act = id := funext hPQ
+  rw [hid]
+  rfl
+
+theorem nNielsenFacMap_mul (P : NStabParam) (z w : NFrameModel 0) :
+    nNielsenFacMap P (z * w) = nNielsenFacMap P z * nNielsenFacMap P w := by
+  have hl : nNielsenFacMap P (z * w) = ofAdd
+      (z.toAdd.1 + w.toAdd.1 + nRed (z.toAdd.2.1 + w.toAdd.2.1) * P.tau
+          + nRed (z.toAdd.2.2.1 + w.toAdd.2.2.1) * P.tauSigma
+          + nRed (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * P.tauX2,
+       z.toAdd.2.1 + w.toAdd.2.1,
+       (z.toAdd.2.1 + w.toAdd.2.1) * P.p + (z.toAdd.2.2.1 + w.toAdd.2.2.1) * P.g 0 0
+         + (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * P.g 0 1,
+       (z.toAdd.2.1 + w.toAdd.2.1) * P.q + (z.toAdd.2.2.1 + w.toAdd.2.2.1) * P.g 1 0
+         + (z.toAdd.2.2.2.1 + w.toAdd.2.2.2.1) * P.g 1 1,
+       z.toAdd.2.2.2.2 + w.toAdd.2.2.2.2) := rfl
+  have hr : nNielsenFacMap P z * nNielsenFacMap P w = ofAdd
+      ((z.toAdd.1 + nRed z.toAdd.2.1 * P.tau + nRed z.toAdd.2.2.1 * P.tauSigma
+          + nRed z.toAdd.2.2.2.1 * P.tauX2)
+        + (w.toAdd.1 + nRed w.toAdd.2.1 * P.tau + nRed w.toAdd.2.2.1 * P.tauSigma
+          + nRed w.toAdd.2.2.2.1 * P.tauX2),
+       z.toAdd.2.1 + w.toAdd.2.1,
+       (z.toAdd.2.1 * P.p + z.toAdd.2.2.1 * P.g 0 0 + z.toAdd.2.2.2.1 * P.g 0 1)
+         + (w.toAdd.2.1 * P.p + w.toAdd.2.2.1 * P.g 0 0 + w.toAdd.2.2.2.1 * P.g 0 1),
+       (z.toAdd.2.1 * P.q + z.toAdd.2.2.1 * P.g 1 0 + z.toAdd.2.2.2.1 * P.g 1 1)
+         + (w.toAdd.2.1 * P.q + w.toAdd.2.2.1 * P.g 1 0 + w.toAdd.2.2.2.1 * P.g 1 1),
+       z.toAdd.2.2.2.2 + w.toAdd.2.2.2.2) := rfl
+  rw [hl, hr, map_add, map_add, map_add]
+  exact congrArg ofAdd (Prod.ext (by ring) (Prod.ext rfl (Prod.ext (by ring) (Prod.ext (by ring)
+    rfl))))
+
+theorem nNielsenFacMap_continuous (P : NStabParam) : Continuous (nNielsenFacMap P) := by
+  have hred : Continuous nRed := GQ2.Dyadic.Instances.DNAutomorphismCup.continuous_nRed
+  have hT : Continuous fun z : NFrameModel 0 => z.toAdd.1 :=
+    continuous_fst.comp continuous_toAdd
+  have hA : Continuous fun z : NFrameModel 0 => z.toAdd.2.1 :=
+    (continuous_fst.comp continuous_snd).comp continuous_toAdd
+  have hB : Continuous fun z : NFrameModel 0 => z.toAdd.2.2.1 :=
+    ((continuous_fst.comp continuous_snd).comp continuous_snd).comp continuous_toAdd
+  have hC : Continuous fun z : NFrameModel 0 => z.toAdd.2.2.2.1 :=
+    ((continuous_fst.comp continuous_snd).comp (continuous_snd.comp continuous_snd)).comp
+      continuous_toAdd
+  have hE : Continuous fun z : NFrameModel 0 => z.toAdd.2.2.2.2 :=
+    ((continuous_snd.comp continuous_snd).comp (continuous_snd.comp continuous_snd)).comp
+      continuous_toAdd
+  refine continuous_ofAdd.comp (Continuous.prodMk ?_ (Continuous.prodMk hA
+    (Continuous.prodMk ?_ (Continuous.prodMk ?_ hE))))
+  · exact ((hT.add ((hred.comp hA).mul continuous_const)).add
+      ((hred.comp hB).mul continuous_const)).add ((hred.comp hC).mul continuous_const)
+  · exact ((hA.mul continuous_const).add (hB.mul continuous_const)).add
+      (hC.mul continuous_const)
+  · exact ((hA.mul continuous_const).add (hB.mul continuous_const)).add
+      (hC.mul continuous_const)
+
+/-- A pair of mutually inverse stabilizer parameters gives a continuous automorphism of the
+rank-four full N frame. -/
+def nNielsenFacEquiv (P Q : NStabParam)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) :
+    ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) where
+  toFun := nNielsenFacMap P
+  invFun := nNielsenFacMap Q
+  left_inv := nNielsenFacMap_comp_of_act Q P hQP
+  right_inv := nNielsenFacMap_comp_of_act P Q hPQ
+  map_mul' := nNielsenFacMap_mul P
+  continuous_toFun := nNielsenFacMap_continuous P
+  continuous_invFun := nNielsenFacMap_continuous Q
+
+@[simp] theorem nNielsenFacEquiv_apply (P Q : NStabParam)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) (z : NFrameModel 0) :
+    nNielsenFacEquiv P Q hPQ hQP z = nNielsenFacMap P z := rfl
+
+/-! ## Orientation and cup: every parameter's frame action satisfies both hypotheses of
+`nFullStabilizer_lift` -/
+
+/-- The integral `x̄₁` coordinate is fixed on the nose by every parameter's frame action. -/
+theorem nNielsenFacMap_coord_x1 (P : NStabParam) (z : NFrameModel 0) :
+    (nNielsenFacMap P z).toAdd.2.1 = z.toAdd.2.1 := rfl
+
+/-- **Orientation half.** Every parameter's frame action preserves the canonical N orientation,
+because it fixes the integral `x̄₁` coordinate (`nFrameOrientation_preserved_iff`). -/
+theorem nNielsenFac_orientation {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) (z : NFrameModel 0) :
+    nFrameOrientation ha 0 (nNielsenFacEquiv P Q hPQ hQP z) = nFrameOrientation ha 0 z :=
+  (nFrameOrientation_preserved_iff ha 0 (nNielsenFacEquiv P Q hPQ hQP)).mpr
+    (fun w => nNielsenFacMap_coord_x1 P w) z
+
+/-- The canonical marks of the rank-four N frame, in coordinates. -/
+theorem nNielsenFac_mark_zero {alpha : ℕ} (ha : 2 ≤ alpha) :
+    nFrameCanonicalMark ha 0 0 = ofAdd (1, 0, 0, 0, 0) :=
+  nPhiHom_X0 ha 0
+
+theorem nNielsenFac_mark_one {alpha : ℕ} (ha : 2 ≤ alpha) :
+    nFrameCanonicalMark ha 0 1 = ofAdd (0, 1, 0, 0, 0) :=
+  nPhiHom_X1 ha 0
+
+theorem nNielsenFac_mark_two {alpha : ℕ} (ha : 2 ≤ alpha) :
+    nFrameCanonicalMark ha 0 2 = ofAdd (0, 0, 1, 0, 0) :=
+  nPhiHom_Sigma ha 0
+
+theorem nNielsenFac_mark_three {alpha : ℕ} (ha : 2 ≤ alpha) :
+    nFrameCanonicalMark ha 0 3 = ofAdd (0, 0, 0, 1, 0) :=
+  nPhiHom_X2 ha 0
+
+/-- The image of the `j`-th canonical mark under a parameter's frame action is the `j`-th column
+of `NRows.col` at the parameter's rows, with an empty handle tail. -/
+theorem nNielsenFacMap_mark {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabParam)
+    (j : Fin (coreRank 0)) :
+    nNielsenFacMap P (nFrameCanonicalMark ha 0 j)
+      = ofAdd ((P.rows.col j).1, (P.rows.col j).2.1, (P.rows.col j).2.2.1, (P.rows.col j).2.2.2,
+          0) := by
+  have hj4 : j = 0 ∨ j = 1 ∨ j = 2 ∨ j = 3 := by decide +revert
+  have hpack : ∀ {u v : NVec}, u = v →
+      (ofAdd (u.1, u.2.1, u.2.2.1, u.2.2.2, (0 : Fin (2 * 0) → ℤ_[2])) : NFrameModel 0)
+        = ofAdd (v.1, v.2.1, v.2.2.1, v.2.2.2, 0) := fun h => by rw [h]
+  rcases hj4 with rfl | rfl | rfl | rfl
+  · rw [nNielsenFac_mark_zero]
+    exact hpack (NStabParam.act_t P)
+  · rw [nNielsenFac_mark_one]
+    exact hpack (NStabParam.act_x1 P)
+  · rw [nNielsenFac_mark_two]
+    exact hpack (NStabParam.act_sigma P)
+  · rw [nNielsenFac_mark_three]
+    exact hpack (NStabParam.act_x2 P)
+
+/-- **The reduced mod-two matrix of a parameter's frame action is `NRows.mat` at its rows**, in
+N's own column convention. This is the bridge from `nNielsenGenMat` (W363) to `N.lean`. -/
+theorem nNielsenFac_mat {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v)
+    (i j : Fin (coreRank 0)) :
+    nNielsenGenMat ha (nNielsenFacEquiv P Q hPQ hQP) i j = P.rows.mat i j := by
+  rw [nNielsenGenMat, nNielsenFacEquiv_apply, nNielsenFacMap_mark ha P j]
+  have hi4 : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by decide +revert
+  rcases hi4 with rfl | rfl | rfl | rfl
+  · rw [nNielsenGen_coord_zero]; rfl
+  · rw [nNielsenGen_coord_one]; rfl
+  · rw [nNielsenGen_coord_two]; rfl
+  · rw [nNielsenGen_coord_three]; rfl
+
+/-- **Cup half.** The frame action of every *admissible* parameter is a full semantic cup
+isometry of the actual N frame, through W363's `nNielsenGen_cup_of_mat` and `N.lean`'s
+`NStabParam.rows_isCupIsometry`. -/
+theorem nNielsenFac_cupIsometry {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) :
+    NFrameCupIsometry ha (nNielsenFacEquiv P Q hPQ hQP) := by
+  refine nNielsenGen_cup_of_mat ha _ fun i j => ?_
+  rw [funext (nNielsenFac_mat ha P Q hPQ hQP i), funext (nNielsenFac_mat ha P Q hPQ hQP j)]
+  exact NStabParam.rows_isCupIsometry hP i j
+
+/-! ## The six families as continuous frame automorphisms -/
+
+theorem nNielsenFacBlock_act_act (g₁ g₂ : Matrix (Fin 2) (Fin 2) ℤ_[2]) (v : NVec) :
+    (nNielsenFacBlock g₁).act ((nNielsenFacBlock g₂).act v)
+      = (nNielsenFacBlock (g₁ * g₂)).act v :=
+  congrFun (nNielsenFacBlock_act_comp g₁ g₂) v
+
+theorem nNielsenFac_N1_inv (k : ℤ_[2]) (v : NVec) :
+    (nFamN1 k).act ((nFamN1 (-k)).act v) = v := by
+  obtain ⟨v1, a, b, c⟩ := v
+  rw [nFamN1_act, nFamN1_act, map_neg]
+  exact Prod.ext (by ring) rfl
+
+theorem nNielsenFac_N2_inv (k : ℤ_[2]) (v : NVec) :
+    (nFamN2 k).act ((nFamN2 (-k)).act v) = v := by
+  rw [nFamN2, nFamN2, nNielsenFacBlock_act_act, planeElemU_mul_planeElemU, add_neg_cancel,
+    planeElemU_zero, nNielsenFacBlock_one_act]
+
+theorem nNielsenFac_N3_inv (k : ℤ_[2]) (v : NVec) :
+    (nFamN3 k).act ((nFamN3 (-k)).act v) = v := by
+  rw [nFamN3, nFamN3, nNielsenFacBlock_act_act, planeElemV_mul_planeElemV, add_neg_cancel,
+    planeElemV_zero, nNielsenFacBlock_one_act]
+
+theorem nNielsenFac_N4_inv (κ : ℤ_[2]ˣ) (v : NVec) :
+    (nFamN4 κ).act ((nFamN4 κ⁻¹).act v) = v := by
+  rw [nFamN4, nFamN4, nNielsenFacBlock_act_act, nPlaneDet_mul, mul_inv_cancel, nPlaneDet_one,
+    nNielsenFacBlock_one_act]
+
+theorem nNielsenFac_N5_inv (p : ℤ_[2]) (v : NVec) :
+    (nFamN5 p).act ((nFamN5 (-p)).act v) = v := by
+  obtain ⟨v1, a, b, c⟩ := v
+  rw [nFamN5_act, nFamN5_act, map_neg]
+  exact Prod.ext (by ring) (Prod.ext rfl (Prod.ext (by ring) rfl))
+
+theorem nNielsenFac_N6_inv (q : ℤ_[2]) (v : NVec) :
+    (nFamN6 q).act ((nFamN6 (-q)).act v) = v := by
+  obtain ⟨v1, a, b, c⟩ := v
+  rw [nFamN6_act, nFamN6_act, map_neg]
+  exact Prod.ext (by ring) (Prod.ext rfl (Prod.ext rfl (by ring)))
+
+/-- Family **N1** `x₁ ↦ x₀^k·x₁` as a frame automorphism. -/
+def nNielsenFacN1 (k : ℤ_[2]) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN1 k) (nFamN1 (-k)) (nNielsenFac_N1_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N1_inv (-k) v)
+
+/-- Family **N2** `x₂ ↦ x₂·σ^k` as a frame automorphism. -/
+def nNielsenFacN2 (k : ℤ_[2]) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN2 k) (nFamN2 (-k)) (nNielsenFac_N2_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N2_inv (-k) v)
+
+/-- Family **N3** `σ ↦ σ·x₂^k` as a frame automorphism. -/
+def nNielsenFacN3 (k : ℤ_[2]) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN3 k) (nFamN3 (-k)) (nNielsenFac_N3_inv k)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N3_inv (-k) v)
+
+/-- Family **N4** `σ̄ ↦ κ·σ̄` as a frame automorphism. -/
+def nNielsenFacN4 (κ : ℤ_[2]ˣ) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN4 κ) (nFamN4 κ⁻¹) (nNielsenFac_N4_inv κ)
+    (fun v => by simpa only [inv_inv] using nNielsenFac_N4_inv κ⁻¹ v)
+
+/-- Family **N5** `x₁ ↦ x₁·σ^p` (with its coupled `x₂ ↦ x₀^p·x₂`) as a frame automorphism. -/
+def nNielsenFacN5 (p : ℤ_[2]) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN5 p) (nFamN5 (-p)) (nNielsenFac_N5_inv p)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N5_inv (-p) v)
+
+/-- Family **N6** `x₁ ↦ x₁·x₂^q` (with its coupled `σ ↦ x₀^q·σ`) as a frame automorphism. -/
+def nNielsenFacN6 (q : ℤ_[2]) : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  nNielsenFacEquiv (nFamN6 q) (nFamN6 (-q)) (nNielsenFac_N6_inv q)
+    (fun v => by simpa only [neg_neg] using nNielsenFac_N6_inv (-q) v)
+
+/-! ## Composition: of frame automorphisms, and of their lifts -/
+
+/-- `Psi` is an actual `chiN`-preserving continuous automorphism of the rank-four core inducing
+`phi` on the full abelian frame, with the exact all-element commuting square. This is verbatim
+the conclusion of `nFullStabilizer_lift` at `h = 0`. -/
+def NNielsenFacLifts {alpha : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)) : Prop :=
+  ∃ Psi : ContinuousMulEquiv (DN alpha 0 : Type) (DN alpha 0 : Type),
+    (∀ x, chiN alpha 0 (Psi x) = chiN alpha 0 x) ∧
+    (∀ x, nPhiHom ha 0 (abMk (Psi x)) = phi (nPhiHom ha 0 (abMk x)))
+
+/-- The identity frame automorphism lifts. -/
+theorem nNielsenFacLifts_refl {alpha : ℕ} (ha : 2 ≤ alpha) :
+    NNielsenFacLifts ha (ContinuousMulEquiv.refl (NFrameModel 0)) :=
+  ⟨ContinuousMulEquiv.refl _, fun _ => rfl, fun _ => rfl⟩
+
+/-- **The composite of the lifts is a lift of the composite.** -/
+theorem nNielsenFacLifts_trans {alpha : ℕ} (ha : 2 ≤ alpha)
+    {phi psi : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)}
+    (h1 : NNielsenFacLifts ha phi) (h2 : NNielsenFacLifts ha psi) :
+    NNielsenFacLifts ha (phi.trans psi) := by
+  obtain ⟨P, hP1, hP2⟩ := h1
+  obtain ⟨Q, hQ1, hQ2⟩ := h2
+  refine ⟨P.trans Q, fun x => ?_, fun x => ?_⟩
+  · exact (hQ1 (P x)).trans (hP1 x)
+  · show nPhiHom ha 0 (abMk (Q (P x))) = psi (phi _)
+    rw [hQ2 (P x), hP2 x]
+
+/-- The composite of a finite list of frame automorphisms, leftmost applied first. -/
+def nNielsenFacCompose (L : List (ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0))) :
+    ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  L.foldr (fun g e => g.trans e) (ContinuousMulEquiv.refl _)
+
+theorem nNielsenFacLifts_compose {alpha : ℕ} (ha : 2 ≤ alpha)
+    (L : List (ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)))
+    (h : ∀ g ∈ L, NNielsenFacLifts ha g) :
+    NNielsenFacLifts ha (nNielsenFacCompose L) := by
+  induction L with
+  | nil => exact nNielsenFacLifts_refl ha
+  | cons g L ih =>
+      exact nNielsenFacLifts_trans ha (h g (List.mem_cons_self))
+        (ih fun x hx => h x (List.mem_cons_of_mem g hx))
+
+/-- Every frame automorphism built from an admissible parameter lifts: T1 fed to
+`nFullStabilizer_lift`. -/
+theorem nNielsenFacLifts_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) :
+    NNielsenFacLifts ha (nNielsenFacEquiv P Q hPQ hQP) :=
+  nFullStabilizer_lift ha (nNielsenFacEquiv P Q hPQ hQP)
+    (nNielsenFac_orientation ha P Q hPQ hQP) (nNielsenFac_cupIsometry ha P Q hP hPQ hQP)
+
+/-- Each generator built from an admissible parameter preserves the orientation, is a cup
+isometry, and lifts. -/
+theorem nNielsenFac_props_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (P Q : NStabParam)
+    (hP : P.Admissible)
+    (hPQ : ∀ v, P.act (Q.act v) = v) (hQP : ∀ v, Q.act (P.act v) = v) :
+    (∀ z, nFrameOrientation ha 0 (nNielsenFacEquiv P Q hPQ hQP z) = nFrameOrientation ha 0 z) ∧
+      NFrameCupIsometry ha (nNielsenFacEquiv P Q hPQ hQP) ∧
+      NNielsenFacLifts ha (nNielsenFacEquiv P Q hPQ hQP) :=
+  ⟨nNielsenFac_orientation ha P Q hPQ hQP, nNielsenFac_cupIsometry ha P Q hP hPQ hQP,
+    nNielsenFacLifts_of_param ha P Q hP hPQ hQP⟩
+
+/-! ## The packet's finite list -/
+
+/-- **The finite list of Nielsen generators at N**, in the slot order
+`N2(z), N3(y), N2(x), N4(κ), N3(w), N5(p), N6(q), N1(k)` (leftmost applied first): the block
+first, then the two coupled mixes, then the torsion shift. -/
+def nNielsenFacList (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) :
+    List (ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)) :=
+  [nNielsenFacN2 z, nNielsenFacN3 y, nNielsenFacN2 x, nNielsenFacN4 κ, nNielsenFacN3 w,
+    nNielsenFacN5 p, nNielsenFacN6 q, nNielsenFacN1 k]
+
+theorem nNielsenFacList_length (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]) :
+    (nNielsenFacList z y x κ w p q k).length = 8 := rfl
+
+theorem nNielsenFacCompose_list (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2])
+    (v : NFrameModel 0) :
+    nNielsenFacCompose (nNielsenFacList z y x κ w p q k) v =
+      nNielsenFacLift ((nFamN1 k).act ∘ (nFamN6 q).act ∘ (nFamN5 p).act ∘ (nFamN3 w).act ∘
+        (nFamN4 κ).act ∘ (nFamN2 x).act ∘ (nFamN3 y).act ∘ (nFamN2 z).act) v := rfl
+
+theorem nNielsenFacList_props {alpha : ℕ} (ha : 2 ≤ alpha) (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ)
+    (w p q k : ℤ_[2]) :
+    ∀ g ∈ nNielsenFacList z y x κ w p q k,
+      (∀ v, nFrameOrientation ha 0 (g v) = nFrameOrientation ha 0 v) ∧
+        NFrameCupIsometry ha g ∧ NNielsenFacLifts ha g := by
+  intro g hg
+  simp only [nNielsenFacList, List.mem_cons, List.not_mem_nil, or_false] at hg
+  rcases hg with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN2_admissible z) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN3_admissible y) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN2_admissible x) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN4_admissible κ) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN3_admissible w) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN5_admissible p) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN6_admissible q) _ _
+  · exact nNielsenFac_props_of_param ha _ _ (nFamN1_admissible k) _ _
+
+/-- **The packet's MC-N finite-list artifact at the rank-four core** (`h = 0`, `alpha >= 2`).
+
+For every admissible parameter `P : NStabParam`, equivalently (by `nStabilizer_classification`)
+for every element of the Smith-Witt stabilizer of the rank-four N abelianization, there is an
+explicit list of **eight** frame automorphisms, each one a member of memo §3.4's six Nielsen
+families at an explicit parameter, such that
+
+1. every member preserves the canonical orientation and the full mod-two cup form, and
+   therefore lifts to an actual `chiN`-preserving continuous automorphism of `D_N` with the
+   exact all-element commuting frame square;
+2. the composite of the list is the frame action of `P`; and
+3. the composite of the lifts is a lift of that composite.
+
+The lifts in (1) are supplied by `nFullStabilizer_lift`, i.e. by the uniform filtered-correction
+and compactness argument, **not** by an explicit generator-by-generator group-level
+construction. -/
+theorem nNielsenFac_finite_list {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabParam)
+    (hP : P.Admissible) :
+    ∃ (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]),
+      (nNielsenFacList z y x κ w p q k).length = 8 ∧
+      (∀ g ∈ nNielsenFacList z y x κ w p q k,
+        (∀ v, nFrameOrientation ha 0 (g v) = nFrameOrientation ha 0 v) ∧
+          NFrameCupIsometry ha g ∧ NNielsenFacLifts ha g) ∧
+      (∀ v, nNielsenFacCompose (nNielsenFacList z y x κ w p q k) v = nNielsenFacMap P v) ∧
+      NNielsenFacLifts ha (nNielsenFacCompose (nNielsenFacList z y x κ w p q k)) := by
+  obtain ⟨k, q, p, w, x, y, z, κ, hfac⟩ := nNielsen_factorization P hP
+  refine ⟨z, y, x, κ, w, p, q, k, nNielsenFacList_length _ _ _ _ _ _ _ _,
+    nNielsenFacList_props ha _ _ _ _ _ _ _ _, fun v => ?_, ?_⟩
+  · rw [nNielsenFacCompose_list, nNielsenFacMap_eq_lift, hfac]
+  · exact nNielsenFacLifts_compose ha _
+      (fun g hg => (nNielsenFacList_props ha _ _ _ _ _ _ _ _ g hg).2.2)
+
+/-- **Every admissible rank-four stabilizer parameter is realized by an actual core
+automorphism**, as the composite of the eight Nielsen generators' lifts. -/
+theorem nNielsenFac_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabParam)
+    (hP : P.Admissible) :
+    ∃ Psi : ContinuousMulEquiv (DN alpha 0 : Type) (DN alpha 0 : Type),
+      (∀ x, chiN alpha 0 (Psi x) = chiN alpha 0 x) ∧
+      (∀ x, nPhiHom ha 0 (abMk (Psi x)) = nNielsenFacMap P (nPhiHom ha 0 (abMk x))) := by
+  obtain ⟨z, y, x, κ, w, p, q, k, _, _, hcomp, Psi, hchi, hsq⟩ := nNielsenFac_finite_list ha P hP
+  exact ⟨Psi, hchi, fun u => (hsq u).trans (hcomp _)⟩
+
 #print axioms NStabParam.act
 #print axioms NStabParam.act_apply
 #print axioms NStabParam.act_t
@@ -350,6 +744,52 @@ theorem nNielsen_factorization (P : NStabParam) (hP : P.Admissible) :
 #print axioms nNielsenFac_nRed_val
 #print axioms nNielsenFac_couple
 #print axioms nNielsen_factorization
+
+#print axioms nNielsenFacLift
+#print axioms nNielsenFacLift_comp
+#print axioms nNielsenFacMap
+#print axioms nNielsenFacMap_eq_lift
+#print axioms nNielsenFacMap_toAdd
+#print axioms nNielsenFacMap_comp_of_act
+#print axioms nNielsenFacMap_mul
+#print axioms nNielsenFacMap_continuous
+#print axioms nNielsenFacEquiv
+#print axioms nNielsenFacEquiv_apply
+#print axioms nNielsenFacMap_coord_x1
+#print axioms nNielsenFac_orientation
+#print axioms nNielsenFac_mark_zero
+#print axioms nNielsenFac_mark_one
+#print axioms nNielsenFac_mark_two
+#print axioms nNielsenFac_mark_three
+#print axioms nNielsenFacMap_mark
+#print axioms nNielsenFac_mat
+#print axioms nNielsenFac_cupIsometry
+#print axioms nNielsenFacBlock_act_act
+#print axioms nNielsenFac_N1_inv
+#print axioms nNielsenFac_N2_inv
+#print axioms nNielsenFac_N3_inv
+#print axioms nNielsenFac_N4_inv
+#print axioms nNielsenFac_N5_inv
+#print axioms nNielsenFac_N6_inv
+#print axioms nNielsenFacN1
+#print axioms nNielsenFacN2
+#print axioms nNielsenFacN3
+#print axioms nNielsenFacN4
+#print axioms nNielsenFacN5
+#print axioms nNielsenFacN6
+#print axioms NNielsenFacLifts
+#print axioms nNielsenFacLifts_refl
+#print axioms nNielsenFacLifts_trans
+#print axioms nNielsenFacCompose
+#print axioms nNielsenFacLifts_compose
+#print axioms nNielsenFacLifts_of_param
+#print axioms nNielsenFac_props_of_param
+#print axioms nNielsenFacList
+#print axioms nNielsenFacList_length
+#print axioms nNielsenFacCompose_list
+#print axioms nNielsenFacList_props
+#print axioms nNielsenFac_finite_list
+#print axioms nNielsenFac_param_realized
 
 end
 end GQ2.Dyadic.MarkedCore
