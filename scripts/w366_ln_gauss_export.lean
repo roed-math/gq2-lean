@@ -212,7 +212,7 @@ def todoSecondSignRoute : String :=
   "TODO: only the L rows have a second, independent record_target route for the printed sign, through LHessianCertificates.unramifiedHessian_baseSign and .ramifiedHessian_baseSign. N0 and Npc have no named baseSign theorem: the fact holds by rfl and is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The Npc ramified head record is nonempty_npcRamifiedHeadHessian, a Nonempty and not a record value, so that row cannot gain one even if a baseSign theorem were added."
 
 def todoDegreeRoute : String :=
-  "TODO: the printed exponent has NO record-field route in any row, because no named baseDim theorem exists anywhere in the tree. Every degree_record_route below is therefore null, and the exponent's only binding is the GaussValCell field. Supplying a second route is four small rfl theorems in the three certificate modules, which no exporter lane may add."
+  "TODO: the printed exponent has NO record-field route in any row, because no named baseDim theorem exists anywhere in the tree. Every degree_record_route in every row is therefore null, and the exponent's only binding is the GaussValCell field. Supplying a second route is four small rfl theorems in the three certificate modules, which no exporter lane may add."
 
 def bracket (xs : List String) : String := "[" ++ String.intercalate "," xs ++ "]"
 

@@ -1,0 +1,32 @@
+% STAGED item-8 normal-form Gauss display; ledger item 8, normal-form half only.
+% ln-gauss-hash: b23d49538122b1fa7497511a6266e9cc484b10914e3a95983c4a3df7ba8bbadd
+% family: Npc; structural: {"h":3,"q":2,"r":2}
+% Ledger item 8, normal-form half only: the Gauss sign and exponent each item-8 sector row prints, as the fields of the tree's own GaussValCell values, plus the value equation restated through the cell. No coefficient module, marking, field, resolver, eta or source certificate is selected: every signature theorem is quantified over them.
+% Two different bridge kinds live in one artifact and may not be conflated. The printed sign and the printed exponent are record_target: rfl against a field of GaussValCell. The value equation is restated_identity: its carrier is a theorem, not a record, and the driver restates it through the named cell so that a wrong cell does not compile. The normal-form RECORDS remain named_but_unbound, exactly as w363_ln_coordinate_export left them: SourceOddHessian, SourceCompactHessian and SourceWallHessian are still unreachable without instantiating a coefficient module, which this lane is forbidden to do. Naming is not binding.
+% Each row's displayed integer is the cell's two printed fields and nothing else: value c m = c.sign * 2 ^ (m * c.degree), by rfl. There are three cells and five rows because the L branches differ in sign while the three even-degree rows share one cell: at even degree the unramified and the ramified target are the same integer.
+% Identity of the serialized display cells, their bridges and the named normal-form records at the stated handle rank. It is not a hash of any proof, and it says nothing about the normal-form records' content.
+% Both Npc rows share one endpoint, wallHandlePhase, and one cell: the sign does not depend on the projected diagonal d0. The ramified row's normal-form record is a Nonempty and not a record value, so that row cannot gain a second sign route even if a baseSign theorem were added to the module.
+% cell record (record_target): GQ2.Dyadic.Instances.GaussPhaseValues.GaussValCell; value GQ2.Dyadic.Instances.GaussPhaseValues.GaussValCell.value bound by GQ2.Dyadic.W366LNGauss.cellValue
+\[\mathrm{value}(c,m)=c.\mathrm{sign}\cdot 2^{m\cdot c.\mathrm{degree}}.\]
+\paragraph{unramified full offset}
+% cell: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValCompactCell
+% endpoint: GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.wallHandlePhase
+% sign (record_target): GQ2.Dyadic.W366LNGauss.compactSign
+% exponent (record_target): GQ2.Dyadic.W366LNGauss.compactDegree
+% value (restated_identity): GQ2.Dyadic.W366LNGauss.npcValue discharged by GQ2.Dyadic.Instances.GaussPhaseValues.gaussValNpcCellEq
+% display: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValNpcDisplay
+\[\mathrm{gaussSum}\bigl(\mathrm{wallHandlePhase}\bigr)=+1\cdot 2^{m\cdot 8}.\]
+Printed sign +1, printed exponent degree 8. Normal-form record named but NOT bound here (named but unbound): \texttt{GQ2.Dyadic.Instances.NpcHessianCertificates.npcUnramifiedHeadHessian}.
+No second route for the sign in this row. No record route for the exponent in any row.
+\paragraph{ramified full offset}
+% cell: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValCompactCell
+% endpoint: GQ2.Dyadic.Instances.WordPhaseWallHandleCertificates.wallHandlePhase
+% sign (record_target): GQ2.Dyadic.W366LNGauss.compactSign
+% exponent (record_target): GQ2.Dyadic.W366LNGauss.compactDegree
+% value (restated_identity): GQ2.Dyadic.W366LNGauss.npcValue discharged by GQ2.Dyadic.Instances.GaussPhaseValues.gaussValNpcCellEq
+% display: GQ2.Dyadic.Instances.GaussPhaseValues.gaussValNpcDisplay
+\[\mathrm{gaussSum}\bigl(\mathrm{wallHandlePhase}\bigr)=+1\cdot 2^{m\cdot 8}.\]
+Printed sign +1, printed exponent degree 8. Normal-form record named but NOT bound here (named but unbound): \texttt{GQ2.Dyadic.Instances.NpcHessianCertificates.nonempty\_npcRamifiedHeadHessian}.
+No second route for the sign in this row. No record route for the exponent in any row.
+\par\noindent\textbf{[TODO: only the L rows have a second, independent record\_target route for the printed sign, through LHessianCertificates.unramifiedHessian\_baseSign and .ramifiedHessian\_baseSign. N0 and Npc have no named baseSign theorem: the fact holds by rfl and is supplied inline as a rfl argument at the certificate call sites, which a driver cannot cite. The Npc ramified head record is nonempty\_npcRamifiedHeadHessian, a Nonempty and not a record value, so that row cannot gain one even if a baseSign theorem were added.]}
+\par\noindent\textbf{[TODO: the printed exponent has NO record-field route in any row, because no named baseDim theorem exists anywhere in the tree. Every degree\_record\_route in every row is therefore null, and the exponent's only binding is the GaussValCell field. Supplying a second route is four small rfl theorems in the three certificate modules, which no exporter lane may add.]}
