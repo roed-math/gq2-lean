@@ -555,6 +555,83 @@ proof; what it does reuse from the N development is shared infrastructure
 correction kernel), never an N relator conclusion." This is a provenance
 statement, not a mathematical one, and no proof depends on it.
 
+FLAG-2 (comment only, low). Route bookkeeping in the lane notes is
+inconsistent. `docs/dyadic/w361-m-next-general-scaffold.md` has five numbered
+research items; item 5 is "Later exact rows and compactness should retain the
+full frame", which is what `docs/dyadic/w362-mstages-note.md` did, and that note
+calls itself "step 5 of 5". `docs/dyadic/w362-massemble-note.md` also calls
+itself "step 5 of 5 (the assembly...)" and cites "Route item 5 of
+`docs/dyadic/w361-m-next-general-scaffold.md`", but the assembly is not one of
+the scaffold's five items at all: the scaffold stops at the stage/compactness
+wrapper and explicitly says "The M adapters and their composition have not been
+proved by this note". Two lanes claiming the same route item makes the wave
+harder to reconstruct. No Lean is affected.
+
+FLAG-3 (interface observation, low; not a defect in the theorem). The wave's
+cup predicate `MCupFrameCupIsometry` occurs in exactly two files,
+`MFrameCupCoordinates.lean` (its definition) and `MFullStabilizerLift.lean`
+(its consumers). There is no declaration anywhere in the tree relating it to
+`M.lean`'s matrix-level `mCupIsometry` / `IsMStabilizer`, which is what
+`mStabilizer_classification` (rank four, `alpha >= 2`) consumes and produces.
+So a consumer that wants to enter `mFullStabilizer_lift_iff` from the rank-four
+marked Smith-Witt classification still has to build that bridge, and it is
+exactly the bridge that needs `Variance.lean`'s row/column dictionary. The
+MASSEMBLE note calls this "a convenience, not a gap"; this audit agrees that it
+is not a gap *in the theorem*, which is complete and self-contained on the
+frame, but records it as a real missing interface for that particular consumer
+path, so that a later wave does not discover it late. `MCupFrameCupIsometry` is
+the semantically safer public boundary and the scaffold recommended it; nothing
+here argues for changing it.
+
+### Checked and found accurate (no flag)
+
+The remaining prose was checked claim by claim against the Lean and is correct.
+In particular:
+
+* The name-collision explanation is exact. `MFullFrameStages.lean` really does
+  define `mFullStabilizer_lift` in namespace `GQ2.Dyadic.MarkedCore` as the
+  **conditional** composition shape with five interface hypotheses
+  (`e0, hT, hchi0, hframe0, herror0, hstep`), and its own docstring opens "This
+  is *not* a proved lift". The unconditional landed theorem is
+  `mFullStabilizer_lift_of_frame` in `MFullStabilizerLift.lean`. Anyone
+  grepping for `mFullStabilizer_lift` will hit the conditional one first; the
+  MASSEMBLE note's suggested later rename is the right repair.
+* `MFullFrameStages.exists_mStageBasis_exact_stage` deliberately carries no
+  `2 ≤ alpha` binder, and its docstring says why and warns "This is not a claim
+  that anything is available at `alpha = 1`, where `MStageStep` has no producer
+  at all." Checked: `MStageStep alpha h` is indeed *stated* at every `alpha`,
+  and the only producer, `mStageStep_holds`, requires `2 ≤ alpha`. The warning
+  is accurate and the arrangement is safe.
+* `MFullFrameCompactness.lean`'s scope claim, "this module needs only
+  `1 <= alpha`", is accurate: 13 of its binders are `1 ≤ alpha` and the bridge
+  `mStageOneLe {alpha : ℕ} (ha : 2 ≤ alpha) : 1 ≤ alpha` is kept explicit
+  rather than inlined, so no statement silently weakens.
+* The MCUP note's "`mCupStageError_of_frame` ... omits `hchi0` and is the
+  stronger one" is accurate; `mFullStabilizer_relError_of_cup` in the endpoint
+  module likewise takes no orientation hypothesis.
+* Every "no `sorry` / no option / std-3" claim in all six lane notes matches
+  what this lane re-measured independently.
+* `decide` is used six times across the nine modules, always on a tiny finite
+  `ZMod 2` or `Multiplicative (ZMod 2)` goal. All are kernel-checked; there is
+  no `native_decide`.
+
 ## Explicit nonclaims
 
-(pending)
+- The final `Psi` is obtained through a compactness limit
+  (`exists_mStageFullFrameRealizes_of_stages` over nested closed stage sets).
+  No finite explicit Nielsen-generator list, and no finite-word decomposition
+  of the limit automorphism, is produced. The packet's separate MC-M completion
+  criterion at lines 1077-1082 is therefore **not** certified by this theorem;
+  see the companion scope note.
+- Literal head fixation is a property of the **initial free lift**
+  (`mFrameLiftEquiv_head`). The final `Psi` is asserted to have the prescribed
+  full abelianization and to preserve `chiM`; it is not asserted to fix any
+  group generator literally, and in particular it does not fix `A`.
+- `alpha >= 2` throughout. Nothing is asserted at `alpha = 0` or `alpha = 1`,
+  and several load-bearing lemmas are false there (see **Scope** above).
+- This is an M-core result about `DM alpha h`. It certifies no field endpoint,
+  no census or freeze update, no release, and no publication artifact, and it
+  does not extend any historical frozen whole-tree verification report.
+- The nine modules were re-elaborated incrementally against the shared
+  dependency cache. This audit did not perform, and does not claim, a
+  source-only transitive clean build of the tree at this base.
