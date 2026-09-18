@@ -287,6 +287,19 @@ risk of being committed. No action is required and none was taken.
     `GQ2/Dyadic/MarkedCore/N.lean:1064`. The next-task map is grounded; it is
     not naming intentions.
 
+17. **The "do not confuse" warning is accurate.** The handoff warns against
+    reading `NStabilizerFullLift.lean` as the new result. The two are
+    genuinely different theorems, not two spellings of one.
+    `nStabParam_fullFrame_lift_general` takes `(P : NStabParam)` with
+    `P.Admissible`, a seven-parameter core datum rather than an arbitrary
+    frame automorphism, and its frame conclusion is generator-wise:
+    `∀ i, nPhiHom ha h (abMk (Psi (dnGen alpha h i))) = fullFrameMark P h i`.
+    `fullFrameMark` (`NStabilizerFullRows.lean:252`) builds its handle block
+    as `mHandleMark k (ofAdd (1 : ℤ_[2])) i`, the unit coefficient, so the
+    handle columns are literally the identity. `nFullStabilizer_lift` by
+    contrast takes an arbitrary `phi` and concludes an all-element square. The
+    warning is not stylistic.
+
 ## Interaction with the machine scoreboard, flagged before it surprises anyone
 
 Creating this file changes what `scripts/scoreboard.sh` reports. Its OWNER
