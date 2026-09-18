@@ -8,7 +8,64 @@ import GQ2.Dyadic.MarkedCore.MFullStabilizerLift
 /-!
 # The finite Nielsen-generator list at the rank-four M core
 
-Wave 363. Work in progress.
+Wave 363, lane MC-M. The packet (`docs/dyadic/refs/dyadic-presentations-formalization-proof.tex`,
+row **MC-M**) asks for
+
+> A finite list of orientation-preserving Nielsen generators lifts the Smith-Witt stabilizer
+> on the abelianization; composition gives every required marking correction.
+
+This file produces that list, at handle rank **zero** (the rank-four core) and for
+`alpha >= 2`, as a corollary of wave 362's `mFullStabilizer_lift_of_frame`.
+
+## What is here
+
+* **The bridge (T1).** `M.lean`'s classification `mStabilizer_classification` speaks of a
+  seven-parameter `MStabParam` acting on the rank-four frame in the row convention, while
+  wave 362's lifting theorem wants a `ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)`
+  satisfying `mFrameOrientation`-preservation and the semantic `MCupFrameCupIsometry`.
+  `mNielsenGenMap` carries `MStabParam.act` onto `MFrameModel 0`; `mNielsenGen_orientation`
+  and `mNielsenGen_cupIsometry` discharge both hypotheses **for every parameter**.
+* **The seven families.** Each of `mFamM1` through `mFamM7` has an explicit inverse inside its own
+  family, so `mNielsenGenM1` through `mNielsenGenM7` are honest continuous frame automorphisms.
+* **The artifact (T2).** `mNielsenGen_finite_list`: for every stabilizer parameter there is a
+  seven-element list of such generators, each of which lifts to `D_M`, whose composite is the
+  parameter's own frame action, together with a lift of that composite; and
+  `mNielsenGen_param_realized`, the same statement with the list projected away.
+
+## What this does *not* do
+
+The lifts of the individual generators come from `mFullStabilizer_lift_of_frame`, i.e. from
+the uniform filtered-correction and compactness argument of waves 361/362. **No generator is
+lifted by an explicit group-level construction here**, and no such construction is claimed.
+Families M1 and M2 do have honest independent group-level lifts elsewhere in the repo
+(`M.lean`'s `mLambdaEquiv` and HM4's `dmTauDEquiv`); families M3 through M7 do not, and this file
+does not supply them. See `docs/dyadic/w363-nielsen-note.md`.
+
+Scope: handle rank **zero** only, since `mStabilizer_classification` and
+`mNielsen_factorization` are rank-four statements. `alpha >= 2` throughout.
+
+## How the cup condition is proved
+
+`MCupFrameCupIsometry` quantifies over *all* continuous mod-two characters of the frame, and
+the repo had no producer for it other than "comes from an actual core automorphism"
+(`mCupFrameCupIsometry_of_aut`), which is exactly what is not available for families M3 through M7.
+So the semantic condition is reduced here to a finite mod-two matrix identity:
+
+* `mNielsenGen_coord_zero` through `mNielsenGen_coord_three` read the four mod-two frame coordinates off an arbitrary
+  frame element (the forced `A`-row correction `2^(alpha-1)` is invisible mod two once
+  `alpha >= 2`, which is where that binder is used);
+* `mNielsenGen_character_apply` expands an arbitrary continuous mod-two character in those
+  coordinates, using the free pro-two coordinate expansion
+  `freeTwo_commutative_hom_coordinates` pushed through the surjection
+  `mCupFreeFrameProjection`;
+* `mNielsenGen_image_coord_*` compute the reduced **column-convention** matrix of a parameter
+  directly from the semantics, and `mNielsenGen_cup_core` is the resulting finite `F2` check.
+
+`MarkedCore/Variance.lean` is therefore not an input: nothing here reads `M.lean`'s
+row-convention `mFrameMatrix`, so no transposition has to be arranged. The matrix that comes
+out is the transpose of `mFrameMatrix_of_realizes`'s, as that dictionary predicts.
+
+Every declaration in this file is std-3 (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -485,6 +542,227 @@ noncomputable def mNielsenGenM7 (d1 : ℤ_[2]) :
     ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
   mNielsenGenEquiv (mFamM7 d1) (mFamM7 (-d1)) (mNielsenGen_M7_inv d1)
     (fun v => by simpa only [neg_neg] using mNielsenGen_M7_inv (-d1) v)
+
+/-! ## Composition: of frame automorphisms, and of their lifts -/
+
+/-- An arbitrary coordinate map transported to the rank-four full M frame. It exists only so
+that the composition calculus below is definitional. -/
+noncomputable def mNielsenGenLift
+    (F : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] → ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2])
+    (z : MFrameModel 0) : MFrameModel 0 :=
+  ofAdd ((F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.1,
+    (F (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.2,
+    z.toAdd.2.2.2.2)
+
+theorem mNielsenGenMap_eq_lift (p : MStabParam) :
+    mNielsenGenMap p = mNielsenGenLift p.act := rfl
+
+theorem mNielsenGenLift_comp
+    (F G : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] → ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2])
+    (z : MFrameModel 0) :
+    mNielsenGenLift F (mNielsenGenLift G z) = mNielsenGenLift (F ∘ G) z := rfl
+
+/-- `Psi` is an actual `chiM`-preserving continuous automorphism of the rank-four core
+inducing `phi` on the full abelian frame, with the exact all-element commuting square. This
+is verbatim the conclusion of `mFullStabilizer_lift_of_frame` at `h = 0`. -/
+def MNielsenGenLifts {alpha : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)) : Prop :=
+  ∃ Psi : ContinuousMulEquiv (DM alpha 0 : Type) (DM alpha 0 : Type),
+    (∀ x, chiM alpha 0 (Psi x) = chiM alpha 0 x) ∧
+    (∀ x, mPhiHom (mStageOneLe ha) 0 (abMk (Psi x)) =
+      phi (mPhiHom (mStageOneLe ha) 0 (abMk x)))
+
+/-- The identity frame automorphism lifts. -/
+theorem mNielsenGenLifts_refl {alpha : ℕ} (ha : 2 ≤ alpha) :
+    MNielsenGenLifts ha (ContinuousMulEquiv.refl (MFrameModel 0)) :=
+  ⟨ContinuousMulEquiv.refl _, fun _ => rfl, fun _ => rfl⟩
+
+/-- **The composite of the lifts is a lift of the composite.** -/
+theorem mNielsenGenLifts_trans {alpha : ℕ} (ha : 2 ≤ alpha)
+    {phi psi : ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)}
+    (h1 : MNielsenGenLifts ha phi) (h2 : MNielsenGenLifts ha psi) :
+    MNielsenGenLifts ha (phi.trans psi) := by
+  obtain ⟨P, hP1, hP2⟩ := h1
+  obtain ⟨Q, hQ1, hQ2⟩ := h2
+  refine ⟨P.trans Q, fun x => ?_, fun x => ?_⟩
+  · exact (hQ1 (P x)).trans (hP1 x)
+  · show mPhiHom (mStageOneLe ha) 0 (abMk (Q (P x))) = psi (phi _)
+    rw [hQ2 (P x), hP2 x]
+
+/-- The composite of a finite list of frame automorphisms, leftmost applied first. -/
+noncomputable def mNielsenGenCompose
+    (L : List (ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0))) :
+    ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0) :=
+  L.foldr (fun g e => g.trans e) (ContinuousMulEquiv.refl _)
+
+theorem mNielsenGenLifts_compose {alpha : ℕ} (ha : 2 ≤ alpha)
+    (L : List (ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)))
+    (h : ∀ g ∈ L, MNielsenGenLifts ha g) :
+    MNielsenGenLifts ha (mNielsenGenCompose L) := by
+  induction L with
+  | nil => exact mNielsenGenLifts_refl ha
+  | cons g L ih =>
+      exact mNielsenGenLifts_trans ha (h g (List.mem_cons_self))
+        (ih fun x hx => h x (List.mem_cons_of_mem g hx))
+
+/-- Every frame automorphism built from a stabilizer parameter lifts. This is `T1` fed to
+wave 362's unconditional `mFullStabilizer_lift_of_frame`. -/
+theorem mNielsenGenLifts_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) :
+    MNielsenGenLifts ha (mNielsenGenEquiv p q hpq hqp) :=
+  mFullStabilizer_lift_of_frame ha (mNielsenGenEquiv p q hpq hqp)
+    (mNielsenGen_orientation ha p q hpq hqp) (mNielsenGen_cupIsometry ha p q hpq hqp)
+
+/-! ## The packet's finite list -/
+
+/-- **The finite list of Nielsen generators**, in the memo order
+`Sigma_gamma, Lambda_k, X_b, E_e, Sigma_beta, Y_c, Z_d` (leftmost applied first). -/
+noncomputable def mNielsenGenList {alpha : ℕ} (ha : 2 ≤ alpha) (gamma : ℤ_[2]ˣ)
+    (k b e : ℤ_[2]) (beta : ℤ_[2]ˣ) (c d : ℤ_[2]) :
+    List (ContinuousMulEquiv (MFrameModel 0) (MFrameModel 0)) :=
+  [mNielsenGenM3 gamma, mNielsenGenM1 ha k, mNielsenGenM5 b, mNielsenGenM2 e,
+    mNielsenGenM4 beta, mNielsenGenM6 c, mNielsenGenM7 d]
+
+theorem mNielsenGenList_length {alpha : ℕ} (ha : 2 ≤ alpha) (gamma : ℤ_[2]ˣ)
+    (k b e : ℤ_[2]) (beta : ℤ_[2]ˣ) (c d : ℤ_[2]) :
+    (mNielsenGenList ha gamma k b e beta c d).length = 7 := rfl
+
+theorem mNielsenGenCompose_list {alpha : ℕ} (ha : 2 ≤ alpha) (gamma : ℤ_[2]ˣ)
+    (k b e : ℤ_[2]) (beta : ℤ_[2]ˣ) (c d : ℤ_[2]) (z : MFrameModel 0) :
+    mNielsenGenCompose (mNielsenGenList ha gamma k b e beta c d) z =
+      mNielsenGenLift ((mFamM7 d).act ∘ (mFamM6 c).act ∘ (mFamM4 beta).act ∘ (mFamM2 e).act ∘
+        (mFamM5 b).act ∘ (mFamM1 alpha k).act ∘ (mFamM3 gamma).act) z := rfl
+
+/-- Each generator preserves the orientation, is a cup isometry, and lifts. -/
+theorem mNielsenGen_props_of_param {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) :
+    (∀ z, mFrameOrientation ha 0 (mNielsenGenEquiv p q hpq hqp z)
+        = mFrameOrientation ha 0 z) ∧
+      MCupFrameCupIsometry ha (mNielsenGenEquiv p q hpq hqp) ∧
+      MNielsenGenLifts ha (mNielsenGenEquiv p q hpq hqp) :=
+  ⟨mNielsenGen_orientation ha p q hpq hqp, mNielsenGen_cupIsometry ha p q hpq hqp,
+    mNielsenGenLifts_of_param ha p q hpq hqp⟩
+
+theorem mNielsenGenList_props {alpha : ℕ} (ha : 2 ≤ alpha) (gamma : ℤ_[2]ˣ)
+    (k b e : ℤ_[2]) (beta : ℤ_[2]ˣ) (c d : ℤ_[2]) :
+    ∀ g ∈ mNielsenGenList ha gamma k b e beta c d,
+      (∀ z, mFrameOrientation ha 0 (g z) = mFrameOrientation ha 0 z) ∧
+        MCupFrameCupIsometry ha g ∧ MNielsenGenLifts ha g := by
+  intro g hg
+  simp only [mNielsenGenList, List.mem_cons, List.not_mem_nil, or_false] at hg
+  rcases hg with rfl | rfl | rfl | rfl | rfl | rfl | rfl <;>
+    exact mNielsenGen_props_of_param ha _ _ _ _
+
+/-- **The packet's MC-M finite-list artifact at the rank-four core** (`h = 0`, `alpha >= 2`).
+
+For every parameter `p : MStabParam`, equivalently (by `mStabilizer_classification`) for
+every element of the Smith-Witt stabilizer of the rank-four abelianization, there is an
+explicit list of **seven** frame automorphisms, each one a member of the memo's seven Nielsen
+families at an explicit parameter, such that
+
+1. every member preserves the canonical orientation and the full mod-two cup form, and
+   therefore lifts to an actual `chiM`-preserving continuous automorphism of `D_M` with the
+   exact all-element commuting frame square;
+2. the composite of the list is the frame action of `p`; and
+3. the composite of the lifts is a lift of that composite.
+
+The lifts in (1) are supplied by wave 362's `mFullStabilizer_lift_of_frame`, i.e. by the
+uniform filtered-correction and compactness argument, **not** by an explicit
+generator-by-generator group-level construction. -/
+theorem mNielsenGen_finite_list {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam) :
+    ∃ (k b₅ e₅ c₆ d₇ : ℤ_[2]) (β₄ : ℤ_[2]ˣ),
+      (mNielsenGenList ha p.gamma k b₅ e₅ β₄ c₆ d₇).length = 7 ∧
+      (∀ g ∈ mNielsenGenList ha p.gamma k b₅ e₅ β₄ c₆ d₇,
+        (∀ z, mFrameOrientation ha 0 (g z) = mFrameOrientation ha 0 z) ∧
+          MCupFrameCupIsometry ha g ∧ MNielsenGenLifts ha g) ∧
+      (∀ z, mNielsenGenCompose (mNielsenGenList ha p.gamma k b₅ e₅ β₄ c₆ d₇) z
+        = mNielsenGenMap p z) ∧
+      MNielsenGenLifts ha
+        (mNielsenGenCompose (mNielsenGenList ha p.gamma k b₅ e₅ β₄ c₆ d₇)) := by
+  obtain ⟨k, b₅, e₅, c₆, d₇, β₄, hfac⟩ := mNielsen_factorization ha p
+  refine ⟨k, b₅, e₅, c₆, d₇, β₄, mNielsenGenList_length ha _ _ _ _ _ _ _,
+    mNielsenGenList_props ha _ _ _ _ _ _ _, fun z => ?_, ?_⟩
+  · rw [mNielsenGenCompose_list, mNielsenGenMap_eq_lift, hfac]
+  · exact mNielsenGenLifts_compose ha _
+      (fun g hg => (mNielsenGenList_props ha _ _ _ _ _ _ _ g hg).2.2)
+
+/-- **Every classified rank-four stabilizer parameter is realized by an actual core
+automorphism**, as the composite of the seven Nielsen generators' lifts. -/
+theorem mNielsenGen_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam) :
+    ∃ Psi : ContinuousMulEquiv (DM alpha 0 : Type) (DM alpha 0 : Type),
+      (∀ x, chiM alpha 0 (Psi x) = chiM alpha 0 x) ∧
+      (∀ x, mPhiHom (mStageOneLe ha) 0 (abMk (Psi x)) =
+        mNielsenGenMap p (mPhiHom (mStageOneLe ha) 0 (abMk x))) := by
+  obtain ⟨k, b₅, e₅, c₆, d₇, β₄, _, _, hcomp, Psi, hchi, hsq⟩ := mNielsenGen_finite_list ha p
+  exact ⟨Psi, hchi, fun x => (hsq x).trans (hcomp _)⟩
+
+#print axioms mNielsenGen_nRed_eq_parity
+#print axioms mNielsenGen_cupFreeFrameProjection_eq
+#print axioms mNielsenGen_coord
+#print axioms mNielsenGen_coord_zero
+#print axioms mNielsenGen_coord_one
+#print axioms mNielsenGen_coord_two
+#print axioms mNielsenGen_coord_three
+#print axioms mNielsenGen_toAdd_zpowZtwo
+#print axioms mNielsenGen_character_apply
+#print axioms mNielsenGen_cancel_two
+#print axioms mNielsenGen_parity_two
+#print axioms mNielsenGenMap
+#print axioms mNielsenGenMap_toAdd
+#print axioms mNielsenGenMap_comp_of_act
+#print axioms mNielsenGenMap_mul
+#print axioms mNielsenGenMap_continuous
+#print axioms mNielsenGenEquiv
+#print axioms mNielsenGenEquiv_apply
+#print axioms mNielsenGenMap_parity_B
+#print axioms mNielsenGenMap_coord_D
+#print axioms mNielsenGen_orientation
+#print axioms mNielsenGen_sum_four
+#print axioms mNielsenGen_evenCup_zero
+#print axioms mNielsenGen_image_coord_zero
+#print axioms mNielsenGen_image_coord_one
+#print axioms mNielsenGen_image_coord_two
+#print axioms mNielsenGen_image_coord_three
+#print axioms mNielsenGen_char_image
+#print axioms mNielsenGen_markCoord
+#print axioms mNielsenGen_char_mark_zero
+#print axioms mNielsenGen_char_mark_one
+#print axioms mNielsenGen_char_mark_two
+#print axioms mNielsenGen_char_mark_three
+#print axioms mNielsenGen_cup_core
+#print axioms mNielsenGen_cupIsometry
+#print axioms mNielsenGen_M1_inv
+#print axioms mNielsenGen_M2_inv
+#print axioms mNielsenGen_M3_inv
+#print axioms mNielsenGen_M4_inv
+#print axioms mNielsenGen_M5_inv
+#print axioms mNielsenGen_M6_inv
+#print axioms mNielsenGen_M7_inv
+#print axioms mNielsenGenM1
+#print axioms mNielsenGenM2
+#print axioms mNielsenGenM3
+#print axioms mNielsenGenM4
+#print axioms mNielsenGenM5
+#print axioms mNielsenGenM6
+#print axioms mNielsenGenM7
+#print axioms mNielsenGenLift
+#print axioms mNielsenGenMap_eq_lift
+#print axioms mNielsenGenLift_comp
+#print axioms MNielsenGenLifts
+#print axioms mNielsenGenLifts_refl
+#print axioms mNielsenGenLifts_trans
+#print axioms mNielsenGenCompose
+#print axioms mNielsenGenLifts_compose
+#print axioms mNielsenGenLifts_of_param
+#print axioms mNielsenGenList
+#print axioms mNielsenGenList_length
+#print axioms mNielsenGenCompose_list
+#print axioms mNielsenGen_props_of_param
+#print axioms mNielsenGenList_props
+#print axioms mNielsenGen_finite_list
+#print axioms mNielsenGen_param_realized
 
 end
 end GQ2.Dyadic.MarkedCore
