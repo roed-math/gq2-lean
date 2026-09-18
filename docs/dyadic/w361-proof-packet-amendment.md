@@ -1,5 +1,7 @@
 # W361 proposed amendment to the dyadic proof packet
 
+*2026-09-17, later in the same day: for MC-M and MC-N, section 4 below is carried forward, with the finite lists that it says are missing, in [w364-proof-packet-amendment-mc.md](w364-proof-packet-amendment-mc.md).*
+
 **Draft for owner/editorial adoption, 2026-09-17. Not approved.** This additive
 note proposes replacement statements for the July 28 packet's main theorem,
 marked-matching requirement, source-data interface, and reconstruction proof.
