@@ -51,6 +51,53 @@ this lane was run.
 
 (to be filled)
 
+## Owner items
+
+Seven, the same seven the owner's own memo now carries. `6b302efd` folded the
+Codex-era docket into `docs/dyadic/owner-items-2026-08-05.md` as a
+"Status at wave 362 (2026-09-17)" block reading **Seven items await you**, so the
+memo is no longer a month stale and the W362-HOUSE note's prediction that the
+board would print seven against zero is itself now out of date. This lane's list
+is the memo's list, item for item, so that the board's two sides agree; where the
+waves since W362 have moved an item's *substance* without changing the count, that
+is said inside the item and not by renumbering.
+
+1. **Adoption of the changed M pair/mobile words.** Unchanged since W362.
+2. **The corrected RN source interface**, and the existential realization and
+   calibration quantifiers in the general endpoint statement. Unchanged.
+3. **The symbolic display contract and the treatment of the legacy L/N
+   artifacts.** Moved, without changing the count: W362-PUB staged
+   `generated/general-ln-certificate-staged/` (seven sectors, items 4 and 5
+   serialized behind 21 `rfl` signature theorems) and re-measured the gap as
+   **one exporter layer, not eight missing proofs**. The staged directory is a
+   proposal, not an adoption; the five `generated/appendix/` skeletons still
+   carry their 40 `\dyadicAppendixTODO` slots.
+4. **Acceptance of the uniform filtered-correction and compactness proof method**
+   for both stabilizer-lifting obligations. **This is the item the waves since
+   W362 moved most, and it is now sharper rather than closed.** The memo's
+   sentence "the packet's section 14 finite Nielsen-generator list is a separate
+   artifact; W363-NIELSEN is attempting it" has been overtaken twice: W363-NIELSEN
+   landed the MC-M list (`mNielsenGen_finite_list`, seven slots, rank four) and
+   W364-NFACTOR landed the MC-N list (`nNielsenFac_finite_list`, eight slots, rank
+   four) together with the previously absent `nNielsen_factorization`. Both lists
+   exist; both lane notes state in terms that their members' lifts still come from
+   the compactness theorem, not from generator-level constructions. So the owner
+   call is no longer "accept the method or commission the artifact": the artifact
+   exists, and the call is whether the packet's wording is satisfied by a finite
+   list whose members lift *by* the compactness theorem. W364-NFACTOR narrows it
+   further at N, where a second, independent per-family route exists
+   (`nNielsenFacLifts_of_param_families`) but its N4 ingredient is itself an
+   N-plane compactness limit. The residue of the original call is therefore
+   exactly: M4, M5, M6, M7 at M (no group-level construction anywhere in the
+   repo), and N4 at N.
+5. **The push.** Unchanged; nothing was pushed by this lane.
+6. **The untracked working copy of the QA-pinned 29-page PDF** under `/output/`.
+   Unchanged.
+7. **G3 / release.** Unchanged; the owner's gate.
+
+Nothing in this lane is an owner call of its own. Everything else it found is
+either a verified fact or a proposal, and the two are kept apart below.
+
 ## Scoreboard baseline
 
 (to be filled)
