@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.MarkedCore.MInitialCupDepth
+import GQ2.Dyadic.MarkedCore.MFullFrameCompactness
 import GQ2.Dyadic.MarkedCore.NFrameCupCoordinates
 import GQ2.Dyadic.Instances.M0C0PivotAutomorphism
 
@@ -45,16 +46,12 @@ open GQ2.Dyadic.EvenModel
 open NInitialCupDepth
 open scoped GQ2.SectionThree.TopAbInstances
 
-/-- The `alpha >= 1` hypothesis that the M frame construction consumes, named
-once so that every frame term in this file is syntactically the same. -/
-theorem mCupOneLe {alpha : ℕ} (ha : 2 ≤ alpha) : 1 ≤ alpha := Nat.le_of_succ_le ha
-
 /-! ## The frame of the actual core, and its canonical columns -/
 
 /-- The actual full M frame read off an element of the core. -/
 def mCupFrameOfDM {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) :
     ContinuousMonoidHom (DM alpha h : Type) (MFrameModel h) :=
-  (⟨mPhiHom (mCupOneLe ha) h, continuous_mPhiHom (mCupOneLe ha) h⟩ :
+  (⟨mPhiHom (mStageOneLe ha) h, continuous_mPhiHom (mStageOneLe ha) h⟩ :
       ContinuousMonoidHom (topAbelianization (DM alpha h : Type)) (MFrameModel h)).comp
     ⟨abMk, continuous_abMk⟩
 
@@ -66,7 +63,7 @@ def mCupFrameCanonicalMark {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
 theorem mCupFrameCanonicalMark_eq {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
     (i : Fin (coreRank h)) :
     mCupFrameCanonicalMark ha h i =
-      mPhiHom (mCupOneLe ha) h (abMk (dmGen alpha h i)) := rfl
+      mPhiHom (mStageOneLe ha) h (abMk (dmGen alpha h i)) := rfl
 
 /-- **Full mod-two cup preservation at M**, stated on actual continuous frame
 characters. There is no orientation condition here, and no identity-handle
@@ -104,8 +101,8 @@ def mCupFrameModTwoCoordinate {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
   (mCoordHom alpha h isProP_two_multZMod2
     (fun j => ofAdd (if j = i then (1 : ZMod 2) else 0))
     (mCupFrameCoordinate_head_relation ha i)).comp
-      ⟨(mFrameExists_phiEquiv (mCupOneLe ha) h).symm.toMulEquiv.toMonoidHom,
-        (mFrameExists_phiEquiv (mCupOneLe ha) h).symm.continuous_toFun⟩
+      ⟨(mFrameExists_phiEquiv (mStageOneLe ha) h).symm.toMulEquiv.toMonoidHom,
+        (mFrameExists_phiEquiv (mStageOneLe ha) h).symm.continuous_toFun⟩
 
 theorem mCupFrameModTwoCoordinate_canonicalMark {alpha : ℕ} (ha : 2 ≤ alpha)
     (h : ℕ) (i j : Fin (coreRank h)) :
@@ -114,32 +111,29 @@ theorem mCupFrameModTwoCoordinate_canonicalMark {alpha : ℕ} (ha : 2 ≤ alpha)
   change toAdd (mCoordHom alpha h isProP_two_multZMod2
     (fun k => ofAdd (if k = i then (1 : ZMod 2) else 0))
     (mCupFrameCoordinate_head_relation ha i)
-    ((mFrameExists_phiEquiv (mCupOneLe ha) h).symm
-      (mFrameExists_phiEquiv (mCupOneLe ha) h (abMk (dmGen alpha h j))))) = _
+    ((mFrameExists_phiEquiv (mStageOneLe ha) h).symm
+      (mFrameExists_phiEquiv (mStageOneLe ha) h (abMk (dmGen alpha h j))))) = _
   rw [ContinuousMulEquiv.symm_apply_apply, mCoordHom_gen, toAdd_ofAdd]
 
 /-! ## The free pro-two basis over the M frame -/
 
-/-- The actual free pro-two cover of the core, sending the free generators to
-the marked generators. -/
-def mCupFreeMProjection (alpha h : ℕ) :
-    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (DM alpha h : Type) :=
-  presLiftHom 1 (isProP_DM alpha h) (dmGen alpha h) (map_one _)
-
-theorem mCupFreeMProjection_gen (alpha h : ℕ) (i : Fin (coreRank h)) :
-    mCupFreeMProjection alpha h (freeTwoRankGen (coreRank h) i) = dmGen alpha h i :=
-  presLiftHom_gen _ _ _ _ _
-
-/-- The composite free cover of the full M frame. -/
+/-- The composite free cover of the full M frame. The core cover is the
+sibling stage file's `mStageProjection`, not a private copy, so the projection
+hypothesis below is literally the one `mFullStabilizer_lift` carries. -/
 def mCupFreeFrameProjection {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) :
     ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (MFrameModel h) :=
-  (mCupFrameOfDM ha h).comp (mCupFreeMProjection alpha h)
+  (mCupFrameOfDM ha h).comp (mStageProjection alpha h)
+
+theorem mCupFreeFrameProjection_apply {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
+    (x : FreeTwoRank (coreRank h)) :
+    mCupFreeFrameProjection ha h x =
+      mPhiHom (mStageOneLe ha) h (abMk (mStageProjection alpha h x)) := rfl
 
 theorem mCupFreeFrameProjection_gen {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
     (i : Fin (coreRank h)) :
     mCupFreeFrameProjection ha h (freeTwoRankGen (coreRank h) i) =
       mCupFrameCanonicalMark ha h i :=
-  congrArg (fun z => mCupFrameOfDM ha h z) (mCupFreeMProjection_gen alpha h i)
+  congrArg (fun z => mCupFrameOfDM ha h z) (mStageProjection_gen alpha h i)
 
 /-- Exact pullback of a frame mod-two coordinate to the reduced free
 coordinate, on every free element and not only on generators. -/
@@ -223,6 +217,34 @@ theorem mCupRelWord_error_mem_three_of_frame_fixedT {alpha h : ℕ} {ha : 2 ≤ 
   mCupRelWord_error_mem_three_of_fixed_T ha m (freeTwoRankGen (coreRank h)) hT
     (hcup.reducedRows_of_projection m hproj)
 
+/-- **The MCUP obligation of `MFullFrameStages.mFullStabilizer_lift`,
+discharged.** This is verbatim that theorem's `herror0`, from verbatim its
+`hframe0` plus its `hT` (the hypothesis is `mStageTorsionWord` fixation written
+out) and the semantic frame cup condition.
+
+The orientation hypothesis `hchi0` that `mFullStabilizer_lift` also carries is
+deliberately **absent** here: the initial depth-three step does not use it, so
+this statement is the stronger one and still applies unchanged. -/
+theorem mCupStageError_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
+    {phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)}
+    (e0 : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
+      (FreeTwoRank (coreRank h) : Type))
+    (hcup : MCupFrameCupIsometry ha phi)
+    (hT : e0 (freeTwoRankGen (coreRank h) 0) *
+        e0 (freeTwoRankGen (coreRank h) 2) ^ 2 ^ (alpha - 1) =
+      freeTwoRankGen (coreRank h) 0 *
+        freeTwoRankGen (coreRank h) 2 ^ 2 ^ (alpha - 1))
+    (hframe0 : ∀ i, mPhiHom (mStageOneLe ha) h
+        (abMk (mStageProjection alpha h (e0 (freeTwoRankGen (coreRank h) i)))) =
+      phi (mPhiHom (mStageOneLe ha) h (abMk (dmGen alpha h i)))) :
+    mRelWord alpha (fun i => e0 (freeTwoRankGen (coreRank h) i)) *
+      (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
+        twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3 := by
+  refine mCupRelWord_error_mem_three_of_frame_fixedT hcup
+    (fun i => e0 (freeTwoRankGen (coreRank h) i)) (fun k => ?_) hT
+  rw [mCupFreeFrameProjection_apply, mCupFrameCanonicalMark_eq]
+  exact hframe0 k
+
 /-! ## The converse ingredient -/
 
 /-- **T3.** Any continuous automorphism of the actual core whose frame action is
@@ -250,21 +272,21 @@ theorem mCupFrameCupIsometry_of_aut {alpha h : ℕ} (ha : 2 ≤ alpha)
         toAdd (e (mCupFrameCanonicalMark ha h i)) := rfl
   simpa only [hl, hr] using hkey
 
-#print axioms mCupOneLe
 #print axioms mCupFrameOfDM
 #print axioms mCupFrameCanonicalMark
 #print axioms mCupFrameCanonicalMark_eq
 #print axioms MCupFrameCupIsometry
+#print axioms mCupFrameCoordinate_head_relation
 #print axioms mCupFrameModTwoCoordinate
 #print axioms mCupFrameModTwoCoordinate_canonicalMark
-#print axioms mCupFreeMProjection
-#print axioms mCupFreeMProjection_gen
 #print axioms mCupFreeFrameProjection
+#print axioms mCupFreeFrameProjection_apply
 #print axioms mCupFreeFrameProjection_gen
 #print axioms mCupFrameModTwoCoordinate_projection
 #print axioms MCupFrameCupIsometry.reducedRows_of_projection
 #print axioms mCupRelWord_error_mem_three_of_frame
 #print axioms mCupRelWord_error_mem_three_of_frame_fixedT
+#print axioms mCupStageError_of_frame
 #print axioms mCupFrameCupIsometry_of_aut
 
 end
