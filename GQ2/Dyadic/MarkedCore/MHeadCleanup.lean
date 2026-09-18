@@ -110,5 +110,34 @@ end HeadDigit
 #print axioms mHead_dvd_of_coupled_row
 #print axioms mHead_correction_dvd
 
+/-- **T2.** The actual coupled defect supplies every coordinate divisibility
+needed for an exact all-ordinary-character-zero `A` column in its current
+two-central class, at arbitrary rank `n`, arbitrary handle count `h` and
+arbitrary target. The hypotheses `hA`/`hC` are the two columns of the coupled
+row; in the intended consumer both come from one `forall i` depth hypothesis,
+exactly as `exists_freeTwo_nHead_characterZero_same_class` is consumed on the
+`N` side. No claim about the other columns, about the orientation, or about
+the new relator defect is made here. -/
+theorem mHead_exists_freeTwo_characterZero_same_class {alpha h n d : ℕ}
+    (halpha : 2 ≤ alpha) (hd : 1 ≤ d) (y t : Fin (coreRank h) → FreeTwoRank n)
+    (target : FreeTwoRank n)
+    (hrow : ∀ f : ContinuousMonoidHom (FreeTwoRank n : Type) (Multiplicative ℤ_[2]),
+      f (mRelWord alpha y) = f target)
+    (hA : t 0 ∈ twoCentralSeries (FreeTwoRank n : Type) d)
+    (hC : t 2 ∈ twoCentralSeries (FreeTwoRank n : Type) d)
+    (hdefect : mRelWord alpha (fun i => y i * t i) * target⁻¹ ∈
+      twoCentralSeries (FreeTwoRank n : Type) (d + 2)) :
+    ∃ t0 : FreeTwoRank n,
+      t0 ∈ twoCentralSeries (FreeTwoRank n : Type) d ∧
+      (t 0)⁻¹ * t0 ∈ twoCentralSeries (FreeTwoRank n : Type) (d + 1) ∧
+      ∀ f : ContinuousMonoidHom (FreeTwoRank n : Type) (Multiplicative ℤ_[2]),
+        f t0 = 1 := by
+  apply exists_freeTwo_characterZero_same_twoCentralClass n d (t 0) hA
+  intro i
+  exact mHead_correction_dvd halpha hd (freeTwoCoordinate n i)
+    y t target (hrow _) hC hdefect
+
+#print axioms mHead_exists_freeTwo_characterZero_same_class
+
 end
 end GQ2.Dyadic.MarkedCore
