@@ -236,13 +236,13 @@ This inventory matters only for the alternative to the proposed method
 | Family | Independent group-level construction | Footprint of that construction |
 | --- | --- | --- |
 | M1 `Λ_k` | `mLambdaEquiv` (`MarkedCore/M.lean`, MC3) | standard |
-| M2 `E_e` | `dmTauDEquiv` (HM4) | standard |
+| M2 `E_e` | `dmTauDEquiv` (HM4, `MarkedCore/HandleMixClear.lean`) | standard |
 | M3 `Σ_γ` | `mScaleEquiv` / `mScalingHypothesis_zero` (`MarkedCore/MScaling.lean:497,531`), `h = 0` | `mScalingHypothesis_zero` consumes axiom **B8** `peripheralCyclotomicAction`; the parameterized form `mScalingHypothesis_zero_of_peripheral` keeps it a hypothesis |
 | M5 `X_b` | `mMixFamily_coreMix` (`MarkedCore/CoreMixM.lean:304`), every `b : ℤ_[2]`, every `h`, `2 ≤ α` | standard, but its conclusion is stated on `nuFrame f` for `ℤ₂`-valued characters `f`, so it pins the `ℤ₂` coordinates only and says nothing about the `ZMod 2` torsion coordinate of the full frame |
 | M4, M6, M7 | none in the tree | `CoreMixM.lean` section 5 records that the M4/M6/M7 directions are unnecessary for correcting one marking |
-| N1, N2, N3 | `dnTauBEquiv`, `dnTauDEquiv`, `dnTauCEquiv`, exact | standard |
-| N5, N6 | `nMixPairHypothesis_coreMix` (CoreMix / ClearWide) | standard |
-| N4 | `nPlaneScalingHypothesis_general` | standard, but itself a compactness limit of the N-plane stages |
+| N1, N2, N3 | `dnTauBEquiv`, `dnTauCEquiv` (`MarkedCore/N.lean`), `dnTauDEquiv` (`MarkedCore/HandleMixClear.lean`), exact | standard |
+| N5, N6 | `nMixPairHypothesis_coreMix` (`MarkedCore/ClearWide.lean`) | standard |
+| N4 | `nPlaneScalingHypothesis_general` (`MarkedCore/NPlaneGeneralScaling.lean`) | standard, but itself a compactness limit of the N-plane stages |
 
 At N these assemble: `nStabParam_fullFrame_lift_general` gives a **second,
 independent** lift of every list member
@@ -290,10 +290,12 @@ five respects, each checked against the quoted statements:
    type, and `nFrameModel_map_t` applies to both), and on the free cover the
    constructed lift fixes the head word literally, which forces the primitive
    relation vector in the original integral coordinates.
-5. **The conclusion is the packet's Definition 8.1(iii), on every element.**
-   The lift preserves `chi_P`, and the commuting square is stated for all `x`
+5. **The conclusion is on every element, and it is what Definition 8.1 asks
+   for.** The lift preserves `chi_P`, which is the first half of that
+   definition's clause (iii), and the commuting square is stated for all `x`
    directly on `abMk`, so no transport step is interposed between the theorem
-   and `D_P^ab`.
+   and `D_P^ab` and the reduction's own proof can feed it into the `nu_K` half
+   of the clause exactly as written.
 
 (c) **What this does not prove.** Nothing at `alpha = 1` or `alpha = 0`: the M
 side has four named lemmas that are **false** at `alpha = 1`, not merely
