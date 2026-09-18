@@ -1,8 +1,9 @@
 # W363-NIELSEN: the packet's finite Nielsen-generator artifact at the rank-four M core
 
 Lane W363-NIELSEN of the general-K campaign. Base `69b9851c`, branch
-`claude/w363-nielsen`. New module: `GQ2/Dyadic/MarkedCore/MNielsenGenerators.lean`
-(65 declarations, all std-3). No existing module was edited; `GQ2.lean` untouched.
+`claude/w363-nielsen`. New modules: `GQ2/Dyadic/MarkedCore/MNielsenGenerators.lean`
+(70 declarations) and `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean` (16), all std-3.
+No existing module was edited; `GQ2.lean` untouched.
 
 ## What the packet asks for
 
@@ -43,6 +44,18 @@ of continuous automorphisms of the actual full M frame `MFrameModel 0` satisfies
 `mNielsenGen_param_realized` is (4) with the list projected away: **every classified
 rank-four stabilizer parameter is realized by an actual `chiM`-preserving continuous
 automorphism of `D_M`**, with the exact frame square.
+
+`mNielsenGen_stabilizer_induced` is the same with the packet's own quantifier. Given the
+canonical rank-four frame `mNielsenGenFrame ha` and an orientation character `chi` with the
+four pinned generator values, **every** `xi` satisfying `IsMStabilizer` (that is, every
+element of the Smith-Witt stabilizer of `D_M^ab`) is induced by an actual `chiM`-preserving
+continuous automorphism `Psi` of `D_M`, with the exact square `abMk (Psi x) = xi (abMk x)`.
+The step from "every `MStabParam`" to "every stabilizer element" is
+`mNielsenGen_frameAction_of_realizes`, which identifies the frame automorphism that
+`mStabilizer_classification` classifies with `mNielsenGenMap` at its parameter. It is proved
+by hom-extensionality on `MFrameModel 0` (the canonical marks generate it topologically,
+`mNielsenGen_frame_hom_ext`) against `MStabParam.Realizes`'s three rows plus the forced
+`A`-row `mStabilizer_A_row`.
 
 ### The bridge (ticket T1), which was the real work
 
@@ -123,18 +136,15 @@ This is the part the owner has to adjudicate.
    the repo. If the owner reads the packet sentence as demanding generator-level lifts,
    the outstanding work is exactly those four families.
 
-2. **"Every stabilizer element" is quantified as "every `MStabParam`".** The Lean
-   statement ranges over `p : MStabParam`. The step from there to "every element of the
-   Smith-Witt stabilizer" is `mStabilizer_classification`, which is cited in prose but
-   **not composed with this file's objects in Lean**. Closing it means identifying
-   `MStabParam.Realizes B xi` (row convention, on `topAbelianization (DM alpha 0)`,
-   relative to an `MDecomposition alpha`) with "the frame automorphism of `MFrameModel 0`
-   is `mNielsenGenMap p`". The ingredients exist (`MFrame`'s `h = 0` bridge
-   `mFrameModelZero`, hom-extensionality `mAb_hom_ext`, and `mStabilizer_A_row` for the
-   forced row), and the direction that is needed is the easy one -- show
-   `p.Realizes B (transport of mNielsenGenMap p)`, then uniqueness in
-   `mStabilizer_classification`'s `ExistsUnique` does the rest -- but it is not written.
-   This is the single sharpest remaining gap in the M artifact.
+2. **The orientation character is an abstract one with pinned generator values.**
+   `mNielsenGen_stabilizer_induced` takes `chi` together with `hchiA` to `hchiD`, exactly as
+   `mStabilizer_classification` does; it does not construct a descended `chiMab` and prove
+   that clause redundant. That is `M.lean`'s own recorded finding 6, inherited here, not a
+   new gap.
+
+   (The gap this note flagged at first draft, that "every stabilizer element" was quantified
+   as "every `MStabParam`", is **closed**: see `mNielsenGen_frameAction_of_realizes` and
+   `mNielsenGen_stabilizer_induced` above.)
 
 3. **The list is a list of seven family *members*, not seven *families*.** The seven
    families are each parameterized by a 2-adic number or unit; what the theorem produces
@@ -179,14 +189,47 @@ exist in the repo.** This is a finding, not a deferral:
 * The only N-family artifact in the repo is `Variance.lean`'s `nMatOf_famN1_cupIsometry`,
   a single mod-two matrix check for family N1.
 
-What this lane delivered on the N side instead is described in
-`GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`; see the section added below when that
-module landed.
+What this lane delivered on the N side instead is the **bridge**, which is the half that is
+available and is exactly what the missing factorization would consume. Until now there was no
+producer of the semantic predicate `NFrameCupIsometry` other than "it comes from an actual core
+automorphism", which is precisely what one does not have for a family one is trying to lift.
+`GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean` supplies one from finite mod-two matrix data in
+N's own column convention:
+
+* `nNielsenGen_coord_zero` through `nNielsenGen_coord_three`: the four mod-two frame coordinates
+  of an arbitrary frame element. Unlike M there is no forced `A`-row, so these are the bare
+  reductions with no `2^(alpha-1)` correction.
+* `nNielsenGen_character_apply`: the character expansion at N.
+* `nNielsenGenMat ha phi i j`: the `i`-th mod-two coordinate of the image of the `j`-th
+  canonical mark, exactly the shape of `NRows.mat`.
+* `nNielsenGen_cup_of_mat`: `A G A^T = G` in that convention gives `NFrameCupIsometry`.
+* `nNielsenGen_lift_of_mat`: with the integral `x1` coordinate fixed on the nose (which is
+  `nFrameOrientation_preserved_iff`'s concrete form of orientation preservation), the frame
+  automorphism lifts to a `chiN`-preserving continuous automorphism of `D_N` with the exact
+  square.
+* `nNielsenGen_lift_of_rows`: the same with the cup clause stated in `NRows.IsCupIsometry`
+  vocabulary, so a consumer holding `nStabilizer_classification`'s clause can feed it directly.
+
+The orientation clause at N is genuinely stronger than at M (the integral `x1` row is fixed,
+where at M only the `B` parity is pinned); that asymmetry is the one already recorded in
+`MFrameMatrixLift`.
+
+**What the MC-N row still needs**: `nFamN1` through `nFamN6` as `NStabParam` values, and a
+completeness theorem factoring an arbitrary admissible `NStabParam` through them. The hard part
+is the `(sigma, x2)` block: the memo's argument is "elementary matrices generate `SL_2` over a
+local ring, and N4 supplies the determinant", which has no counterpart on the M side and is not
+in the repo.
 
 ## Verification
 
-Every declaration in `MNielsenGenerators.lean` prints
-`[propext, Classical.choice, Quot.sound]` (std-3). Checked with
-`bash scripts/w361_lean_runner.sh GQ2/Dyadic/MarkedCore/MNielsenGenerators.lean` against
-the shared cache at base `69b9851c`; no `lake` invocation, no `sorry`, no
-`native_decide`, no resource options, no new axiom.
+Every declaration in both modules prints `[propext, Classical.choice, Quot.sound]` (std-3),
+pinned by a `#print axioms` at the end of each file. Checked with
+
+```
+bash scripts/w361_lean_runner.sh GQ2/Dyadic/MarkedCore/MNielsenGenerators.lean
+bash scripts/w361_lean_runner.sh GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean
+```
+
+against the shared cache at base `69b9851c`; no `lake` invocation, no `sorry`, no
+`native_decide`, no resource options, no new axiom. Neither module imports the other, and
+neither is registered in `GQ2.lean`.
