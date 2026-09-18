@@ -326,6 +326,7 @@ theorem mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
 #print axioms mStageRelWord_ordinary_row
 #print axioms mStageRelWord_row_of_torsionWord
 #print axioms MStageStep
+#print axioms mStage_relator_row_transport
 #print axioms exists_mStageBasis_exact_stage
 #print axioms mStageFrameHom
 #print axioms mStageFrameHom_apply

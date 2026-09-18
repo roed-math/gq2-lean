@@ -150,6 +150,29 @@ theorem mStageFullFrameStageSet_antitone {alpha h : ℕ} (ha : 1 ≤ alpha)
   exact ⟨hm.1, hm.2.1, hm.2.2.1,
     twoCentralSeries_antitone (G := (DM alpha h : Type)) hkl hm.2.2.2⟩
 
+/-- The stage marking condition is an equation in the **actual** abelianization
+of `D_M`, not merely on a selected unramified marking: `mPhiHom` is injective,
+so agreeing with `mark` pins `abMk` itself, torsion coordinate included. Two
+stages over the same marking therefore have literally the same abelianized
+columns. -/
+theorem mStageFullFrameStageSet_abMk_eq {alpha h : ℕ} (ha : 1 ≤ alpha)
+    {mark : Fin (coreRank h) → MFrameModel h} {k l : ℕ}
+    {m m' : Fin (coreRank h) → DM alpha h}
+    (hm : m ∈ mStageFullFrameStageSet ha mark k)
+    (hm' : m' ∈ mStageFullFrameStageSet ha mark l) (i : Fin (coreRank h)) :
+    abMk (m i) = abMk (m' i) :=
+  mPhiHom_injective ha h ((hm.2.1 i).trans (hm'.2.1 i).symm)
+
+/-- The same for the limiting automorphisms: `MStageFullFrameRealizes` fixes the
+entire abelianized column of every marked generator, torsion included. -/
+theorem mStageFullFrameRealizes_abMk_eq {alpha h : ℕ} (ha : 1 ≤ alpha)
+    {Psi Psi' : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type)}
+    {mark : Fin (coreRank h) → MFrameModel h}
+    (hPsi : MStageFullFrameRealizes ha Psi mark)
+    (hPsi' : MStageFullFrameRealizes ha Psi' mark) (i : Fin (coreRank h)) :
+    abMk (Psi (dmGen alpha h i)) = abMk (Psi' (dmGen alpha h i)) :=
+  mPhiHom_injective ha h ((hPsi.2 i).trans (hPsi'.2 i).symm)
+
 theorem isClosed_mStageFullFrameStageSet {alpha h : ℕ} (ha : 1 ≤ alpha)
     (mark : Fin (coreRank h) → MFrameModel h) (k : ℕ) :
     IsClosed (mStageFullFrameStageSet ha mark k) := by
@@ -350,6 +373,8 @@ theorem mStageFullFrameStageSet_of_free_exact_stage {alpha h : ℕ} (ha : 1 ≤ 
 #print axioms MStageFullFrameRealizes
 #print axioms mStageFullFrameStageSet
 #print axioms mStageFullFrameStageSet_antitone
+#print axioms mStageFullFrameStageSet_abMk_eq
+#print axioms mStageFullFrameRealizes_abMk_eq
 #print axioms isClosed_mStageFullFrameStageSet
 #print axioms mStageFullFrameStageSet_iInter_nonempty
 #print axioms exists_mStageFullFrameRealizes_of_stages
