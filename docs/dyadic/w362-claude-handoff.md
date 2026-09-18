@@ -26,15 +26,43 @@ item 4 has been taken.
 
 ## 1. Outcome and immediate orientation
 
-`[ORCHESTRATOR: what this wave closed, in one paragraph, naming the public
-Lean declarations and the files they live in. State explicitly what it did
-NOT close, in the W361 style: the analogous unrestricted M assertion, the
-frozen M word claim, the finite Nielsen-list artifact and owner acceptance
-were all open at the base of this wave.]`
+**This session (waves 362 to 365, 2026-09-17, one eight-hour window) closed the
+M full-stabilizer lifting and both section-14 finite Nielsen-family artifacts.**
+`GQ2.Dyadic.MarkedCore.mFullStabilizer_lift` and `mFullStabilizer_lift_iff`
+(`GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`) are the exact twins of the N
+theorems: for every `alpha >= 2` and every handle count, a continuous automorphism
+of the actual M abelianization (torsion included) lifts to a continuous
+`chiM`-preserving automorphism of `DM alpha h` with the full-frame square on every
+element if and only if it preserves the transported original orientation and the
+semantic full mod-two cup form; the torsion relation clause is discharged, not
+assumed. Nine modules, 217 pins, all std-3, built in one wave by following
+`w361-m-next-general-scaffold.md`'s five steps; independently audited PROVED AS
+STATED (`w363-m-full-stabilizer-independent-audit.md`). Then
+`mNielsenGen_finite_list` / `mNielsenGen_stabilizer_induced`
+(`MNielsenGenerators.lean`) and `nNielsen_factorization` /
+`nNielsenFac_finite_list` / `nNielsenFac_stabilizer_induced`
+(`NNielsenFactorization.lean`, with `NNielsenGenerators.lean`) supply the packet's
+finite-family lists at rank four for both cores, the composite lifts composed from
+the members' lifts, and the Smith-Witt stabilizer quantifier closed literally;
+independently audited WITH CAVEATS, all disclosed (`w364-nielsen-independent-audit.md`).
 
-`[ORCHESTRATOR: if this wave changed the module count, pin count or axiom
-census, say so here and again in section 4. If it changed none of them, say
-that instead: silence reads as an unfinished sentence.]`
+**What it did NOT close.** The frozen M-word placement claim (a different
+statement, false by the W341-W344 no-go results, untouched). Owner acceptance of
+the uniform filtered-correction and compactness proof method, now for both cores
+(`w364-proof-packet-amendment-mc.md` is the proposal; Option B, generator-level
+lifts, has a work list read off the Lean and costs at least one axiom unless M3 is
+rebuilt). The four Codex adoption items. The push. The publication packets remain
+staged proposals (all ten ledger items for L, N0 and Npc now have exporters,
+`w363-pub2-note.md`, with a five-kind binding taxonomy whose weakest kind is
+statement identity, not proof identity).
+
+**Counts changed.** Registered modules 1,552 to 1,564 (thirteen new `.lean` files
+under `GQ2/`, twelve registered, the thirteenth an exporter driver that stays
+outside `GQ2.lean` by convention; the W365 Gauss module, if it landed, is recorded
+in section 4). Pins added: 397 for the MC work (217 + 70 + 16 + 94), every one std-3
+except `mStageOneLe` on `[propext]` alone. Axiom census unchanged at eleven; the
+general endpoint's footprint unchanged. Ledger at the wave-362 tree: 51,212 tracked
+declarations, zero gaps; the end-state figure is in section 4.
 
 Carried forward unchanged from W361, and true at base `6770a87e`:
 
@@ -108,10 +136,16 @@ git -C /Users/roed/claude/cla/work/gq2-dyadic-campaign log --oneline -1
 git -C /Users/roed/claude/cla/work/gq2-dyadic-campaign diff --name-status <your base>..HEAD
 ```
 
-`[ORCHESTRATOR: if this wave's lanes settled a convention for who may write to
-the shared cache and when, record it here. At the base of the wave there was
-none, and the housekeeping lane's first eleven runner invocations were lost to
-a concurrent umbrella rebuild.]`
+**Shared-cache convention, settled this session.** The orchestrator alone writes
+to `main-build-cache`, and only through `lake build GQ2` from the main clone
+(backgrounded; it is now incremental because Lake traces exist). Lanes read it
+through `scripts/w361_lean_runner.sh` or the mirror harness and never pass
+`-o`/`-i`. The known cost: while an umbrella runs, a lane's runner can fail with a
+different missing olean each time; the fix is to retry after the build, and the
+orchestrator tells lanes when a build is in flight. A merged lane's modules enter
+the cache only after the orchestrator wires them into `GQ2.lean` and rebuilds;
+until then a sibling imports them by `git merge` of the lane branch plus mirror
+`gen` in dependency order.
 
 ## 3. Proof architecture and reusable scaffolding
 
@@ -679,9 +713,16 @@ them in `w361-index.md` alone.
 
 ## 5. Remaining work
 
-`[ORCHESTRATOR: reorder and amend from this session's outcomes. The draft below
-was assembled by the W364-HOUSE lane from the thirteen lane notes and the two
-audits; it is a collection, not a judgement about priority.]`
+**Orchestrator's ordering.** (1) Owner decisions first, because every remaining
+item downstream depends on one: the proof-method acceptance (Option A is
+recommended; see `w364-proof-packet-amendment-mc.md` section on Option B's cost),
+the four Codex adoption items, the push. (2) Publication adoption of the staged
+L/N packets and the pair/mobile packets (decisions 13 to 17 in `w363-pub2-note.md`);
+Route A of `w362-pub-note.md` (fill items 4 and 5 in the three L/N skeletons with
+the manifest untouched) is the frozen-identifier-preserving first step. (3) Only
+then the optional mathematics in the draft below (handles for the lists;
+generator-level lifts if Option B is chosen). The draft that follows is the
+house lane's collection and is accurate at `e34315af`.
 
 ### Draft, assembled from the notes (W364-HOUSE)
 
@@ -1013,7 +1054,18 @@ verification status". `docs/dyadic/w361-index.md` flag 0 has the details.
 
 ## 8. Suggested first prompt to the next session
 
-`[ORCHESTRATOR: fill at the close, in the W361 section 9 shape. It should name
-the repository, this document, the two proved seams that must not be reopened,
-the standing prohibitions, and the instruction to keep verified facts,
-proposed scope amendments and owner decisions separate.]`
+> Continue the dyadic campaign in `/Users/roed/claude/cla/work/gq2-dyadic-campaign`.
+> Read `docs/dyadic/w362-claude-handoff.md` first, then its section 7 reading list.
+> Read the memory file `codex-era-infra` before running any build: a plain
+> `lake build` rebuilt Mathlib once this session and the fix is recorded there.
+> The general selected ramified-i field endpoint, the full N and M stabilizer
+> liftings (`nFullStabilizer_lift_iff`, `mFullStabilizer_lift_iff`) and both
+> finite Nielsen-family lists are proved and independently audited; do not
+> reopen those seams and do not start class-by-class or rank-by-rank work.
+> What remains is decisions (the memo's seven items, above all Option A/B on the
+> proof method and the push), publication adoption (all L/N exporters are
+> staged), and hygiene. No new axioms, placeholders, native decisions,
+> resource-limit increases, frozen-word replacement, commit-message rewriting,
+> or release without authorization; the push is an owner item, not a default.
+> Keep verified facts, proposed scope amendments and owner decisions separate,
+> and maintain a restartable handoff.
