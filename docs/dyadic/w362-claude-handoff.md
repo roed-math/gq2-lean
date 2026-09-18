@@ -272,6 +272,15 @@ Two parsing traps, both of which have already produced wrong numbers:
    deciding what remains of M or the finite Nielsen-list artifact.
 9. `[ORCHESTRATOR: this wave's own lane notes, in dependency order.]`
 
+**One trap in that list.** Do not read `docs/dyadic/w361-final-verification.md`
+as a current record. It opens "Final verified checkpoint, 2026-09-17 17:30
+UTC" and states at line 141 that it is the current final snapshot; it is the
+superseded 1,541-module / 573-pin one. The binding record is the 1,552-module
+replay that finished at 22:53:05 UTC, durable copy
+`docs/dyadic/w361-claude-code-verification-report.json`. Thirteen documents
+link to the stale record and four of them do it in the words "current
+verification status". `docs/dyadic/w361-index.md` flag 0 has the details.
+
 ## 8. Suggested first prompt to the next session
 
 `[ORCHESTRATOR: fill at the close, in the W361 section 9 shape. It should name
