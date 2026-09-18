@@ -285,7 +285,7 @@ by this lane: std-3), with no coordinate computation.
 The chain from the endpoint down is short and every link was checked:
 
 ```text
-mFullStabilizer_lift_of_frame            (MFullStabilizerLift.lean:127)
+mFullStabilizer_lift_of_frame            (MFullStabilizerLift.lean:126)
   = mFullStabilizer_lift_of_fixedHead ha phi hchi
       (mFullStabilizer_relError_of_cup ha phi hcup) (mStageStep_holds ha)
 mFullStabilizer_lift_of_fixedHead        (MFrameMatrixLift.lean:1096)
@@ -429,7 +429,7 @@ use `evenCupForm` throughout. See FLAG-3 for what this leaves for a consumer.
 the row witnesses `nBasisKernelWitness_mem` / `_row`, and the generic finite
 interpolation. The soundness of that transfer at M is one identity, and it is
 an identity in the actual quotient group, not a graded analogy
-(`MBasisRowRefinement.lean:53`):
+(`MBasisRowRefinement.lean:49`):
 
 ```lean
 theorem mBasis_mFiltered_mRelWord (k : ℕ) (hk : 3 ≤ k) (alpha : ℕ) (halpha : 2 ≤ alpha)
