@@ -110,17 +110,41 @@ recorded only to make explicit which half of a handle-mixing classification is a
 available. It proves no part of `MNielsenHdlStabilizerShape`; the missing half is the shape
 statement itself, and nothing in the repo bears on it.
 
-## T2 (N side): status
+## T2 (N side): what landed
 
-Not delivered in this lane. See the closing report. The N route to the cup condition is not
-the M route: `NNielsenFactorization.nNielsenFac_cupIsometry` goes through the rank-four
-matrix criterion `NNielsenGenerators.nNielsenGen_cup_of_mat` and `N.lean`'s
-`NStabParam.rows_isCupIsometry`, because the N head check is not a `decide` -- it needs the
-admissibility relations on the `(sigma, x2)` block `P.g`. A general-`h` N side therefore
-needs a general-`h` restatement of that matrix criterion, not a rerun of the M argument.
-The M-side ingredients that would carry over unchanged are the sum split, the fixed handle
-marks, and the head-plus-handles shape of the argument; `nNielsenGen_character_apply` and
-`nNielsenGen_coord_*` are, like their M twins, already stated at general `h`.
+`GQ2/Dyadic/MarkedCore/NNielsenHandles.lean`, namespace `GQ2.Dyadic.MarkedCore`, prefix
+`nNielsenHdl`. All 45 declarations pinned, all std-3.
+
+Same architecture as the M side, with one real difference. `nNielsenHdlCore`,
+`nNielsenHdlMap`, `nNielsenHdlEquiv` and `nNielsenHdlMap_core` / `_handle` are the
+extension and its exact scope; `nNielsenHdl_orientation` is free, because the `N`
+orientation reads only the integral `x1` coordinate, which the extension fixes on the nose.
+`nNielsenHdlN1` ... `nNielsenHdlN6`, `nNielsenHdlList` (eight slots, in
+`NNielsenFactorization`'s order), `nNielsenHdl_finite_list`, `nNielsenHdl_param_realized`,
+`nNielsenHdl_eq_of_blocks` and `nNielsenHdl_stabilizer_induced` complete the artifact and
+its closure, in the same identity-tail form as at M.
+
+**The difference is the cup head block.** `MNielsenHandles` closes its head with a `decide`,
+because `MStabParam.act` carries no relation between its entries. The `N` head block does
+carry one: the `(sigma, x2)` block of an `NStabParam` is a genuine `GL_2(Z_2)`, and the cup
+condition on it is a relation supplied by `NStabParam.Admissible` through `N.lean`'s
+`NStabParam.rows_isCupIsometry`. So `NNielsenGenerators.nNielsenGen_cup_of_mat`, which is a
+rank-four matrix criterion, had to be restated at general `h` for the identity-tail maps:
+`nNielsenHdl_char_of_core` (a character on an element with trivial handle tail is its
+rank-four coordinate expansion), `nNielsenHdl_char_coreMark` (the value on the image of a
+core mark, in the parameter's own mod-two matrix), and `nNielsenHdl_cup_head` (the head
+check, `NNielsenGenerators`' `private` `nNielsenGen_cup_core` restated in the explicit
+eight-variable form the general-`h` `evenCupForm` head presents). Every N-side theorem
+therefore carries `P.Admissible`, exactly as at rank four.
+
+The handle block behaves identically to M: `nNielsenHdl_fix_markU` / `_fix_markV` fix the
+handle marks on the nose, so the handle term of `evenCupForm` is literally the same on both
+sides. `nNielsenHdl_sum_split` is a copy of the M module's, because the `N` file's import
+closure does not see `MNielsenHandles`; that is the only duplication between the two
+modules.
+
+T3 has no N counterpart in this lane: the shape statement is stated once, at M, and its
+`GL`-of-the-handle-block content is the same object on both sides.
 
 ## Verification
 
