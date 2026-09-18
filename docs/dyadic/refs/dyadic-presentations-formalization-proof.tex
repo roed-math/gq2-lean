@@ -1096,12 +1096,47 @@ the following explicit leaves.
 ID & Theorem/certificate & Completion criterion\\
 \midrule
 \endhead
+% -----------------------------------------------------------------------
+% AMENDED 2026-09-18 (owner decision "Option A", docs/dyadic/owner-items-2026-08-05.md
+% item 4; proposed rows docs/dyadic/w364-proof-packet-amendment-mc.md section 4;
+% applied by lane W366-APPLY).  ORIGINAL ROWS, July 28 2026 packet, retained
+% here as the record:
+%   MC-M & Marked automorphism lifting for the rank-four \(M_\alpha\) core &
+%   A finite list of orientation-preserving Nielsen generators lifts the
+%   Smith--Witt stabilizer on the abelianization; composition gives every
+%   required marking correction.\\
+%   MC-N & Marked automorphism lifting for the rank-four \(N_\alpha\) core &
+%   Same criterion for the \(N\)-relation vector and cup form.\\
+% -----------------------------------------------------------------------
 MC-M & Marked automorphism lifting for the rank-four \(M_\alpha\) core &
-A finite list of orientation-preserving Nielsen generators lifts the
-Smith--Witt stabilizer on the abelianization; composition gives every
-required marking correction.\\
+Discharged, by two theorems with different scopes.  (i) The lifting assertion
+of \cref{prop:marked-reduction} holds at every \(\alpha\ge2\) and every handle
+count, as an equivalence, torsion included
+(\texttt{MarkedCore.\allowbreak mFullStabilizer\_lift\_iff}).  (ii) At rank four, every
+element of the Smith--Witt stabilizer is the composite of an explicit
+seven-member list drawn from the seven Nielsen families, each member of which
+preserves the orientation and the full mod-\(2\) cup form and therefore lifts,
+and the composite of those lifts induces the given stabilizer element on the
+nose (\texttt{MarkedCore.\allowbreak mNielsenGen\_finite\_list},
+\texttt{MarkedCore.\allowbreak mNielsenGen\_stabilizer\_induced}).  The individual
+generators are lifted by (i), not by seven separate closed-form group
+constructions.  Accepted method and scope, per the amendment adopted with this
+row: the uniform filtered-correction and compactness proof of (i) is accepted
+as discharging the generators' lifts, and ``a finite list'' is read as finitely
+many parameterized families, one member of each slot per stabilizer element;
+no finite generating set exists, and no finite-word decomposition of the
+limiting automorphism is produced.  The lists are rank four (\(h=0\)); the
+lifting halves of (i) are general in \(h\).\\
 MC-N & Marked automorphism lifting for the rank-four \(N_\alpha\) core &
-Same criterion for the \(N\)-relation vector and cup form.\\
+Same, with \texttt{MarkedCore.\allowbreak nFullStabilizer\_lift\_iff}, and at rank four an
+eight-slot list drawn from six Nielsen families, complete by
+\texttt{MarkedCore.\allowbreak nNielsen\_factorization}
+(\texttt{MarkedCore.\allowbreak nNielsenFac\_finite\_list},
+\texttt{MarkedCore.\allowbreak nNielsenFac\_stabilizer\_induced}).  At \(N\) the list
+members carry a second, independent lift assembled from the families' own
+constructions (\texttt{nNielsenFacLifts\_of\_param\_families}), whose \(N_4\)
+ingredient is itself a compactness limit.  The same accepted method, families
+reading and rank-four scope apply.\\
 WC-L & Universal word certificate for \(R_L\) &
 Fox, Stokes, scalar, and quadratic certificates, with the existing
 \(n=1\) theorem as base and hyperbolic handle stability.\\
