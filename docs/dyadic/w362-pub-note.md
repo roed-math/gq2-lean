@@ -222,15 +222,23 @@ battery in disguise:
 
 | Packet | Word | Packet hash (first 16) |
 |---|---|---|
-| `packet-L-h0` | `lSqW 0`, the frozen L appendix rank | `c40f695590b4c2f2` |
-| `packet-L-h4` | `lSqW 4`, beyond the frozen rank | `74cc82d4c2c72c2e` |
-| `packet-N0-alpha2-h0` | `nCompactW 2 0`, the frozen N0 appendix parameters | `76e3dff2a1df2868` |
-| `packet-N0-alpha5-h3` | `nCompactW 5 3`, beyond them | `9d2c62d4653eeaa9` |
-| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)`, the frozen Npc appendix display | `a34987572fadabe0` |
-| `packet-Npc-alpha3-r2-h3-num3-den9` | `npcW 3 2 3 (3/9)`, a nonreduced odd display | `a65a17cc464ee7e9` |
+| `packet-L-h0` | `lSqW 0`, the frozen L appendix rank | `7f19d17e089e5601` |
+| `packet-L-h4` | `lSqW 4`, beyond the frozen rank | `f98de22bb3784b27` |
+| `packet-N0-alpha2-h0` | `nCompactW 2 0`, the frozen N0 appendix parameters | `1bb59b9410e1575a` |
+| `packet-N0-alpha5-h3` | `nCompactW 5 3`, beyond them | `b54126b5b0eb3d05` |
+| `packet-Npc-alpha2-r1-h0-num1-den1` | `npcW 2 1 0 (1/1)`, the frozen Npc appendix display | `6cf3a39e763ab22c` |
+| `packet-Npc-alpha3-r2-h3-num3-den9` | `npcW 3 2 3 (3/9)`, a nonreduced odd display | `97d13c271280afd5` |
 
 The hashes above are a locator. Each packet's `.files.json` is the authority for its own
 four files, and the packet hash is recomputed on every check.
+
+`scripts/w362_ln_certificates.tex` is a review wrapper, modelled on
+`scripts/w361_staged_certificates.tex`, that `\input`s the six generated appendices. It
+compiles with `pdflatex` to a 28-page document with **zero LaTeX errors and zero overfull
+boxes**, which is the reason item 1 emits the word exporter's displayed equations as LaTeX
+rather than dumping its file into a `verbatim` block: verbatim cannot wrap, and the Npc word
+at rank three overflowed the text block by 573pt. The wrapper is a reading aid; no PDF is
+committed, and the wrapper is not an appendix, a gate, or an approval.
 
 ---
 

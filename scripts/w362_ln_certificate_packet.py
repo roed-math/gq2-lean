@@ -315,23 +315,26 @@ def sections(family):
             paragraphs.append(STANDING_PROSE)
         todos = []
         if number in MISSING_EXPORTERS:
-            todos.append(
-                "TODO: this section has NO generated display. The checked declarations below "
-                "carry the item, and their elaborated statements are stored in the packet's "
-                "proofs transcript, but no exporter serializes them into synchronized TeX. The "
-                "declaration that would do so is " + MISSING_EXPORTERS[number] + ", which "
-                + MISSING + ". No formula is substituted for it here.")
+            todos.append({
+                "text": "TODO: this section has NO generated display. The checked declarations "
+                        "below carry the item, and their elaborated statements are stored in the "
+                        "packet's proofs transcript, but no exporter serializes them into "
+                        "synchronized TeX. No formula is substituted for one here.",
+                "missing_declaration": MISSING_EXPORTERS[number]})
         if number == 4:
-            todos.append(
-                "TODO: the rfl signature theorems that bind the exported lists to the records "
-                "live in the exporter driver scripts/w362_ln_fox_export.lean, which has no "
-                "olean and therefore cannot be cited by the declaration probe. They are checked "
-                "only by the Fox replay, which recompiles that driver.")
+            todos.append({
+                "text": "TODO: the rfl signature theorems that bind the exported lists to the "
+                        "records live in the exporter driver scripts/w362_ln_fox_export.lean, "
+                        "which has no olean and therefore cannot be cited by the declaration "
+                        "probe. They are checked only by the Fox replay, which recompiles that "
+                        "driver.",
+                "missing_declaration": None})
         if number == 5 and family == "Npc":
-            todos.append(
-                "TODO: the two surviving unramified blocks are not certified units. A generated "
-                "unit claim would require the finite-module criteria, which this packet does not "
-                "export.")
+            todos.append({
+                "text": "TODO: the two surviving unramified blocks are not certified units. A "
+                        "generated unit claim would require the finite-module criteria, which "
+                        "this packet does not export.",
+                "missing_declaration": None})
         out.append({"number": number, "title": TITLES[number],
                     "generated_display": GENERATED.get(number),
                     "paragraphs": paragraphs, "references": sorted(tree[number]),
@@ -473,8 +476,15 @@ def render_tex(packet):
         lines += [r"\subsection*{" + str(n) + ". " + tex_escape(section["title"]) + "}"]
         lines += [tex_escape(text) + "\n" for text in section["paragraphs"]]
         if n == 1:
-            lines += ["\\begin{verbatim}", word.render_tex(p["word"]).rstrip("\n"),
-                      "\\end{verbatim}"]
+            # The word exporter already emits LaTeX: displayed equations plus % comment
+            # lines. Include the equations as LaTeX so the word typesets as mathematics,
+            # and re-emit the comments as wrapped prose so their scope caveats survive.
+            body, notes = [], []
+            for line in word.render_tex(p["word"]).splitlines():
+                (notes if line.startswith("%") else body).append(line)
+            lines += body
+            lines += [r"\par\noindent\emph{Exporter record for the tree above.}"]
+            lines += [r"\par\noindent " + tex_escape(note[1:].strip()) for note in notes]
         elif n in (4, 5):
             renderer = fox.operations_tex if n == 4 else fox.target_tex
             for sector in fp["sectors"]:
@@ -490,7 +500,11 @@ def render_tex(packet):
             lines += [r"\par\noindent\emph{Generated display source: "
                       + tex_escape(section["generated_display"]) + ".}"]
         for todo in section["todos"]:
-            lines += [r"\par\noindent\textbf{[" + tex_escape(todo) + "]}"]
+            lines += [r"\par\noindent\textbf{[" + tex_escape(todo["text"]) + "]}"]
+            if todo["missing_declaration"]:
+                lines += [r"\par\noindent The declaration that would supply one is "
+                          + r"\path{" + todo["missing_declaration"] + "}, which "
+                          + tex_escape(MISSING) + "."]
         if section["references"]:
             lines += [r"\paragraph{Checked declarations (standard three axioms)}",
                       r"\begin{itemize}"]
@@ -597,6 +611,10 @@ def self_test():
         assert [x["number"] for x in s] == list(range(1, 11))
         assert all(x["references"] or x["number"] == 10 for x in s)
         assert all(x["todos"] for x in s if x["number"] in MISSING_EXPORTERS)
+        assert all(t["missing_declaration"] == MISSING_EXPORTERS[x["number"]]
+                   for x in s if x["number"] in MISSING_EXPORTERS
+                   for t in x["todos"][:1])
+        assert all(set(t) == {"text", "missing_declaration"} for x in s for t in x["todos"])
         assert all(not x["todos"] for x in s if x["number"] in (1, 10))
         probe = proof_probe(family)
         assert "sorry" not in probe and "native_decide" not in probe

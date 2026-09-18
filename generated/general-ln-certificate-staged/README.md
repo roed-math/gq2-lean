@@ -110,3 +110,12 @@ python3 scripts/w362_ln_certificate_packet.py check generated/general-ln-certifi
 Without `--lean-runner` the checks are labelled `artifact-only; NOT Lean-synchronized`:
 a rehashed, well-typed but altered artifact can pass structural checking and is not
 thereby proved to be the Lean output. Only the replay binds it.
+
+## Reading the appendices
+
+`scripts/w362_ln_certificates.tex` is a review wrapper that `\input`s all six generated
+appendices; `pdflatex scripts/w362_ln_certificates.tex` from the repository root produces a
+28-page document with no LaTeX errors and no overfull boxes. No PDF is committed. The
+wrapper is a reading aid, not an appendix, a gate, or an approval, and each appendix needs
+the wrapper's `amsmath`/`amssymb`/`xurl` preamble because the word exporter's displayed
+equations are included as LaTeX.
