@@ -18,11 +18,11 @@ that `scripts/w362_ln_fox_export.lean` serializes items 4 and 5 for. Item 3 is t
 Jacobian **before** any operation; items 4 and 5 are the operations and the reduced target.
 
 Nothing here retypes a row. The evaluated rows are already concrete Lean data
-(`FoxRowNormalForm` values over `FoxCoeff` trees), and for five of the fourteen rows they are
+(`FoxRowNormalForm` values over `FoxCoeff` trees), and for nine of the fourteen rows they are
 literally the `target` field of an existing `FoxRowCertificate` with `colOps = []`, i.e. of a
-record that certifies the evaluated Fox derivative with no operations applied. Those five are
-bound by `rfl` **signature theorems**. The remaining nine rows are the tame row at sectors
-where the tree has no such record; for those the driver states the denotation theorem itself,
+record that certifies the evaluated Fox derivative with no operations applied. Those nine are
+bound by `rfl` **signature theorems**. The remaining five rows are the tame row at sectors
+where the tree has no such record (the L family at all three, N0 and Npc at the ramified); for those the driver states the denotation theorem itself,
 proved from the existing `foxD_tameRelW_*` and `*_toHom_apply` lemmas, exactly as the
 existing records prove theirs. Every row therefore carries a named Lean bridge, and the JSON
 records which of the two kinds it is: `record_target` or `denotation_theorem`.
