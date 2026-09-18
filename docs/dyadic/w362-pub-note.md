@@ -161,8 +161,9 @@ note forbids.
 
 ### T2.b What the exported rows actually say
 
-The rendered output reproduces the recorded analytic descriptions, which is the first
-independent confirmation of them from the records themselves rather than from prose:
+The rendered output agrees with the analytic descriptions recorded in
+`w361-l-n-certificate-readiness.md` section 3. Here it is produced from the records rather
+than transcribed from them, so the agreement is a check and not a restatement:
 
 | Sector | Ordered operations | Reduced target |
 |---|---|---|
