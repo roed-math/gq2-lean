@@ -258,3 +258,31 @@ risk of being committed. No action is required and none was taken.
     independent run. It is not a substitute for the ledger itself, which
     covers the whole `GQ2` namespace including declarations with no pin; that
     run is queued.
+
+## The four named documents, checked against the tree
+
+15. **The packet citations are exact.** The handoff and
+    `w361-n-full-stabilizer-scope.md` both cite
+    `docs/dyadic/refs/dyadic-presentations-formalization-proof.tex` lines
+    732-735 for the lifting proposition and 1077-1082 for the finite Nielsen
+    list. Both land. Lines 732-736 are the proposition's emphasised statement,
+    "Every automorphism of `D_P^ab` preserving the canonical orientation, the
+    torsion relation vector, and the mod-2 cup form ... lifts". Lines 1077-1082
+    are the MC-M and MC-N rows, whose criterion is "A finite list of
+    orientation-preserving Nielsen generators lifts the Smith-Witt stabilizer
+    on the abelianization". Those rows are stated for the **rank-four** cores,
+    so the scope note's "the rank-four case is `h = 0`" is the right reading,
+    and proving arbitrary `h` is strictly more than the row asks.
+
+16. **Every declaration the M next-task map cites exists.** All 30 names in
+    `w361-m-next-general-scaffold.md` resolve to a declaration in the tree,
+    including the two whose identity the map's first concrete route depends
+    on (`evenRawStageShift_m` and `evenRawStageShift_n`, both in
+    `GQ2/Dyadic/Instances/StageAbstractionEvenRawSpan.lean`) and the three N
+    kernel results it proposes to reuse
+    (`nBasisKernelWitness_mem`, `nBasisKernelWitness_row`,
+    `exists_nBasis_allRows_same_kernelCoset`, all in `NBasisRowRefinement`).
+    `nFrameModel_map_t`, on which the scope note rests the claim that the N
+    torsion clause is automatic, is a real theorem at
+    `GQ2/Dyadic/MarkedCore/N.lean:1064`. The next-task map is grounded; it is
+    not naming intentions.
