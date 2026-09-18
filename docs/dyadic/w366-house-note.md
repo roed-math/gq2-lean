@@ -113,7 +113,7 @@ closure can differ between the cache's tree and this one.
 All twelve frozen rows EXIST; the residual-move row has 15 producers. No row changed
 against the W364-HOUSE baseline.
 
-### OWNER ITEMS
+### The board's owner-items row
 
 ```
   owner memo (AUTHORITY)   docs/dyadic/owner-items-2026-08-05.md
@@ -386,16 +386,28 @@ docstring findings (M4, L1, L2) belong to whoever next holds an edit grant on
 ## Owner items
 
 Read off `docs/dyadic/owner-items-2026-08-05.md` after this lane's H1
-correction. **Five.**
+correction. **Five await the owner**, and they are the memo's items 1, 2, 3, 6
+and 7, renumbered here only so that this section and the memo present the board
+with the same number:
 
-1. Adoption of the changed M pair/mobile words.
-2. The corrected RN source interface and the existential quantifiers.
-3. The symbolic display contract and the legacy L/N artifacts.
-4. ~~Acceptance of the uniform filtered-correction and compactness proof
-   method.~~ **DECIDED 2026-09-18, Option A.**
-5. ~~The push.~~ **DONE 2026-09-18**, `488e7cf2..b9ad374f`, 370 commits.
-6. The untracked working copy of the QA-pinned 29-page PDF under `/output/`.
-7. G3 / release.
+1. Adoption of the changed M pair/mobile words (memo item 1).
+2. The corrected RN source interface and the existential realization and
+   calibration quantifiers in the general endpoint statement (memo item 2).
+3. The symbolic display contract and the treatment of the legacy L/N artifacts,
+   now carrying publication decisions 13 to 17 of `w363-pub2-note.md` (memo
+   item 3).
+4. The untracked working copy of the QA-pinned 29-page PDF under `/output/`
+   (memo item 6).
+5. G3 / release, the owner's gate as before (memo item 7).
+
+**Decided on 2026-09-18 and therefore not counted above.** Memo item 4:
+acceptance of the uniform filtered-correction and compactness proof method for
+both cores -- **Option A**, with the finite Nielsen-family lists satisfying the
+packet's section-14 sentence in the families reading. Memo item 5: the push --
+**done**, `488e7cf2..b9ad374f`, 370 commits, GitHub level with local.
+
+The board's two sides now read five and five. They read 7 against a missing
+heading when the T4 baseline ran, for the two separate reasons recorded there.
 
 Nothing in this lane is an owner call of its own. The one number it changed, the
 memo's headline count, was changed only to match decisions the owner had already
