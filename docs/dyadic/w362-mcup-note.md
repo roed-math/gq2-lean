@@ -13,6 +13,12 @@ Default limits (200000 heartbeats), `autoImplicit=false`, no `sorry`, no
 declarations is std-3 (`propext`, `Classical.choice`, `Quot.sound`), pinned
 in file by `#print axioms`.
 
+`claude/w362-mstages` is merged into this branch, so
+`MFrameCupCoordinates.lean` imports the sibling `MFullFrameCompactness.lean`
+and reuses its `mStageOneLe` and `mStageProjection` rather than keeping private
+copies. There is no import cycle: no MSTAGES module imports either module of
+this lane.
+
 ## `GQ2/Dyadic/MarkedCore/MInitialCupDepth.lean` (T2) -- 9 declarations
 
 The M word is `A^2 [A,B] C^(2^alpha) [C,D]` times the handles, so it is not a
@@ -83,9 +89,9 @@ Two M-specific points, checked rather than copied:
 
 Deliverables:
 
-- `mCupFrameOfDM`, `mCupFrameCanonicalMark`, `mCupFreeMProjection`,
-  `mCupFreeFrameProjection` -- the actual frame of the core, its canonical
-  columns, and the free pro-two cover (these did not exist on the M side);
+- `mCupFrameOfDM`, `mCupFrameCanonicalMark`, `mCupFreeFrameProjection`,
+  `mCupFreeFrameProjection_apply` -- the actual frame of the core, its canonical
+  columns, and the composite free cover over the sibling `mStageProjection`;
 - `mCupFrameModTwoCoordinate`, `_canonicalMark`, `_projection` -- the frame
   mod-two coordinates and their exact pullback to the reduced free coordinates,
   on every free element;
@@ -95,12 +101,36 @@ Deliverables:
 - `mCupRelWord_error_mem_three_of_frame`,
   `mCupRelWord_error_mem_three_of_frame_fixedT` -- T1 composed with T2, end to
   end from the semantic predicate to lambda-three error membership;
+- `mCupStageError_of_frame` -- the seam with MSTAGES: verbatim
+  `MFullFrameStages.mFullStabilizer_lift`'s `herror0`, from verbatim its
+  `hframe0` and its `hT` (`mStageTorsionWord` fixation, written out). Checked by
+  composing it into `mFullStabilizer_lift` in a scratch theorem that elaborates
+  with no residual goal and is std-3. That theorem's orientation hypothesis
+  `hchi0` is **not** needed for the depth-three step, so this statement omits it
+  and is the stronger one;
 - `mCupFrameCupIsometry_of_aut` (**T3**) -- the converse ingredient: any
   continuous automorphism of the actual core `D_M` whose frame action is `phi`
   makes `phi` a cup isometry. Proved through `dmObs` and uniqueness of the
   one-dimensional degree-two obstruction
   (`M0C0PivotAutomorphism.evenCupForm_comp_dm_aut`), with no coordinate
   computation and no matrix.
+
+## The seam with the sibling lanes
+
+`mFullStabilizer_lift` consumes, from this lane, exactly
+
+```text
+mRelWord alpha (fun i => e0 (freeTwoRankGen (coreRank h) i)) *
+  (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹
+    ∈ twoCentralSeries (FreeTwoRank (coreRank h)) 3
+```
+
+and `mCupStageError_of_frame` produces exactly that, given `e0` fixing
+`mStageTorsionWord alpha` and inducing `phi` on the full frame, plus
+`MCupFrameCupIsometry ha phi`. The remaining MINIT obligation is therefore to
+construct such an `e0` and to supply `MCupFrameCupIsometry ha phi` for the
+`phi` being lifted; `mCupFrameCupIsometry_of_aut` supplies the latter in the
+converse direction only.
 
 ## What remains
 
