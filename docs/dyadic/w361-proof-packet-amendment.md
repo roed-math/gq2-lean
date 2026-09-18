@@ -2,6 +2,13 @@
 
 *2026-09-17, later in the same day: for MC-M and MC-N, section 4 below is carried forward, with the finite lists that it says are missing, in [w364-proof-packet-amendment-mc.md](w364-proof-packet-amendment-mc.md).*
 
+*2026-09-18: **the MC proof-method question this note raises is decided.** The owner took
+Option A -- the uniform filtered-correction and compactness proof method is accepted for both
+cores, and the finite Nielsen-family lists satisfy the packet's section-14 sentence in the
+families reading. The decision record is item 4 of
+[owner-items-2026-08-05.md](owner-items-2026-08-05.md). Section 4 and decision item 4 below are
+superseded on their proof-method point and are kept as the record of their date.*
+
 **Draft for owner/editorial adoption, 2026-09-17. Not approved.** This additive
 note proposes replacement statements for the July 28 packet's main theorem,
 marked-matching requirement, source-data interface, and reconstruction proof.
@@ -228,6 +235,9 @@ coefficient and every dependent source/recursion interface are parameterized.”
 
 ## 4. Full MC-N lifting is now proved; proof-method reconciliation remains
 
+*2026-09-18: the reconciliation no longer remains. Option A accepted the alternative proof
+method for both cores; see item 4 of [owner-items-2026-08-05.md](owner-items-2026-08-05.md).*
+
 **18:55 UTC update:** there is no longer a need to weaken the mathematical
 MC-N criterion. `nFullStabilizer_lift` and `nFullStabilizer_lift_iff` prove the
 full orientation/cup stabilizer assertion on the actual canonical N frame,
@@ -425,6 +435,9 @@ The mathematical proposal requires explicit owner/editorial decisions on:
    proof in place of the prescribed finite Nielsen-generator-list method,
    or separately constructing that literal presentation artifact. The full
    mathematical stabilizer theorem itself no longer needs commissioning.
+   *(2026-09-18: DECIDED, Option A, and at both cores rather than at N alone;
+   item 4 of [owner-items-2026-08-05.md](owner-items-2026-08-05.md). The finite
+   lists were also constructed in the meantime, at M and at N.)*
 5. Adopting a symbolic exponent/tree export and compositional certificate
    appendix for the actual splice words. The appendix must connect exact
    constructor equality, both specializations, evaluated Fox rows and

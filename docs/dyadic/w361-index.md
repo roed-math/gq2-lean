@@ -1,16 +1,18 @@
-# Index of the W360-W364 document corpus
+# Index of the W360-W366 document corpus
 
 Two parts. The first, the W360/W361 corpus, was compiled by the **W362-HOUSE**
 lane against the tree at `6770a87e`, the commit that first tracked all 71 of
 those files; every entry in it was read at that hash. The second, the W362-W364
 session, was added by the **W364-HOUSE** lane against `d2056503`, and every
-entry in it was read at that hash. Neither part is carried over from an earlier
-note.
+entry in it was read at that hash. The third, waves 365 and 366, was added by
+the **W366-HOUSE** lane against `9dd8a307`, and every entry in it was read at
+that hash. No part is carried over from an earlier note.
 
 The W360/W361 corpus is 69 Markdown documents and 2 JSON verification reports,
 all matching `docs/dyadic/w36[01]*`. The W362-W364 session adds 15 more
-Markdown documents, plus this file. Six classes are used, the same six in both
-parts:
+Markdown documents, plus this file. Waves 365 and 366 add 1 Markdown document
+and 3 JSON reports at part three's base, with four lane notes in flight. Six
+classes are used, the same six in all three parts:
 
 - **verified record** -- states what a checked artifact proves or what a run
   observed. Cite these.
@@ -18,7 +20,14 @@ parts:
 - **scope note** -- delimits what a result does and does not say, or maps the
   next task. Carries no new theorem.
 - **proposal (not adopted)** -- proposes a statement, format or migration that
-  needs an owner decision. None of these is approved.
+  needs an owner decision. None of these was approved when its part was written.
+  *(2026-09-18: one has since been decided. The owner took **Option A** on the
+  MC proof method, so the MC-M/MC-N content of
+  `w364-proof-packet-amendment-mc.md` and `w364-acceptance-readiness-mc.md` is
+  adopted; W366-APPLY carries the adoption markers. The class label on those two
+  rows is the record of their date, not their current status. Nothing else
+  changed class. The decision record is item 4 of
+  [owner-items-2026-08-05.md](owner-items-2026-08-05.md).)*
 - **handoff** -- wave-boundary state transfer.
 - **template** -- describes a staged export format and its Lean bindings.
 
@@ -226,21 +235,81 @@ end of this part.
 None this session. The W362-PUB and W363-PUB2 exporter drivers under `scripts/`
 are executables, not documents.
 
-## Landed after this index's base
+## Landed after part two's base
 
-`docs/dyadic/w363-pub2-note.md` exists on the wave branch (present in the main
-clone at `06daa54a`, "merge W363-PUB2: all six missing L/N exporters, staged,
-with a five-kind binding taxonomy") but not at `d2056503`, this index's base, so
-it is not classified above. It is the record of the six exporter drivers
-`scripts/w363_ln_*_export.lean` and the artifacts they emit, and on its
-description it is a **proposal, not adopted**, like its predecessor. The
-W364 audit lane's documents, matching `docs/dyadic/w364-nielsen-*.md`, were in
-flight at the same moment and are likewise absent here. Whoever extends this
-index next should start from those two.
+Part two recorded four documents as in flight at `d2056503`:
+`w363-pub2-note.md` (the six exporter drivers `scripts/w363_ln_*_export.lean`
+and the artifacts they emit, a **proposal, not adopted**, like its predecessor)
+and the W364 audit lane's `docs/dyadic/w364-nielsen-*.md`. **All four are
+tracked at `9dd8a307`** and are classified in part three below, together with the
+two W364 MC documents and the W364 packet lane's note.
 
 ---
 
-## Flags: where a headline outruns its body
+
+# Part three: waves 365 and 366
+
+Compiled by the **W366-HOUSE** lane against `9dd8a307`, the commit that records
+the owner's decisions of 2026-09-18. Every entry below was read at that hash.
+This part also classifies the four documents part two left in flight.
+
+**Read item 4 of [owner-items-2026-08-05.md](owner-items-2026-08-05.md) first.**
+Everything in wave 366 is downstream of the owner taking **Option A**: the
+uniform filtered-correction and compactness proof method is accepted for both
+cores, and the finite Nielsen-family lists satisfy the packet's section-14
+sentence in the families reading. The push (`488e7cf2..b9ad374f`) was authorized
+in the same decision.
+
+## Verified records (5)
+
+| Document | One line |
+| --- | --- |
+| `w365-gauss-note.md` | The Gauss sign and exponent of the wall-handle endpoints named as standalone theorems in every sector, in `GQ2/Dyadic/Instances/GaussPhaseValues.lean` (314 lines, 25 pins). Three corrections to its own ticket: the `L` sign was already citable, no *exponent* was named in any sector, and the compact sectors were missing the display shape rather than the value. It answers the narrow question of publication decision 16; the decision itself is untaken. Its "`GQ2.lean` was not touched" is true of the lane; the orchestrator registered the module separately in `a2995b54`. |
+| `w365-fresh-build-result.json` | The source-only fresh build of the end-state tree: 1,565 / 1,565 local modules, `failed: []`, `unbuilt: []`, 2,080.2 s, 3,727 output files. SHA-256 `8c47b4aa...4920`, recomputed by W366-HOUSE and matching handoff section 4. |
+| `w365-fresh-build-provenance.json` | The same snapshot's provenance: pinned compiler `1b370cfc...`, manifest `3c3d5e1a...`, driver `21b8f1d7...`. SHA-256 `925e2263...d941`, recomputed and matching. |
+| `w365-fresh-verification-report.json` | The verifier's `--replay` run on that snapshot, exit 0, `FRESH_CONTENT_CHECK_PASS|1565`. SHA-256 `05e3e2c1...42cb`, recomputed and matching. Content consistency with an observed isolated build, not a signed attestation. |
+| `w364-packet-note.md` | The W364-PACKET lane's own record of what it wrote and under what authority: two proposal documents, no Lean, no packet TeX, no ledger, no edits to the W361 amendment or readiness bodies. Names three input discrepancies it found. |
+
+## Audits (1)
+
+| Document | One line |
+| --- | --- |
+| `w364-nielsen-independent-audit.md` | The independent audit of the two finite Nielsen-list artifacts. **VERDICT at both cores: supplies the finite list, the lifts and the quantifier closure WITH CAVEATS**, the same four caveats at each, all scope and provenance rather than mathematical. The evidence behind `w364-nielsen-scope.md`. |
+
+## Scope notes (2)
+
+| Document | One line |
+| --- | --- |
+| `w364-nielsen-scope.md` | The MC-M/MC-N twin of the two full-stabilizer scope notes: what the packet's lines 1077-1082 ask for against what the three Nielsen modules supply. Read with the audit, not instead of it. |
+| `w366-house-note.md` | Wave 366 housekeeping (watch 27): the landings since `d2056503` re-checked, the three durable W365 report hashes recomputed, the decision's consequences traced across the docs corpus, the handoff's post-decision repairs, and the scoreboard baseline. Carries the list of decision sites reserved to W366-APPLY. |
+
+## Proposals (3, one of them now decided)
+
+| Document | One line |
+| --- | --- |
+| `w364-proof-packet-amendment-mc.md` | The proposed packet amendment for the MC-M and MC-N obligations: replacement per-core assertion, replacement rows, and Option A against Option B with Option B's work list costed. **Its MC proof-method proposal was accepted by the owner on 2026-09-18 (Option A); W366-APPLY carries the adoption markers.** The rest is still proposal. |
+| `w364-acceptance-readiness-mc.md` | The MC companion of `w361-acceptance-readiness.md`: verified / proposed / decision-needed for each of MC-M and MC-N. **Decision (1) at both rows, the proof method, is taken -- Option A.** Its MC-N question (3), whether the two W361 MC records are superseded or retained, is answered by the annotations W366-HOUSE added to them: superseded on the proof-method point, retained as the record of their date. |
+| `w363-pub2-note.md` | The six exporter drivers `scripts/w363_ln_*_export.lean`, staged, with the five-kind binding taxonomy, and publication decisions 13 to 17. Everything staged carries `status: "STAGED"`. None of its decisions is taken; decision 16's narrow question became answerable through `w365-gauss-note.md`. |
+
+## Templates (0)
+
+None. The W366-GAUSSEXPORT driver under `scripts/` is an executable.
+
+## In flight at part three's base
+
+Three wave-366 lane notes exist on their own branches and not at `9dd8a307`:
+`w366-apply-note.md` (Option A applied to the vendored packet, the ledger and
+the MC records), `w366-gaussexport-note.md` (the item-8 Gauss exporter driver,
+downstream of `w365-gauss-note.md`) and `w366-handles-note.md` (`MNielsenHandles`,
+the handle extension of the M finite list -- optional mathematics, not owed).
+Whoever extends this index next should start from those three. `w366-apply-note.md`
+matters most: it is the lane that turns the owner's decision into the record, so
+read it before citing any MC row.
+
+# Flags: where a headline outruns its body
+
+Flags 0 to 6 were raised by parts one and two. Each says below whether it still
+stands at part three's base `9dd8a307`.
 
 The docstring-outruns-statement rule applied to prose. The corpus is unusually
 disciplined -- almost every document states its own limits in its first
@@ -340,6 +409,13 @@ recomputing `MFullStabilizerLift.lean`'s SHA-256 at candidate commits. The fix i
 one line at the head of the document naming that commit; a renumber is optional
 and worth less. W364-HOUSE did not rewrite another lane's verdict document.
 
+*2026-09-18 (W366-HOUSE): **half addressed.** `eb3089cd` and `e34315af` put a
+dated W364 annotation at the head of that document naming `69b9851c` as its base,
+the rename, the diff-check result and the post-pass pin count of 217. The nine
+hashes and the fifteen drifted line citations are still the pre-consolidation
+ones and are still not recomputed, so the flag stands at reduced severity: the
+hazard is no longer silent.*
+
 **Flag 6 (high, and the one most likely to be acted on) -- a live Lean docstring
 asserts the non-existence of declarations that now sit beside it.**
 `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean:14-22` says the MC-N finite-list
@@ -352,3 +428,36 @@ so the mathematics is untouched; the hazard is that it reads as a research
 finding rather than as prose. `docs/dyadic/w363-nielsen-note.md` carries the same
 sentence and now opens with an overtaken-by banner; the module docstring does
 not, because no lane of this session held an edit grant on it.
+
+*2026-09-18 (W366-HOUSE): **CLOSED.** `e34315af` gave the module docstring its
+own bracket -- "[W364: OVERTAKEN the same session; `NNielsenFactorization.lean`
+in this directory builds `nFamN1` to `nFamN6`, `nNielsen_factorization` (eight
+slots) and `nNielsenFac_finite_list` ...]" -- naming the three declarations and
+keeping the paragraph as the record of why that module stops where it does. The
+module was re-elaborated at 16 pins, unchanged. No flag remains here.*
+
+**Flag 7 (low-medium, new at part three) -- `NNielsenFactorization.lean:38-39`
+says "every parameter" where its two witnesses need a supplied inverse.** The
+module docstring reads "every parameter fixes the integral `x1` coordinate,
+hence preserves `nFrameOrientation` (`nNielsenFac_orientation`); every
+admissible parameter is an `NFrameCupIsometry`". Both named theorems
+(`:504` and `:565`) in fact take `(P Q : NStabParam)` with two mutual-inverse
+hypotheses, because they are stated about `nNielsenFacEquiv` (`:480`) rather than
+about `nNielsenFacMap`. This is the N half of the handoff's section 5 item 10;
+`e34315af` fixed the M half and did not touch this module. Comment-only, the
+headline theorems are unaffected, and the eight families supply their own
+inverses.
+
+**Flag 8 (low, new at part three) -- `GQ2/Dyadic/Instances/GaussPhaseValues.lean`
+carries the wrong co-author line, and one docstring headline outruns its
+statement.** Line 4 reads "Authors: David Roe, roed@mit.edu, and OpenAI Codex";
+the module was written in a Claude lane (`db4fbede`, `d58e477b`, both with the
+`Claude Opus 5` trailer). The line was almost certainly copied from
+`LHessianCertificates.lean`, which the module imports and whose header is
+identical. Separately, `gaussValCompactDisplayUnram`'s docstring headline is
+"The compact display cell serves both compact branches ... so the compact-`N`
+and compact-`M` sectors print the same sign and the same exponent", while the
+statement is a single equation against `(standardNumerics (2*h+2)).gaussUnram m`
+and mentions neither the cell nor two branches. The claim follows from this
+theorem together with `gaussValCompactDisplay`; it is not what this one says.
+Both comment-only, both in a Lean module, so both are flagged rather than fixed.

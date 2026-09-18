@@ -2,7 +2,10 @@
 
 ## Status at wave 362 (2026-09-17)
 
-**Seven items await you.**  The wave-89 docket was closed on 2026-08-16; the Codex waves
+**Five items await you.**  (Seven until 2026-09-18, when the owner decided item 4 -- Option
+A -- and authorized item 5; both are struck below and both keep their text.  W366-HOUSE
+corrected this headline, which the scoreboard reads as prose and which still said seven.)
+The wave-89 docket was closed on 2026-08-16; the Codex waves
 (89 to 361) then accumulated a docket recorded in `w361-claude-code-handoff.md` section 6
 item 4 and `w361-acceptance-readiness.md` but never folded back into this memo (W362-HOUSE
 finding).  Folded in now, with this wave's additions:
@@ -25,9 +28,9 @@ finding).  Folded in now, with this wave's additions:
    attempting it as a corollary of the full lifts plus the existing rank-four frame
    factorizations, which would let you accept the packet wording literally.
 5. **DONE 2026-09-18: pushed `488e7cf2..b9ad374f` (370 commits) on the owner's word.**
-   (Original item text follows.)  GitHub `origin/dyadic` was more than two hundred commits behind the local
-   branch (Codex's 176 plus this session's).  Claude's standing protocol pushes at every wave
-   close; Codex's mandate forbade pushing.  Nothing was pushed this session; say the word.
+   (Original item text follows, in the past tense it now takes.)  GitHub `origin/dyadic` was
+   more than two hundred commits behind the local branch (Codex's 176 plus this session's).
+   Claude's standing protocol pushes at every wave close; Codex's mandate forbade pushing.
 6. **The untracked working copy of the QA-pinned 29-page PDF** under `/output/` (now
    `.gitignore`d; bytes match the pinned hash; reproducible from tracked inputs).
 7. **G3 / release** remains your gate, as before.
