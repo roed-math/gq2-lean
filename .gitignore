@@ -3,6 +3,9 @@ references/
 .DS_Store
 /scratch/
 /work/
+# Build products at the repo root: page renders and the staged PDF.
+/tmp/
+/output/
 /atlas-graph.json
 /atlas-graph.json.cache
 .mcp.json
