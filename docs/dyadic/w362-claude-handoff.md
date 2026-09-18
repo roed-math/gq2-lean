@@ -562,8 +562,6 @@ by the Codex pass and are recorded in `w361-claude-code-handoff.md` section 5
 and the durable JSON report. Item 4 above shows the source state they bound is
 the state this wave starts from. It does not re-run them.
 
-### This wave
-
 ### This session: waves 362 to 364
 
 **Pin census, re-derived by the W364-HOUSE lane over the sources at `d2056503`.**
@@ -897,6 +895,38 @@ footprint of every pin in the tree. Reading that log is free, cannot disagree
 with the build, and does not race the cache the way a separate runner
 invocation does. The W362-HOUSE lane closed its whole std-3 and census
 question out of the orchestrator's own build log.
+
+**Three commands this session added, listed here because section 4 is where
+their output lives and this is where a reader looks for the invocation.**
+
+The full ordinary gate, orchestrator only, because it runs `lake`:
+
+```sh
+bash scripts/w361_run_with_deps.sh \
+  env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
+```
+
+`scripts/w361_run_with_deps.sh` is the tracked copy (commit `b87bfa06`) of the
+`LEAN_PATH` wrapper the W361 handoff kept in `/private/tmp` and warned might
+vanish. **It ends with a hard-coded `cd` into the main clone**, so it gates
+`/Users/roed/claude/cla/work/gq2-dyadic-campaign` whatever worktree you launch
+it from. That is correct for a merge and wrong for a lane.
+
+The two staged publication checks, read-only, no `lake`:
+
+```sh
+bash scripts/w362_check_ln_staged.sh      # replays W361's check first, then W362's
+bash scripts/w363_check_ln_staged.sh      # the six W363-PUB2 exporters
+```
+
+The second lands with the W363-PUB2 merge and is not in every lane worktree;
+check it exists before invoking it.
+
+`w362_check_ln_staged.sh` ends
+`W362_LN_STAGED_CHECK_PASS (staged proposals only: not owner approval, not a
+manifest entry, not a gate)`. Take that sentence literally; the artifacts it
+passes all embed `status: "STAGED"` and every validator refuses any other
+value.
 
 ## 7. Minimal reading list
 
