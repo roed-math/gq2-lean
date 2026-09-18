@@ -18,9 +18,30 @@ Status: OPEN. Skeleton banked; tickets in progress.
 - T3 the index extension.
 - T4 the scoreboard baseline.
 
-## Staleness check
+## Staleness check, done first
 
-(to be filled)
+**The shared cache does not describe this lane's base.** At the moment this lane
+ran, the main clone
+(`/Users/roed/claude/cla/work/gq2-dyadic-campaign`) was at `06daa54a`
+("merge W363-PUB2: all six missing L/N exporters, staged, with a five-kind
+binding taxonomy"), two commits past this lane's base `d2056503`. Everything the
+shared cache at `/Users/roed/claude/cla/work/main-build-cache` yields, including
+every scoreboard row, therefore describes `06daa54a`, not `d2056503`. That is the
+same trap the W362-HOUSE lane recorded, and it has not gone away.
+
+The correction is benign here and checkably so: `d2056503..06daa54a` touches no
+`.lean` file under `GQ2/` and does not touch `GQ2.lean` (it adds staged exporter
+artifacts under `generated/` and `scripts/`), so no declaration's axiom footprint,
+pin count or import closure can differ between the two. Declaration *counts* over
+the whole tree are unaffected for the same reason.
+
+A second process was in flight during this lane: an orchestrator-owned
+`scripts/w361_fresh_build.py --require-live-match` run, building into its own
+private snapshot under `/private/tmp/gq2-w361-fresh-*`, not into the shared
+cache. It does not race the probes below.
+
+`NNielsenFactorization.olean` was present in the shared cache before any probe in
+this lane was run.
 
 ## Findings
 
