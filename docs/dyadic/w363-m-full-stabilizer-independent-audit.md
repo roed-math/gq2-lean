@@ -87,7 +87,36 @@ frozen whole-tree report; that remains a parent-owned step.
 
 ## Flagged items
 
-(pending)
+FLAG-1 (comment only, medium). `GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`
+module docstring, and `docs/dyadic/w362-massemble-note.md`, both assert:
+
+```text
+Nothing from the N theorem is reused; only its shape is matched.
+```
+
+That sentence is false as written, and it contradicts the sibling modules' own
+docstrings. What is in fact reused from the N development, soundly and by
+design:
+
+* `N.lean`'s `nFrameModel_map_t` is applied verbatim to M frame automorphisms
+  at `MFrameMatrixLift.lean:594` and `:740`.
+* `MInitialCupDepth.lean` imports `NInitialCupDepth` and says so itself:
+  "Everything about the commutator tail is shared with the N calculation and is
+  imported from `NInitialCupDepth`".
+* `MBasisRowRefinement.lean` reuses `nPlaneCorrectionKernel`,
+  `nFilteredDerivative` and the N row witnesses through an adapter, and says so
+  itself.
+* `MPlaneAmbientStage.lean` imports `NPlaneAmbientStage` and uses its
+  `oneWord`; `MFrameCupCoordinates.lean` imports `NFrameCupCoordinates` and
+  opens `NInitialCupDepth` for `reducedRows`.
+
+The defensible claim, which the other eight modules make correctly, is that the
+M *route* is not a text substitution of the N proof. Suggested repair: replace
+the sentence by something like "The M route is not a text substitution of the N
+proof; what it does reuse from the N development is shared infrastructure
+(`nFrameModel_map_t`, the N commutator-tail calculation, the closed N
+correction kernel), never an N relator conclusion." This is a provenance
+statement, not a mathematical one, and no proof depends on it.
 
 ## Explicit nonclaims
 
