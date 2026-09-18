@@ -711,6 +711,150 @@ theorem nNielsenFac_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabPa
   obtain ⟨z, y, x, κ, w, p, q, k, _, _, hcomp, Psi, hchi, hsq⟩ := nNielsenFac_finite_list ha P hP
   exact ⟨Psi, hchi, fun u => (hsq u).trans (hcomp _)⟩
 
+/-! ## Closing the quantifier against `nStabilizer_classification` -/
+
+/-- The frame action of a parameter, packaged as a continuous hom. -/
+def nNielsenFacHom (P : NStabParam) : ContinuousMonoidHom (NFrameModel 0) (NFrameModel 0) :=
+  ⟨MonoidHom.mk' (nNielsenFacMap P) (nNielsenFacMap_mul P), nNielsenFacMap_continuous P⟩
+
+/-- The canonical marks generate the full N frame topologically, so two continuous homs out of
+it that agree on the marks agree. -/
+theorem nNielsenFac_frame_hom_ext {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
+    {X : Type} [Group X] [TopologicalSpace X] [IsTopologicalGroup X] [T2Space X]
+    (f g : ContinuousMonoidHom (NFrameModel h) X)
+    (hgen : ∀ i, f (nFrameCanonicalMark ha h i) = g (nFrameCanonicalMark ha h i))
+    (z : NFrameModel h) : f z = g z := by
+  obtain ⟨x, rfl⟩ := freeNFrameProjection_surjective ha h z
+  have he : f.comp (freeNFrameProjection ha h) = g.comp (freeNFrameProjection ha h) := by
+    apply presPro2_hom_ext
+    intro i
+    change f (freeNFrameProjection ha h (freeTwoRankGen (coreRank h) i)) =
+      g (freeNFrameProjection ha h (freeTwoRankGen (coreRank h) i))
+    rw [freeNFrameProjection_gen]
+    exact hgen i
+  exact DFunLike.congr_fun he x
+
+/-- **The rows of a continuous automorphism of the rank-four N frame**, in `N.lean`'s `NRows`
+vocabulary: the four core coordinates of the images of the three non-torsion canonical marks.
+The image of `t` is not data (`nFrameModel_map_t`), exactly as `NRows.col` assumes. -/
+def nNielsenFacRows {alpha : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)) : NRows where
+  x1 := ((phi (nFrameCanonicalMark ha 0 1)).toAdd.1, (phi (nFrameCanonicalMark ha 0 1)).toAdd.2.1,
+    (phi (nFrameCanonicalMark ha 0 1)).toAdd.2.2.1,
+    (phi (nFrameCanonicalMark ha 0 1)).toAdd.2.2.2.1)
+  sigma := ((phi (nFrameCanonicalMark ha 0 2)).toAdd.1,
+    (phi (nFrameCanonicalMark ha 0 2)).toAdd.2.1,
+    (phi (nFrameCanonicalMark ha 0 2)).toAdd.2.2.1,
+    (phi (nFrameCanonicalMark ha 0 2)).toAdd.2.2.2.1)
+  x2 := ((phi (nFrameCanonicalMark ha 0 3)).toAdd.1, (phi (nFrameCanonicalMark ha 0 3)).toAdd.2.1,
+    (phi (nFrameCanonicalMark ha 0 3)).toAdd.2.2.1,
+    (phi (nFrameCanonicalMark ha 0 3)).toAdd.2.2.2.1)
+
+/-- Elements of the rank-four frame model are determined by their four core coordinates: the
+handle tail is empty. -/
+theorem nNielsenFac_ext_core (z w : NFrameModel 0) (h1 : z.toAdd.1 = w.toAdd.1)
+    (h2 : z.toAdd.2.1 = w.toAdd.2.1) (h3 : z.toAdd.2.2.1 = w.toAdd.2.2.1)
+    (h4 : z.toAdd.2.2.2.1 = w.toAdd.2.2.2.1) : z = w := by
+  refine Multiplicative.toAdd.injective (Prod.ext h1 (Prod.ext h2 (Prod.ext h3 (Prod.ext h4 ?_))))
+  funext k
+  exact absurd k.isLt (Nat.not_lt_zero _)
+
+/-- **A frame automorphism whose rows are a parameter's rows is that parameter's frame
+action.** This is the step from "for every admissible `P : NStabParam`" to "for every element
+of the Smith-Witt stabilizer": `nStabilizer_classification` supplies the `P`, and this lemma
+says the automorphism it classifies is exactly the one this file builds. It is proved by
+hom-extensionality on `NFrameModel 0` against the three rows plus the automatic `t`-row
+`nFrameModel_map_t`. -/
+theorem nNielsenFac_frameAction_of_rows {alpha : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0)) (P : NStabParam)
+    (hrows : P.rows = nNielsenFacRows ha phi) (z : NFrameModel 0) :
+    phi z = nNielsenFacMap P z := by
+  set f : ContinuousMonoidHom (NFrameModel 0) (NFrameModel 0) :=
+    ⟨phi.toMulEquiv.toMonoidHom, phi.continuous_toFun⟩ with hf
+  have hgen : ∀ i, f (nFrameCanonicalMark ha 0 i)
+      = nNielsenFacHom P (nFrameCanonicalMark ha 0 i) := by
+    have hi4 : ∀ i : Fin (coreRank 0), i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by decide
+    intro i
+    change phi (nFrameCanonicalMark ha 0 i) = nNielsenFacMap P (nFrameCanonicalMark ha 0 i)
+    rw [nNielsenFacMap_mark ha P i]
+    rcases hi4 i with rfl | rfl | rfl | rfl
+    · rw [nNielsenFac_mark_zero]
+      exact nFrameModel_map_t phi.toMulEquiv
+    · refine nNielsenFac_ext_core _ _ ?_ ?_ ?_ ?_ <;> (rw [hrows]; rfl)
+    · refine nNielsenFac_ext_core _ _ ?_ ?_ ?_ ?_ <;> (rw [hrows]; rfl)
+    · refine nNielsenFac_ext_core _ _ ?_ ?_ ?_ ?_ <;> (rw [hrows]; rfl)
+  exact nNielsenFac_frame_hom_ext ha 0 f (nNielsenFacHom P) hgen z
+
+/-- **The quantifier closure at the frame**: every continuous automorphism of the rank-four N
+frame whose rows lie in the Smith-Witt stabilizer `IsNStab` is the composite of an explicit
+eight-member list of Nielsen generators, each of which lifts, and it lifts itself. -/
+theorem nNielsenFac_stabilizer_list {alpha : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0))
+    (hphi : IsNStab alpha (nNielsenFacRows ha phi)) :
+    ∃ (z y x : ℤ_[2]) (κ : ℤ_[2]ˣ) (w p q k : ℤ_[2]),
+      (nNielsenFacList z y x κ w p q k).length = 8 ∧
+      (∀ g ∈ nNielsenFacList z y x κ w p q k,
+        (∀ v, nFrameOrientation ha 0 (g v) = nFrameOrientation ha 0 v) ∧
+          NFrameCupIsometry ha g ∧ NNielsenFacLifts ha g) ∧
+      (∀ v, nNielsenFacCompose (nNielsenFacList z y x κ w p q k) v = phi v) ∧
+      NNielsenFacLifts ha phi := by
+  obtain ⟨P, ⟨hP, hrows⟩, -⟩ := (nStabilizer_classification ha).mp hphi
+  obtain ⟨z, y, x, κ, w, p, q, k, hlen, hprops, hcomp, Psi, hchi, hsq⟩ :=
+    nNielsenFac_finite_list ha P hP
+  have hphiP : ∀ v, phi v = nNielsenFacMap P v := nNielsenFac_frameAction_of_rows ha phi P hrows
+  exact ⟨z, y, x, κ, w, p, q, k, hlen, hprops, fun v => (hcomp v).trans (hphiP v).symm,
+    Psi, hchi, fun u => (hsq u).trans ((hcomp _).trans (hphiP _).symm)⟩
+
+/-- A continuous automorphism of the rank-four N abelianization, transported to the canonical
+frame `nFrameExists_phiEquiv`. -/
+def nNielsenFacTransport {alpha : ℕ} (ha : 2 ≤ alpha)
+    (xi : ContinuousMulEquiv (topAbelianization (DN alpha 0 : Type))
+      (topAbelianization (DN alpha 0 : Type))) :
+    ContinuousMulEquiv (NFrameModel 0) (NFrameModel 0) :=
+  (nFrameExists_phiEquiv ha 0).symm.trans (xi.trans (nFrameExists_phiEquiv ha 0))
+
+theorem nNielsenFacTransport_apply {alpha : ℕ} (ha : 2 ≤ alpha)
+    (xi : ContinuousMulEquiv (topAbelianization (DN alpha 0 : Type))
+      (topAbelianization (DN alpha 0 : Type))) (z : NFrameModel 0) :
+    nNielsenFacTransport ha xi z = nPhiHom ha 0 (xi ((nFrameExists_phiEquiv ha 0).symm z)) := rfl
+
+/-- The transported automorphism sends the `j`-th canonical mark to the frame image of `xi` at
+the `j`-th marked generator: its rows are `xi`'s rows read in the canonical frame. -/
+theorem nNielsenFacTransport_mark {alpha : ℕ} (ha : 2 ≤ alpha)
+    (xi : ContinuousMulEquiv (topAbelianization (DN alpha 0 : Type))
+      (topAbelianization (DN alpha 0 : Type))) (j : Fin (coreRank 0)) :
+    nNielsenFacTransport ha xi (nFrameCanonicalMark ha 0 j)
+      = nPhiHom ha 0 (xi (abMk (dnGen alpha 0 j))) := by
+  rw [nNielsenFacTransport_apply]
+  change nPhiHom ha 0 (xi ((nFrameExists_phiEquiv ha 0).symm
+    (nFrameExists_phiEquiv ha 0 (abMk (dnGen alpha 0 j))))) = _
+  rw [ContinuousMulEquiv.symm_apply_apply]
+
+/-- **Every element of the Smith-Witt stabilizer of the rank-four N abelianization is induced
+by an actual `chiN`-preserving continuous automorphism of `D_N`**, through the eight Nielsen
+generators: `nStabilizer_classification` gives the parameter, `nNielsen_factorization` splits it
+into the six families, each member lifts by `nFullStabilizer_lift`, and the composite of those
+lifts is the automorphism produced here. The stabilizer clause is `IsNStab` on the rows of `xi`
+read in the canonical frame (`nNielsenFacTransport_mark`). The conclusion is the exact square
+`abMk (Psi x) = xi (abMk x)`, so `xi` really is the map induced by `Psi` on the topological
+abelianization. -/
+theorem nNielsenFac_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha)
+    (xi : ContinuousMulEquiv (topAbelianization (DN alpha 0 : Type))
+      (topAbelianization (DN alpha 0 : Type)))
+    (hxi : IsNStab alpha (nNielsenFacRows ha (nNielsenFacTransport ha xi))) :
+    ∃ Psi : ContinuousMulEquiv (DN alpha 0 : Type) (DN alpha 0 : Type),
+      (∀ x, chiN alpha 0 (Psi x) = chiN alpha 0 x) ∧
+      (∀ x, abMk (Psi x) = xi (abMk x)) := by
+  obtain ⟨P, ⟨hP, hrows⟩, -⟩ := (nStabilizer_classification ha).mp hxi
+  obtain ⟨Psi, hchi, hsq⟩ := nNielsenFac_param_realized ha P hP
+  refine ⟨Psi, hchi, fun x => ?_⟩
+  refine (nFrameExists_phiEquiv ha 0).injective ?_
+  show nPhiHom ha 0 (abMk (Psi x)) = nPhiHom ha 0 (xi (abMk x))
+  rw [hsq x, ← nNielsenFac_frameAction_of_rows ha _ P hrows, nNielsenFacTransport_apply]
+  change nPhiHom ha 0 (xi ((nFrameExists_phiEquiv ha 0).symm
+    (nFrameExists_phiEquiv ha 0 (abMk x)))) = _
+  rw [ContinuousMulEquiv.symm_apply_apply]
+
 #print axioms NStabParam.act
 #print axioms NStabParam.act_apply
 #print axioms NStabParam.act_t
@@ -790,6 +934,17 @@ theorem nNielsenFac_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (P : NStabPa
 #print axioms nNielsenFacList_props
 #print axioms nNielsenFac_finite_list
 #print axioms nNielsenFac_param_realized
+
+#print axioms nNielsenFacHom
+#print axioms nNielsenFac_frame_hom_ext
+#print axioms nNielsenFacRows
+#print axioms nNielsenFac_ext_core
+#print axioms nNielsenFac_frameAction_of_rows
+#print axioms nNielsenFac_stabilizer_list
+#print axioms nNielsenFacTransport
+#print axioms nNielsenFacTransport_apply
+#print axioms nNielsenFacTransport_mark
+#print axioms nNielsenFac_stabilizer_induced
 
 end
 end GQ2.Dyadic.MarkedCore
