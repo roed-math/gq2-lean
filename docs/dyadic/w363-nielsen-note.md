@@ -1,5 +1,21 @@
 # W363-NIELSEN: the packet's finite Nielsen-generator artifact at the rank-four M core
 
+> **Overtaken by W364-NFACTOR, recorded by W364-HOUSE at `d2056503`.** The
+> section "The N side (MC-N)" below reports, as a finding, that the MC-N finite
+> list cannot be produced because `nNielsen_factorization` and `nFamN1` through
+> `nFamN6` exist nowhere under `GQ2/`. That was true when this note was written.
+> W364-NFACTOR built all of them, in
+> `GQ2/Dyadic/MarkedCore/NNielsenFactorization.lean`: the six families at `:138`
+> to `:158`, `nNielsen_factorization` at `:357`, and the MC-N artifact
+> `nNielsenFac_finite_list` at `:758`. Read that section as a record of what was
+> missing, not of what is. Nothing else in this note is superseded, and the
+> N-side bridge it delivered is exactly what W364 consumed.
+>
+> The same non-existence claim is still live in
+> `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`'s module docstring, lines
+> 14-22, which no lane has been able to edit. See finding H1 of
+> `docs/dyadic/w364-house-note.md`.
+
 Lane W363-NIELSEN of the general-K campaign. Base `69b9851c`, branch
 `claude/w363-nielsen`. New modules: `GQ2/Dyadic/MarkedCore/MNielsenGenerators.lean`
 (70 declarations) and `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean` (16), all std-3.

@@ -1,11 +1,19 @@
-# W362 handoff
+# W362-W364 handoff to the next session
 
-**SKELETON. Drafted by the W362-HOUSE lane at the open of the wave, against
-base `6770a87e`.** Sections 1, 3, 5 and 8 depend on this wave's mathematics
-lanes and are marked `[ORCHESTRATOR]` where they must be filled at the close.
-The housekeeping lane cannot fill them and has not guessed at them. Sections
-2, 4 (in part), 6 and 7 are complete as written and were verified in this
-lane.
+**Drafted as a skeleton by the W362-HOUSE lane at the open of wave 362, against
+base `6770a87e`; the mechanical sections filled by the W364-HOUSE lane at the
+close of wave 364, against base `d2056503`.** Sections 2, 4, 6 and 7 are
+complete. Section 3 was filled from the thirteen lane notes of waves 362 to 364.
+Sections 1, 5 and 8 remain `[ORCHESTRATOR]`: they are judgements about what the
+session as a whole closed, and the housekeeping lane has not guessed at them.
+Section 5 carries a *draft* remaining-work list, assembled from the notes, for
+the orchestrator to reorder and amend; the placeholder above it stays until it
+does. Section 2 carries one unfilled placeholder, about the shared-cache
+convention, which was assigned to no lane.
+
+Every number in the sections this lane filled was re-derived against the tree at
+`d2056503`, not carried from a note. Where a note's own figure and the tree's
+disagree, the disagreement is stated rather than silently resolved.
 
 Structure follows `w361-claude-code-handoff.md` deliberately, so a reader who
 has read that one can skip to the section they want.
@@ -107,14 +115,373 @@ a concurrent umbrella rebuild.]`
 
 ## 3. Proof architecture and reusable scaffolding
 
-`[ORCHESTRATOR: one table per lane that landed mathematics, in the W361
-section 4 shape: module, reusable content, public pins. Then the key chain as
-a plain-text arrow diagram, then the pitfalls already resolved. The pitfalls
-list is the part later waves actually reuse; do not drop it for length.]`
-
 Carried forward unchanged: the eleven-module N architecture and its resolved
 pitfalls are in `w361-claude-code-handoff.md` section 4. The W362-HOUSE lane
 verified that table against the tree; see section 4 below.
+
+The session added **twelve registered modules**, all under
+`GQ2/Dyadic/MarkedCore/`, carrying **397 pins**, plus **one unregistered
+exporter driver** under `scripts/`. Thirteen new `.lean` files in all: count the
+driver and you get thirteen, count registered modules and you get twelve. The
+pin counts below are this lane's own `#print axioms` census over the sources at
+`d2056503`, and they agree with the lane notes everywhere except where a later
+lane moved a declaration, which is said in the row.
+
+Every one of the twelve is imported directly by `GQ2.lean`. No pre-existing
+`.lean` file in the tree was modified by any lane of the session; the only
+modified Lean file in `6770a87e..d2056503` is `GQ2.lean` itself, which gained
+twelve import lines and nothing else.
+
+### W362-MHEAD: the coupled ordinary-head cleanup
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MHeadCleanup.lean` | see below | 5 |
+
+- **`MHeadCleanup.lean`** `mHead_ordinary_row`, the literal coupled row `2 f(A) + 2^alpha f(C)`
+  of `mRelWord`, every handle included, any topological group, any rank, any `alpha`.
+  `mHead_dvd_of_coupled_row`, the scalar step in `Z_2` with an explicit witness `b - 2^a c` and
+  no unit inverted. `mHead_correction_dvd` (T1), `2^d | toAdd (f (t 0))` for `alpha >= 2`, `1 <= d`,
+  arbitrary marking, corrections and target.
+  `mHead_exists_freeTwo_characterZero_same_class` (T2), the same-class all-character-zero head
+  representative at arbitrary free rank and handle count.
+
+Note the count. The note says seven, and seven is what the module carried at
+its own close; W363-MCONSOL moved two declarations out of it (see MKERNEL
+below), leaving five.
+
+### W362-MSTAGES: full-frame compactness, stage transfer, the all-depth induction
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MFullFrameCompactness.lean` | see below | 25 |
+| `MFullFrameStages.lean` | see below | 12 |
+
+- **`MFullFrameCompactness.lean`** The free cover `mStageProjection` and `mStageOrientation`
+  (`chiM` pulled back, literal Labute values `(1, -1, 1, mUnit alpha)` on the core and `1` on
+  every handle letter). The `D_M` Frattini and limit machinery. `MStageFullFrameRealizes` with
+  closed antitone stage sets, nonempty intersection, and the equivalence
+  `exists_mStageFullFrameRealizes_iff_stages`. Full-frame stage transfer. **Torsion retention
+  checked, not asserted**: `mStageFullFrameStageSet_abMk_eq` and
+  `mStageFullFrameRealizes_abMk_eq` derive equality of the literal `abMk` columns through
+  `mPhiHom_injective`, so the stage condition is an equation in the actual abelianization of
+  `D_M`. Needs only `1 <= alpha`; `mStageOneLe` is the explicit bridge from `2 <= alpha`.
+
+- **`MFullFrameStages.lean`** `mStageTorsionWord alpha y = y 0 * y 2 ^ (2^(alpha-1))`, with
+  `mPhiHom_mStageTorsionWord` checking it really is the frame's torsion generator on the
+  standard marking, and `mStageRelWord_row_of_torsionWord` converting its fixation into the
+  exact ordinary relator row. `MStageStep alpha h`, the named depth interface.
+  `exists_mStageBasis_exact_stage`, the iteration to every depth from one initial depth-three
+  basis, retaining every exact coordinate column. `mFullStabilizer_lift_of_interfaces`, the
+  five-hypothesis composition shape, and the bundled `MStageInitialLift` /
+  `mFullStabilizer_lift_of_initialLift`.
+
+
+`mFullStabilizer_lift_of_interfaces` is the W363-MCONSOL spelling; the note was
+written when it was called `mFullStabilizer_lift`, and every bare occurrence of
+that name in a `w362-*-note.md` means this declaration, not the endpoint.
+
+### W362-MINIT: the initial free lift with the primitive relation preserved
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MFrameMatrixLift.lean` | see below | 111 |
+
+- **`MFrameMatrixLift.lean`** `mFrameBasisChange` and the `(T, B, C, D, handles)` coordinate
+  dictionary `mFrameHeadCoordinate_eq`; in T-coordinates the frame projection has the N shape.
+  `exists_mFrame_freeBasis_lift` / `mFrameLiftEquiv` (T2): from orientation preservation alone,
+  a free automorphism with literal fixed head `T = A * C^(2^(alpha-1))`, the exact relation
+  vector `r = e_A + 2^(alpha-1) e_C`, the exact frame square on **every** element, orientation
+  preserved on every element, and exact columns. `mFrameOrientation_preserved_iff`:
+  preservation is `mParityZ` of the integral `B` slot plus the integral `D` slot, **not** the
+  integral `B` row as on N. **The precise negative**: `mFrameNaiveLiftMatrix_relVec`
+  (`N r = (1 + 2^(alpha-1) digit) r`), `mFrameNaiveLiftMatrix_relVec_iff`, and the explicit
+  orientation-preserving involution `mFrameTorsionShear` for which independent sections do
+  **not** fix `r`. The cup-side interface for MCUP (T3). The four MSTAGES shapes
+  `mFrameLiftEquiv_torsionWord`, `_stageOrientation`, `_stageFrame`,
+  `mStageInitialLift_of_fixedHead_error`, and `mFullStabilizer_lift_of_fixedHead`.
+
+
+### W362-MCUP: the semantic full-frame cup predicate and the depth-three error
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MInitialCupDepth.lean` | see below | 9 |
+| `MFrameCupCoordinates.lean` | see below | 16 |
+
+- **`MInitialCupDepth.lean`** The two M-specific facts, both needing `alpha >= 2`:
+  `mCupPow_eq_one` (the actual `C^(2^alpha)` block dies in the class-two quotient) and
+  `mCupSq_eq_of_zLayer` / `mCupSq_levelMk_eq_of_mem_two` (the surviving head is a **square**,
+  so agreement modulo lambda-two suffices). `mCupPowHalf_mem_two` and
+  `mCupHead_mem_two_of_fixed_T` **discharge** the MINIT hypothesis rather than assuming it.
+  Deliverables at the actual `mRelWord`: `mCupRelWord_levelMk_eq_head_mul_tail`,
+  `_level_three_eq`, `_error_mem_three`, `_error_mem_three_of_fixed_T`.
+
+- **`MFrameCupCoordinates.lean`** `MCupFrameCupIsometry`, the semantic character-pair predicate
+  over **every** continuous mod-two character of the actual full M frame, torsion coordinate
+  included, assuming no group lift and no matrix. `mCupFrameCoordinate_head_relation`: all `4 + 2h`
+  mod-two coordinates of the M frame genuinely are characters.
+  `MCupFrameCupIsometry.reducedRows_of_projection` (T1). `mCupStageError_of_frame`, the MSTAGES
+  seam, verbatim `herror0` and **without** the orientation hypothesis, so it is the stronger
+  statement. `mCupFrameCupIsometry_of_aut` (T3), the converse ingredient, through `dmObs` and
+  uniqueness of the one-dimensional degree-two obstruction.
+
+
+### W362-MKERNEL: the M derivative-kernel interpolation at an arbitrary basis
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MBasisRowRefinement.lean` | see below | 11 |
+| `MPlaneAmbientStage.lean` | see below | 18 |
+
+- **`MBasisRowRefinement.lean`** `mBasis_mFiltered_mRelWord` (T1),
+  `mRelWord alpha (m*t) = mRelWord alpha m * nFilteredDerivative m t` in `Q_(k+1)`,
+  from `evenRawStageShift_m`. Hence
+  `mBasis_mem_nPlaneCorrectionKernel_iff_mError` characterizes the M defect by the **N**
+  plane-correction kernel, with `_defect_mul_correctionKernel_iff` at an arbitrary target and
+  top-layer slack invariance. `exists_mBasis_allRows_same_kernelCoset` (T2 interpolation). Plus
+  the two `mHead_mRelWord_shift_eq_*` re-exports W363-MCONSOL moved in from `MHeadCleanup`,
+  names unchanged, now proved from the adapters.
+
+- **`MPlaneAmbientStage.lean`** `mBasis_exists_ambient_stage` and `mBasisAmbientStageSupply`,
+  the M twin of `NAmbientStageSupply`. `exists_mBasis_full_relative_correction`, the
+  relative-refinement half. **`mStageStep_holds : MStageStep alpha h`** (T3), for every `alpha >= 2`
+  and every `h`, which discharges the interface the other four steps were stated against.
+  `mBasis_mFullStabilizer_lift_of_initialLift`.
+
+
+The note's per-module figures are 9 and 18; the 9 is now 11 because of the
+W363-MCONSOL move, and the 18 is unchanged.
+
+### W362-MASSEMBLE: the theorem and its converse
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MFullStabilizerLift.lean` | see below | 10 |
+
+- **`MFullStabilizerLift.lean`** **`mFullStabilizer_lift`** (sufficiency, unconditional) and
+  **`mFullStabilizer_lift_iff`** (the image characterization), the exact twins of
+  `nFullStabilizer_lift` / `_iff`. `mFullStabilizer_lift_of_frame`, the pre-W363 spelling, kept
+  as an alias with the identical statement and no `@[deprecated]`.
+  `mFullStabilizer_relError_of_cup`, the depth-three error from cup preservation **alone**,
+  with no orientation input. The necessity halves `mFullStabilizer_orientation_of_lift` and
+  `mFullStabilizer_cup_of_lift`, packaged as `mFullStabilizer_orientation_cup_of_lift`. The two
+  new bridges `mFrameOrientation_cupFrameOfDM` and `mCupFrameOfDM_surjective`, and the
+  torsion-word bridge `mFullStabilizer_liftEquiv_head`.
+
+
+The note's deliverables table has nine rows because it was written before the
+W363 rename added the plain-named theorem beside its alias; the module carries
+ten declarations and ten pins.
+
+### W363-NIELSEN: the packet's finite Nielsen-family list at M, and the N bridge
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `MNielsenGenerators.lean` | see below | 70 |
+| `NNielsenGenerators.lean` | see below | 16 |
+
+- **`MNielsenGenerators.lean`** `mNielsenGen_finite_list`, the explicit **seven**-member list
+  of continuous automorphisms of `MFrameModel 0`, every member orientation-preserving, an
+  `MCupFrameCupIsometry`, and lifting; the composite is the parameter's frame action and the
+  composite lifts. `mNielsenGen_param_realized` and `mNielsenGen_stabilizer_induced`, the
+  latter over every `IsMStabilizer` element, but at the canonical rank-four frame and for an
+  orientation character with four pinned generator values, exactly as
+  `mStabilizer_classification` is stated; its docstring's bare "every element" omits those
+  binders, and section 5 flags that. The reusable half
+  is the **cup producer**: `mNielsenGen_coord_zero` .. `_three`, `mNielsenGen_character_apply`
+  and `mNielsenGen_cup_core` reduce the semantic predicate to a finite `F_2` matrix check,
+  which is what the repo previously had no way to do except from an actual core automorphism.
+  `mNielsenGen_nRed_eq_parity` bridges `N.lean`'s `nRed` and `M.lean`'s `mParityZ`.
+
+- **`NNielsenGenerators.lean`** The same bridge at N, in N's own column convention:
+  `nNielsenGen_coord_*`, `nNielsenGen_character_apply`, `nNielsenGenMat`,
+  `nNielsenGen_cup_of_mat` (`A G A^T = G` gives `NFrameCupIsometry`), and
+  `nNielsenGen_lift_of_mat` / `_of_rows`, the latter in `NRows.IsCupIsometry` vocabulary so a
+  holder of `nStabilizer_classification`'s clause feeds it directly.
+
+
+### W364-NFACTOR: the N factorization into six families, and the MC-N list
+
+| Module | Reusable content | Public pins |
+| --- | --- | ---: |
+| `NNielsenFactorization.lean` | see below | 94 |
+
+- **`NNielsenFactorization.lean`** `NStabParam.act`, the N twin of `MStabParam.act`, with
+  `act_t` / `act_x1` / `act_sigma` / `act_x2` checking the four basis rows are `NRows.col` at
+  `NStabParam.rows` on the nose. The six families `nFamN1` .. `nFamN6` as `NStabParam` values,
+  with closed-form actions and admissibility. **`nNielsenFac_gl2_factor`**, the *bounded*
+  `GL_2(Z_2)` factorization `g = F(w) diag(det g, 1) E(x) F(y) E(z)` with `w in {0,1}`
+  (`N.lean`'s `nGL_factor` only gives submonoid membership, hence no slot count), reusable for
+  the handle planes since it is `h`-free. **`nNielsen_factorization`**, the eight-slot
+  factorization of any admissible parameter. `nNielsenFacEquiv`, the action on the actual
+  frame; `nNielsenFac_orientation`; `nNielsenFac_mat` and `nNielsenFac_cupIsometry`.
+  **`nNielsenFac_finite_list`**, the MC-N twin, length 8. `nNielsenFac_stabilizer_list` and
+  `nNielsenFac_stabilizer_induced`, the quantifier closure over `IsNStab`.
+  `nNielsenFacLifts_of_param_families`, the independent per-family route through
+  `nStabParam_fullFrame_lift_general`.
+
+
+### W362-PUB and W363-PUB2: the publication side
+
+`scripts/w362_ln_fox_export.lean` is an exporter driver with a global `main`, so
+it stays outside `GQ2.lean` like the five W361 export executables. It serializes
+ledger items 4 and 5 for the seven existing L/N0/Npc `FoxCertificate` sectors and
+carries **21 `rfl` signature theorems** proving that what it serialized is
+definitionally the corresponding field of the actual record, plus 26 axiom pins,
+all standard three or smaller. Because it has no olean, those 21 theorems are
+checked only by the Fox replay, which recompiles the driver. W363-PUB2 added six
+more such drivers on the same pattern, `scripts/w363_ln_*_export.lean` for
+`specialization`, `input`, `stokes`, `hessian`, `coordinate` and `cover`.
+
+### The key chain: the M full-stabilizer lift
+
+```text
+                       phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)
+                         |                                   |
+        orientation preserved                    MCupFrameCupIsometry ha phi
+                         |                                   |
+                         v                                   v
+   MFrameMatrixLift                                 MFrameCupCoordinates
+   mFrameLiftEquiv ha h phi                         mCupStageError_of_frame
+   (fixed head T = A C^(2^(alpha-1)),               (uses NO orientation input)
+    exact relation vector, exact                            |
+    frame square on every element)                          |
+        |          |            |                           |
+      hT        hchi0        hframe0                      herror0
+        |          |            |                           |
+        +----------+------------+---------------------------+
+                                |
+                                v            MPlaneAmbientStage
+              MFullFrameStages  |            mStageStep_holds ha : MStageStep alpha h
+              mFullStabilizer_lift_of_interfaces  <----------+   (MHeadCleanup
+                                |                                 mHead_exists_freeTwo_...
+                                |                                 + MBasisRowRefinement
+                                |                                 kernel interpolation)
+                                v
+              MFullFrameCompactness
+              exists_mStageBasis_exact_stage  (all depths)
+              exists_mStageFullFrameRealizes_of_stages  (compactness)
+                                |
+                                v
+              MFullStabilizerLift
+              mFullStabilizer_lift        (sufficiency)
+              mFullStabilizer_lift_iff    (+ converse, through
+                                           mCupFrameCupIsometry_of_aut and
+                                           mFrameOrientation_cupFrameOfDM)
+```
+
+The forward proof is literally one composition:
+
+```text
+mFullStabilizer_lift_of_fixedHead ha phi hchi
+  (mFullStabilizer_relError_of_cup ha phi hcup) (mStageStep_holds ha)
+```
+
+### The key chain: the two finite lists
+
+Both lists are rank four (`h = 0`), because both rest on a rank-four
+classification. The lifting halves underneath them are general in `h`.
+
+```text
+M side (W363-NIELSEN)                     N side (W364-NFACTOR)
+---------------------                     ---------------------
+M.lean                                    N.lean
+  mStabilizer_classification                nStabilizer_classification (on NRows)
+  mNielsen_factorization  (existed)         nNielsen_factorization  (DID NOT EXIST;
+        |                                     W364 built it, 8 slots, from the
+        |                                     bounded nNielsenFac_gl2_factor)
+        v                                           v
+MNielsenGenerators                        NNielsenFactorization
+  mNielsenGenMap / M1..M7                   nNielsenFacMap / N1..N6
+  cup producer: coord_* ->                  cup via W363's nNielsenGen_cup_of_mat
+    character_apply -> cup_core               (NNielsenGenerators, the bridge
+    (finite F_2 decide)                        W363 built for exactly this)
+        |                                           |
+        v                                           v
+  mNielsenGen_finite_list (7)               nNielsenFac_finite_list (8)
+  every member lifts by                     every member lifts by
+    mFullStabilizer_lift                      nFullStabilizer_lift
+        |                                           |
+        v                                           v
+  mNielsenGen_stabilizer_induced            nNielsenFac_stabilizer_induced
+  (every IsMStabilizer element)             (every IsNStab element)
+                                                    |
+                                                    + second, independent route:
+                                                      nNielsenFacLifts_of_param_families
+                                                      through nStabParam_fullFrame_lift_general
+```
+
+### Pitfalls the notes recorded, and that later waves will hit again
+
+These are the part later waves actually reuse. Each is a thing a lane got wrong
+first, or nearly did.
+
+1. **M is not a text substitution of N.** The M relator row is the *coupled*
+   two-letter `2 f(A) + 2^alpha f(C)`; the N row is `(2 + 2^alpha) f(A)`, twice a
+   unit, which `NPlaneOrdinaryHead` cancels outright. There is no such unit at M,
+   and the cleanup must **not** manufacture one by setting the `C` row to zero.
+   Every M consumer of the N head packaging must pass **two** depth facts,
+   `ht 0` and `ht 2`.
+2. **The lift fixes a composite word, not a letter.** `T = A * C^(2^(alpha-1))`,
+   not `A`. `A^{-1} * e(A) = C^m * (e C)^{-m}` is only in lambda-two, so the M
+   depth-three step turns on the surviving head being a **square**, where the N
+   argument fixes a generator literally.
+3. **Independent sections do not work at M.** Transcribing the N lift matrix
+   column by column gives `N r = (1 + 2^(alpha-1) digit) r`, a unit multiple: the
+   submodule `Z_2 r` survives but the vector does not. The explicit
+   orientation-preserving involution `mFrameTorsionShear` realizes `digit = 1`, so
+   this is a counterexample, not a gap. `mFrameLiftEquiv` exists precisely to
+   avoid it.
+4. **The M orientation is weaker than the N one.** It pins `mParityZ` of the
+   integral `B` slot and the integral `D` slot, not the integral `B` row. A proof
+   that assumes the N orientation clause at M is assuming something false.
+5. **Variance.** `NInitialCupDepth.reducedRows` has columns = images and proves
+   `Abar G Abar^T = G`; `M.lean` stores frame images in **rows** and writes the
+   same condition as `Mbar^T G Mbar = G`. `MarkedCore/Variance.lean` is the
+   dictionary. W363-NIELSEN sidestepped it by computing the column-convention
+   matrix straight from the semantics, and the matrix that came out is the
+   transpose of `mFrameMatrix_of_realizes`'s, exactly as the dictionary predicts.
+6. **The two orientation formulations are not definitionally equal**, but the
+   three frame projections **are**. `mFrameOrientation` lives on the frame and
+   `mStageOrientation` on the free pro-two group; the bridge is
+   `mStageOrientation_eq_freeOrientation` composed with
+   `mFrameOrientation_projection`. By contrast `mFrameProjection`,
+   `mCupFreeFrameProjection` and `mPhiHom o abMk o mStageProjection` are all
+   `rfl`. Do not assume the pattern goes the same way twice.
+7. **A public name can already be taken by a weaker theorem.**
+   `mFullStabilizer_lift` named the five-hypothesis *conditional* composition
+   shape for a whole wave, so a grep for the obvious name found the wrong theorem
+   first. W363-MCONSOL freed it. A lane that may not edit existing modules cannot
+   fix this itself; say so in the note and let a consolidation lane do it.
+8. **A heavy import can hide in a re-export.** `MHeadCleanup` imported
+   `StageAbstractionEvenRawSpan` for two packaging declarations it did not itself
+   use, taking its `GQ2`-internal closure to 459 modules; moving them cut it to
+   **10**, `MFullFrameStages` from 467 to 19 and `MFrameMatrixLift` from 469 to 21.
+   Measure the closure before believing a prose figure: the wave-362 brief quoted
+   "73 to 558" and those are not this graph's numbers.
+9. **A line-based pin audit cannot tell a docstring from a declaration.** A
+   wrapped prose line that happens to *begin* with the word `theorem` or `def`
+   reads as a declaration. Two of W363-MCONSOL's own first-draft docstrings did
+   exactly that. Rewrap, or audit after elaboration.
+10. **`#print axioms` output wraps.** A long axiom list continues onto the next
+    line in a build log, so a footprint of four axioms reads as one unless
+    continuation lines are rejoined first.
+11. **Citing a declaration by its file name does not give its Lean name.**
+    `Instances/NpcCore.lean` declares in namespace `Instances.NProcyclicCore`, and
+    `npcWUnit` lives in `Words.Npc` although its file is `SelectedEta.lean`. Both
+    cost W362-PUB a probe iteration.
+12. **Seven declarations in the field-selection layer are not standard three.**
+    `FieldFamilyCampaignBoundary.hasSelectedRowResidualRN_l`, `_n0` and `_npc`
+    each carry four documented standing inputs. Folding them into a
+    standard-three count is exactly the error the readiness note warns about.
+13. **Four slots are not enough for the `GL_2` block.** Any word with a single
+    `F` has `(1,1)` entry `1` when its `(0,1)` entry vanishes, so `diag(1, u)`
+    with `u != 1` needs the fifth. W364-NFACTOR records the argument; do not
+    "simplify" the factorization to four.
+14. **The N stabilizer is `alpha`-free.** `nNielsen_factorization` carries no
+    `2 <= alpha` binder on purpose, and adding one would trip the unused-variable
+    linter. Only the statements about the *actual frame* need `alpha >= 2`.
 
 ## 4. Verification record
 
@@ -198,17 +565,207 @@ by the Codex pass and are recorded in `w361-claude-code-handoff.md` section 5
 and the durable JSON report. Item 4 above shows the source state they bound is
 the state this wave starts from. It does not re-run them.
 
-### This wave
+### This session: waves 362 to 364
 
-`[ORCHESTRATOR: a clean-build and replay record for the wave's own end state,
-in the W361 section 5 shape, or an explicit statement that none was run and
-that the last binding replay is still the 22:53:05 UTC W361 one. Do not leave
-this section empty: an empty verification section has been read as a pass
-before.]`
+**Pin census, re-derived by the W364-HOUSE lane over the sources at `d2056503`.**
+This is a `#print axioms` count over the twelve new modules, cross-checked
+against each lane's own runner output. Every pin in the session prints exactly
+`[propext, Classical.choice, Quot.sound]` except one, `mStageOneLe`, which
+prints the strictly smaller `[propext]`.
+
+| Module, under `GQ2/Dyadic/MarkedCore/` | Pins | Lane | Runner record |
+| --- | ---: | --- | --- |
+| `MHeadCleanup.lean` | 5 | W362-MHEAD | direct runner, then the mirror harness |
+| `MFullFrameCompactness.lean` | 25 | W362-MSTAGES | direct runner |
+| `MFullFrameStages.lean` | 12 | W362-MSTAGES | mirror harness |
+| `MFrameMatrixLift.lean` | 111 | W362-MINIT | mirror harness (see note) |
+| `MInitialCupDepth.lean` | 9 | W362-MCUP | direct runner |
+| `MFrameCupCoordinates.lean` | 16 | W362-MCUP | mirror harness |
+| `MBasisRowRefinement.lean` | 11 | W362-MKERNEL (+2, W363) | direct runner |
+| `MPlaneAmbientStage.lean` | 18 | W362-MKERNEL | mirror harness |
+| `MFullStabilizerLift.lean` | 10 | W362-MASSEMBLE (+1, W363) | mirror harness |
+| `MNielsenGenerators.lean` | 70 | W363-NIELSEN | direct runner |
+| `NNielsenGenerators.lean` | 16 | W363-NIELSEN | direct runner |
+| `NNielsenFactorization.lean` | 94 | W364-NFACTOR | direct runner and the mirror harness |
+| **Total** | **397** | | |
+
+`MFrameMatrixLift` was verified with the direct runner against the shared cache
+before the MSTAGES rewire (commit `3b0a4254`) and with the mirror harness after
+it. The two `+N, W363` rows are the W363-MCONSOL move and rename.
+
+The first nine are the wave-362 M architecture; W363-MCONSOL re-elaborated all
+nine in dependency order after its renames and recorded `217` pins, `216`
+std-3, which is what this lane's independent count reproduces. `#print axioms`
+coverage is exact and total: 397 declarations, 397 pins, no declaration
+unpinned and no pin naming a declaration that is not there. Unlike the eleven N
+modules, where the pin set matched the *public* declarations, here the 17
+`private` declarations are pinned too.
+
+Two figures in the lane notes are superseded rather than wrong, and both are
+explained by the W363-MCONSOL move: `MHeadCleanup` was 7 at its own close and
+is 5, and `MBasisRowRefinement` was 9 and is 11.
+
+**Registration.** 1,569 `.lean` files under `GQ2/`, plus the root `GQ2.lean`.
+1,564 are in the `GQ2` import closure. The six outside it are unchanged from
+W361: `GQ2/AxiomLedger.lean` (it imports `GQ2`, so registering it would cycle)
+and the five exporter drivers under `GQ2/Dyadic/Word/`. All twelve new modules
+are imported directly by `GQ2.lean`. Verified twice, by independent routes: an
+import-graph walk over the sources, and the scoreboard's own elaborated
+registration scan, which printed `SCANNED|1569` and the same six `OUTSIDE`
+lines.
+
+**The machine scoreboard**, run from this lane's worktree at `d2056503`:
+
+```sh
+GQ2_MIR=/Users/roed/claude/cla/work/main-build-cache/lib/lean \
+GQ2_PKG=/Users/roed/claude/gq2-paper/formalizations/gq2-claude/.lake/packages \
+bash scripts/scoreboard.sh --raw
+```
+
+Exit 0. 1,084 `EXISTS` rows, 0 `MISSING`, 0 `STALE_UMBRELLA`, 2 `UNVERIFIED`
+(both prose-level: the A6 review-round count, which is not in git, and the
+per-item status of the owner docket). Run without `--raw` the board's OWNER
+ITEMS section reads the memo and the newest house note and prints
+**`memo and note AGREE 7`**.
+
+**The full ordinary gate.** The dependency wrapper the Codex handoff described
+as living in `/private/tmp` and warned might vanish is now in the tree, as
+`scripts/w361_run_with_deps.sh` (commit `b87bfa06`). Its invocation is
+
+```sh
+bash scripts/w361_run_with_deps.sh \
+  env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
+```
+
+**Read that invocation carefully before running it from a lane worktree.** The
+wrapper ends with a hard-coded `cd /Users/roed/claude/cla/work/gq2-dyadic-campaign`
+followed by `exec "$@"`, so it gates the **main clone**, whatever worktree you
+launch it from, and it runs `lake` through `check_dyadic.sh`. It is the
+orchestrator's tool at a merge, not a lane's.
+
+Its last recorded output is the wave-362 close, recorded in section 198 of the
+campaign log: `lake build GQ2` green at **5,183 jobs**, and the gate with the
+ledger reporting **51,212 tracked declarations**, **0/0/0** (no `sorryAx`
+dependency, no unknown nonstandard axiom, no terminal violation), **census
+eleven**, and five capstones at the expected axiom set. That figure is
+consistent with the W362-HOUSE ledger reading of 51,203 at `8eff12ab`: the
+difference of nine is `MFullStabilizerLift`, registered between them.
+
+**No clean-build or replay record exists for this session's end state.** The
+last binding whole-tree replay is still the W361 22:53:05 UTC one, durable copy
+`docs/dyadic/w361-claude-code-verification-report.json`. The wave-362 gate run
+above is an ordinary gate against the shared cache, not a source-only
+transitive clean build, and it predates waves 363 and 364 by three module
+additions. `python3 scripts/w361_fresh_build.py --require-live-match` was in
+flight at the close of wave 364; if it completed, its snapshot path and the
+`w361_verify_fresh.py --replay` result belong here, and the orchestrator should
+record them in section 1 as well.
+
+**Every lane in this session verified with the direct runner or the mirror
+harness, and none invoked `lake`.** W363-MCONSOL states explicitly that
+`scripts/check_dyadic.sh` was never run in a lane and the shared cache was never
+written to. Two mechanical audits were run over the nine wave-362 modules at the
+consolidation: pin-block completeness (217 declarations, 217 pins, zero missing,
+zero stale) and hygiene (no em-dash, `sorry`, `native_decide`, `set_option`,
+bare `axiom` or over-100-column line added).
+
+**Hygiene over the whole session**, re-measured by W364-HOUSE over every line
+added in `6770a87e..d2056503`, `generated/` excluded: **zero em-dashes and zero
+en-dashes added**, in any file. 144 added lines exceed 100 codepoints, of which
+**two are in Lean sources** (`MFrameMatrixLift.lean:854` at 101 and
+`MNielsenGenerators.lean:65` at 117, the latter a docstring line), four are in
+scripts, and the remaining 138 are in Markdown tables and citation lines, 73 of
+them in `w361-index.md` alone.
 
 ## 5. Remaining work
 
-`[ORCHESTRATOR: reorder and amend from this wave's outcomes.]`
+`[ORCHESTRATOR: reorder and amend from this session's outcomes. The draft below
+was assembled by the W364-HOUSE lane from the thirteen lane notes and the two
+audits; it is a collection, not a judgement about priority.]`
+
+### Draft, assembled from the notes (W364-HOUSE)
+
+**Mathematics.**
+
+1. **Nothing is owed on either full-stabilizer lift.** `nFullStabilizer_lift_iff`
+   and `mFullStabilizer_lift_iff` are both theorems, std-3, for every
+   `alpha >= 2` and every handle count, with the converse. Do not reopen the
+   starting-depth, arbitrary-basis, compactness or head-cleanup seams at either
+   core, and do not start a class-by-class or rank-by-rank campaign.
+2. **Handles, for the two finite lists.** Both lists are rank four because both
+   rest on a rank-four classification (`mStabilizer_classification`,
+   `nStabilizer_classification`). Extending them needs a classification of the
+   *handle-mixing* stabilizer first: `GL` of the `2h` handle block plus the
+   core-handle shears, on top of the core families. No such classification is in
+   the repo. W363-NIELSEN records a weaker statement that is within easy reach and
+   is deliberately not claimed: the core families extended by the identity on the
+   handle tail still preserve orientation and cup at every `h`, hence still lift,
+   and its coordinate and character machinery is already stated at general `h`.
+   Only the final `evenCupForm` expansion is specialised to `h = 0`.
+3. **Generator-level lifts, if the packet wording is read strictly.** At M:
+   M1 is `mLambdaEquiv`, M2 is `dmTauDEquiv`, M3 is `MScaling` at handle level
+   zero, and **M4, M5, M6, M7 have no group-level construction anywhere in the
+   repo**. At N the per-family route exists
+   (`nNielsenFacLifts_of_param_families`), but its **N4** ingredient
+   `nPlaneScalingHypothesis_general` is itself an N-plane compactness limit. So
+   the residue is four families at M and one at N. This is work only if the owner
+   reads the packet sentence as demanding exhibited generators; see section 5's
+   owner list.
+4. **The minimality of eight slots is not proved.** W364-NFACTOR shows only that
+   the `GL_2` *block* cannot be done in four slots of the `E, F, diag(k,1)`
+   families uniformly. Eight overall is a bound for that slot list.
+5. **The matrix-level entry point at M is not built** (W363-MAUDIT FLAG-3, still
+   open). `MCupFrameCupIsometry` appears only in its defining module and the
+   endpoint module; nothing relates it to `M.lean`'s `mCupIsometry` /
+   `IsMStabilizer`, which is what `mStabilizer_classification` consumes. The
+   semantic predicate is the safer public boundary and should not be replaced;
+   the bridge should be added beside it, and that is where
+   `MarkedCore/Variance.lean`'s row/column dictionary re-enters. W363-NIELSEN
+   supplied the analogous bridge in the cup direction, which is the harder half.
+
+**Publication.**
+
+6. **Six exporters were named as missing by W362-PUB, and W363-PUB2 supplied
+   them.** The W362-PUB note's T2.d table names
+   `specializationTemplate`, `inputRowsTemplate`, `chainTemplate`,
+   `hessianTemplate`, `coordinateTemplate` and `phaseCoverTemplate` as proposals
+   for work not done; `scripts/w363_ln_*_export.lean` are the six drivers.
+   Whoever finalizes this section must re-read that table rather than quote it:
+   it was accurate when written and is not now.
+7. **Five `generated/appendix/` skeletons still carry 40 `\dyadicAppendixTODO`
+   invocations**, eight in each. A grep returns 45 because each file also carries
+   the macro definition on a commented line.
+8. **The twelve owner decisions in W362-PUB section T3.c** are the concrete form
+   of the publication question: which of routes A, B or C the three frozen L/N
+   rows take, whether a ten-item appendix may be published with items carried by
+   checked declarations rather than displays, the manifest schema and
+   `manifest_version` bump, gate 7's `_astHash` constants, how a
+   `status: "STAGED"` artifact is promoted at all, and the two M skeletons that
+   lane did not touch.
+
+**Documentation repairs found by this session's housekeeping.**
+
+9. `GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean`'s module docstring says the
+   MC-N artifact "cannot be produced yet" and that `nNielsen_factorization` and
+   `nFamN1` to `nFamN6` exist nowhere under `GQ2/`. W364-NFACTOR landed all of
+   them, in the same directory. Comment-only, and the highest-severity docstring
+   defect in the session.
+10. Several `MNielsenGenerators` and `NNielsenFactorization` docstrings say "for
+    every parameter" where the statement quantifies over a *parameter together
+    with a supplied inverse parameter*; no inverse structure on `MStabParam` or
+    `NStabParam` exists in the tree. The headline theorems are unaffected
+    (the seven and eight families each supply their own inverse), but the
+    intermediate lemmas claim more than they state.
+11. `MNielsenGenerators` refers to the endpoint seven times as
+    `mFullStabilizer_lift_of_frame`, the retained alias, and never by the public
+    name W363-MCONSOL freed for it. Its quantifier-closure docstring also claims
+    "every element of the Smith-Witt stabilizer" where the statement fixes the
+    canonical rank-four frame and pins four generator values of the orientation
+    character; the N twin spells its clause out and the M one does not.
+12. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` pins nine source
+    SHA-256 with no as-of commit, and all nine are now stale because
+    W363-MCONSOL edited all nine files later the same day. The audit's base is
+    `69b9851c`; the verdict is unaffected.
 
 Carried forward from `w361-claude-code-handoff.md` section 6, in its order:
 
@@ -345,6 +902,38 @@ with the build, and does not race the cache the way a separate runner
 invocation does. The W362-HOUSE lane closed its whole std-3 and census
 question out of the orchestrator's own build log.
 
+**Three commands this session added, listed here because section 4 is where
+their output lives and this is where a reader looks for the invocation.**
+
+The full ordinary gate, orchestrator only, because it runs `lake`:
+
+```sh
+bash scripts/w361_run_with_deps.sh \
+  env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
+```
+
+`scripts/w361_run_with_deps.sh` is the tracked copy (commit `b87bfa06`) of the
+`LEAN_PATH` wrapper the W361 handoff kept in `/private/tmp` and warned might
+vanish. **It ends with a hard-coded `cd` into the main clone**, so it gates
+`/Users/roed/claude/cla/work/gq2-dyadic-campaign` whatever worktree you launch
+it from. That is correct for a merge and wrong for a lane.
+
+The two staged publication checks, read-only, no `lake`:
+
+```sh
+bash scripts/w362_check_ln_staged.sh      # replays W361's check first, then W362's
+bash scripts/w363_check_ln_staged.sh      # the six W363-PUB2 exporters
+```
+
+The second lands with the W363-PUB2 merge and is not in every lane worktree;
+check it exists before invoking it.
+
+`w362_check_ln_staged.sh` ends
+`W362_LN_STAGED_CHECK_PASS (staged proposals only: not owner approval, not a
+manifest entry, not a gate)`. Take that sentence literally; the artifacts it
+passes all embed `status: "STAGED"` and every validator refuses any other
+value.
+
 ## 7. Minimal reading list
 
 1. This document, then `w361-claude-code-handoff.md` for anything it defers to.
@@ -363,7 +952,55 @@ question out of the orchestrator's own build log.
 8. `docs/dyadic/plan.md` and
    `docs/dyadic/refs/dyadic-presentations-formalization-proof.tex` when
    deciding what remains of M or the finite Nielsen-list artifact.
-9. `[ORCHESTRATOR: this wave's own lane notes, in dependency order.]`
+9. This session's own lane notes, in dependency order. Read the audits before
+   the notes they judge, and read `w363-mconsol-note.md` before any
+   `w362-*-note.md`, because it renamed a public theorem that all six of them
+   were written against.
+
+   *The M architecture, in the order the proof composes:*
+   1. `docs/dyadic/w362-mhead-note.md` -- the coupled head cleanup (step 1).
+   2. `docs/dyadic/w362-mkernel-note.md` -- the derivative-kernel interpolation
+      and `mStageStep_holds` (step 2). Its per-module pin figures of 9 and 18
+      are pre-`MCONSOL`; the first is now 11.
+   3. `docs/dyadic/w362-minit-note.md` -- the initial free lift (step 3).
+   4. `docs/dyadic/w362-mcup-note.md` -- the semantic cup predicate and the
+      depth-three error (step 4).
+   5. `docs/dyadic/w362-mstages-note.md` -- compactness, stage transfer and the
+      conditional composition (step 5).
+   6. `docs/dyadic/w362-massemble-note.md` -- the assembly, and the two landed
+      theorems in full. Not one of the scaffold's five items; its header says so.
+
+   *The audits of that architecture, both worth reading before any new M work:*
+   7. `docs/dyadic/w363-m-full-stabilizer-independent-audit.md` -- the
+      proof-level independent audit. **VERDICT: PROVED AS STATED**, with three
+      flagged items, of which FLAG-3 is still open. Its nine source SHA-256 are
+      as of `69b9851c`, before the consolidation renamed and edited all nine
+      files; the document does not say so.
+   8. `docs/dyadic/w363-m-full-stabilizer-scope.md` -- the twin of
+      `w361-n-full-stabilizer-scope.md`: what the M theorem does and does not
+      settle in the governing packet, and six remaining campaign requirements.
+      It cites the endpoint by its pre-rename spelling `mFullStabilizer_lift_of_frame`.
+
+   *The consolidation, then the two Nielsen lanes:*
+   9. `docs/dyadic/w363-mconsol-note.md` -- the rename map, the import-cost
+      measurement, the nine docstring corrections and the folded audit flags.
+      The one document that reconciles the six W362 notes with the tree.
+   10. `docs/dyadic/w363-nielsen-note.md` -- the MC-M finite list and the N cup
+       bridge. Its section "The N side" is **overtaken by W364-NFACTOR**: what it
+       records as absent now exists.
+   11. `docs/dyadic/w364-nfactor-note.md` -- the N factorization into six
+       families, the bounded `GL_2` factorization, and the MC-N finite list.
+
+   *The publication side and the housekeeping, readable independently:*
+   12. `docs/dyadic/w362-pub-note.md` -- the ten-item inventory, the staged L/N
+       packets, and twelve owner decisions. Its T2.d list of six missing
+       exporters was supplied by W363-PUB2.
+   13. `docs/dyadic/w363-pub2-note.md` -- the six exporters, staged, with the
+       five-kind binding taxonomy.
+   14. `docs/dyadic/w362-house-note.md` -- every Codex headline claim checked
+       against the tree, and the shared-cache staleness lesson.
+   15. `docs/dyadic/w364-house-note.md` -- this session's round, the index
+       extension, and the scoreboard baseline for the next session.
 
 **One trap in that list.** Do not read `docs/dyadic/w361-final-verification.md`
 as a current record. It opens "Final verified checkpoint, 2026-09-17 17:30

@@ -1,11 +1,16 @@
-# Index of the W360/W361 document corpus
+# Index of the W360-W364 document corpus
 
-Compiled by the W362-HOUSE lane against the tree at `6770a87e`, which is the
-commit that first tracked all 71 of these files. Every entry below was read at
-that hash; nothing here is carried over from an earlier note.
+Two parts. The first, the W360/W361 corpus, was compiled by the **W362-HOUSE**
+lane against the tree at `6770a87e`, the commit that first tracked all 71 of
+those files; every entry in it was read at that hash. The second, the W362-W364
+session, was added by the **W364-HOUSE** lane against `d2056503`, and every
+entry in it was read at that hash. Neither part is carried over from an earlier
+note.
 
-The corpus is 69 Markdown documents and 2 JSON verification reports, all
-matching `docs/dyadic/w36*`. Six classes are used:
+The W360/W361 corpus is 69 Markdown documents and 2 JSON verification reports,
+all matching `docs/dyadic/w36[01]*`. The W362-W364 session adds 15 more
+Markdown documents, plus this file. Six classes are used, the same six in both
+parts:
 
 - **verified record** -- states what a checked artifact proves or what a run
   observed. Cite these.
@@ -22,9 +27,38 @@ is an audit.
 
 ## Start here
 
-`w361-claude-code-handoff.md` is the current entry point, and
-`w361-claude-code-verification-report.json` is the evidence it binds.
-Everything else is reachable from those two.
+`w362-claude-handoff.md` is the current entry point. It defers to
+`w361-claude-code-handoff.md` for anything the Codex pass settled, and
+`w361-claude-code-verification-report.json` is still the evidence binding the
+last whole-tree replay. Everything else is reachable from those three.
+
+## Where the Claude session's records live
+
+Four places, and only the first two are authoritative.
+
+1. **The tree.** `docs/dyadic/`, indexed below, and the Lean itself. A module's
+   docstring is the record of what that module proves; a lane note is the record
+   of how it got there and what it deliberately did not do.
+2. **The owner's memo,** `docs/dyadic/owner-items-2026-08-05.md`. Its newest
+   block is "Status at wave 362 (2026-09-17)", reading **Seven items await
+   you**, which folded in the whole Codex-era docket that had accumulated since
+   the wave-89 block. Only the owner amends it. `scripts/scoreboard.sh` prints
+   that count against the newest house note's and says whether they agree; a
+   disagreement is the board's product, not a failure, and is never to be fixed
+   by editing a number into the script.
+3. **The campaign log,** `~/claude/cla/outputs/dyadic-general-K-proof-campaign-plan-2026-08-02.md`,
+   **section 198 onward**. Section 198, "Wave 362: the M full-stabilizer lifting
+   theorem, in one wave, after the Codex handoff", is the narrative record of
+   this session: the interregnum (Codex's waves 89 to 361, of which only 89 to
+   187 have sections of their own, the rest living under `docs/dyadic/`), the
+   seven lanes plus the assembly lane, the verification figures, and the live
+   frontier. At `d2056503` section 198 is the last section; waves 363 and 364
+   are recorded only here and in their lane notes, and the orchestrator writes
+   their sections at the session's close. The log is outside the repository and
+   is not versioned with it.
+4. **Session memory,** `~/.claude/projects/.../memory/`, which carries the wave
+   states and the `codex-era-infra` facts. It is an index to the other three,
+   not a substitute for any of them.
 
 ---
 
@@ -138,6 +172,74 @@ already counted under Audits and Verified records, and are not recounted.
 
 ---
 
+---
+
+# Part two: the W362-W364 session
+
+Added by the W364-HOUSE lane against `d2056503`. Fifteen documents, in the same
+six classes. One further document, `w363-pub2-note.md`, had landed on the wave
+branch but not in this index's base at the time of writing; see the note at the
+end of this part.
+
+## Handoffs (1)
+
+| Document | One line |
+| --- | --- |
+| `w362-claude-handoff.md` | **Current entry point.** "W362-W364 handoff to the next session": skeleton drafted by W362-HOUSE at the open of wave 362, mechanical sections filled by W364-HOUSE at the close of wave 364. Sections 1, 5 and 8 remain the orchestrator's. |
+
+## Verified records (10)
+
+| Document | One line |
+| --- | --- |
+| `w362-mhead-note.md` | Step 1 of the M plan: the coupled ordinary-head cleanup `2 f(A) + 2^alpha f(C)`, the scalar divisibility step, and the same-class all-character-zero head representative. Its "all seven declarations" is now five, after the W363 move. |
+| `w362-mkernel-note.md` | Step 2: the M defect characterized by the **N** plane-correction kernel through `evenRawStageShift_m`, the arbitrary-basis interpolation, and `mStageStep_holds`, which discharged the interface the other four steps were stated against. Its 9-pin figure is now 11. |
+| `w362-minit-note.md` | Step 3: `mFrameLiftEquiv`, the initial free lift with literal fixed head `T = A C^(2^(alpha-1))`, 111 declarations, and the precise negative that independent torsion sections fail on the explicit shear `mFrameTorsionShear`. |
+| `w362-mcup-note.md` | Step 4: `MCupFrameCupIsometry`, the semantic predicate over every continuous mod-two frame character, and the depth-three error; the MINIT hypothesis discharged rather than assumed. |
+| `w362-mstages-note.md` | Step 5: torsion-retaining full-frame compactness, stage transfer, the all-depth induction, and the conditional composition. Torsion retention is checked in file, not asserted. |
+| `w362-massemble-note.md` | The assembly: `mFullStabilizer_lift` and `mFullStabilizer_lift_iff`, unconditional, std-3, the exact twins of the N pair. Explicitly not one of the scaffold's five items. Its deliverables table has nine rows for what are now ten declarations. |
+| `w363-mconsol-note.md` | The consolidation under an explicit nine-module edit grant: the rename map that freed the public name, the import-cost measurement (459 to 10 at the head module), nine docstring corrections, and the two audit flags folded in. The one document that reconciles the six W362 notes with the tree. |
+| `w363-nielsen-note.md` | The MC-M finite list at rank four (seven families), the cup producer that reduced the semantic predicate to a finite `F_2` check, and the N-side bridge. **See flag 6: its "The N side" section is overtaken by W364-NFACTOR.** |
+| `w364-nfactor-note.md` | The N factorization into six families, the *bounded* `GL_2(Z_2)` factorization in five slots, the eight-slot `nNielsen_factorization`, and the MC-N finite list. The best-behaved citation record of the session: nothing in it has drifted. |
+| `w362-house-note.md` | Every Codex headline claim checked against the tree at `6770a87e`: 118 N pins std-3, registration complete, census eleven at source and environment level, the four publication counts exact. Also the shared-cache staleness lesson, which every later lane has had to apply. |
+
+## Audits (1)
+
+| Document | One line |
+| --- | --- |
+| `w363-m-full-stabilizer-independent-audit.md` | The proof-level independent audit of the nine wave-362 M modules. **VERDICT: PROVED AS STATED**, no mathematical caveat, no hidden premise, 216 pins inside the standard three. Three flagged items; FLAG-3 is still open. **See flag 5: all nine of its source hashes and fifteen of its line citations have drifted, and it names no base commit.** |
+
+## Scope notes (2)
+
+| Document | One line |
+| --- | --- |
+| `w363-m-full-stabilizer-scope.md` | The M twin of `w361-n-full-stabilizer-scope.md`: what the M theorem settles in the governing packet, and six remaining campaign requirements. Cites the endpoint by its pre-rename spelling `mFullStabilizer_lift_of_frame`; no `.lean` line citations, so nothing in it has drifted. |
+| `w364-house-note.md` | This session's round (watch 26): the staleness check, the severity-ranked findings, the verified counts, the owner items matched to the memo's seven, and the scoreboard baseline for the next session. |
+
+## Proposals, not adopted (1)
+
+| Document | One line |
+| --- | --- |
+| `w362-pub-note.md` | The ten-item L/N inventory verified against the tree, the staged `general-ln-certificate-staged/` packets, and twelve owner decisions. Everything staged carries `status: "STAGED"`; nothing is adoption, appendix migration or census amendment. Its T1 inventory is a verified record and its 85 citations are all exact; its T2.d list of six missing exporters was supplied by W363-PUB2. |
+
+## Templates (0)
+
+None this session. The W362-PUB and W363-PUB2 exporter drivers under `scripts/`
+are executables, not documents.
+
+## Landed after this index's base
+
+`docs/dyadic/w363-pub2-note.md` exists on the wave branch (present in the main
+clone at `06daa54a`, "merge W363-PUB2: all six missing L/N exporters, staged,
+with a five-kind binding taxonomy") but not at `d2056503`, this index's base, so
+it is not classified above. It is the record of the six exporter drivers
+`scripts/w363_ln_*_export.lean` and the artifacts they emit, and on its
+description it is a **proposal, not adopted**, like its predecessor. The
+W364 audit lane's documents, matching `docs/dyadic/w364-nielsen-*.md`, were in
+flight at the same moment and are likewise absent here. Whoever extends this
+index next should start from those two.
+
+---
+
 ## Flags: where a headline outruns its body
 
 The docstring-outruns-statement rule applied to prose. The corpus is unusually
@@ -221,3 +323,32 @@ partial reading, not a false claim.
 exact. A grep for `dyadicAppendixTODO` under `generated/appendix/` returns 45,
 because each of the five files also carries the macro's definition on a
 commented-out line. Eight real invocations per file, five files, 40.
+
+**Flag 5 (medium) -- `w363-m-full-stabilizer-independent-audit.md` pins nine
+source hashes and twenty-one line numbers, names no base commit, and every one
+of the hashes is now wrong.** The audit's "Verification performed" table gives a
+SHA-256 for each of the nine wave-362 M modules; all nine differ from the files
+at `d2056503`. Fifteen of its twenty-one `file:line` citations are also off, by a
+fixed per-file offset (`MFullFrameCompactness` +6, `MBasisRowRefinement` +4,
+`MPlaneAmbientStage` +4, `MFrameCupCoordinates` +6, `MFrameMatrixLift` +5 then +9
+past line 1100, `MFullStabilizerLift` +33). Every named declaration still exists
+with the quoted text intact, so this is drift, not a content error, and the
+verdict `PROVED AS STATED` is unaffected. The cause is that four commits edited
+all nine modules after the audit was written: `acffa057`, `492fe22e`, `20174284`
+and `6359d12a`. **The audit's true base is `69b9851c`**, established by
+recomputing `MFullStabilizerLift.lean`'s SHA-256 at candidate commits. The fix is
+one line at the head of the document naming that commit; a renumber is optional
+and worth less. W364-HOUSE did not rewrite another lane's verdict document.
+
+**Flag 6 (high, and the one most likely to be acted on) -- a live Lean docstring
+asserts the non-existence of declarations that now sit beside it.**
+`GQ2/Dyadic/MarkedCore/NNielsenGenerators.lean:14-22` says the MC-N finite-list
+artifact "cannot be produced yet", because "there is no `nNielsen_factorization`
+and there are no `nFamN1` through `nFamN6` values anywhere in `GQ2/`". W364-NFACTOR
+built all eight, in `GQ2/Dyadic/MarkedCore/NNielsenFactorization.lean`:
+the families at `:138` to `:158`, `nNielsen_factorization` at `:357`, and the
+artifact `nNielsenFac_finite_list` at `:758`. Nothing depends on the docstring,
+so the mathematics is untouched; the hazard is that it reads as a research
+finding rather than as prose. `docs/dyadic/w363-nielsen-note.md` carries the same
+sentence and now opens with an overtaken-by banner; the module docstring does
+not, because no lane of this session held an edit grant on it.
