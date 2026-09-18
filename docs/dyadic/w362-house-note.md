@@ -286,3 +286,49 @@ risk of being committed. No action is required and none was taken.
     torsion clause is automatic, is a real theorem at
     `GQ2/Dyadic/MarkedCore/N.lean:1064`. The next-task map is grounded; it is
     not naming intentions.
+
+## Interaction with the machine scoreboard, flagged before it surprises anyone
+
+Creating this file changes what `scripts/scoreboard.sh` reports. Its OWNER
+ITEMS section picks the ARTIFACT side with
+
+```sh
+ls docs/dyadic/w*-house-note.md | sed 's/.*\/w\([0-9]*\)-house-note.md/\1 &/' |
+  sort -n | tail -1
+```
+
+a **numeric** sort, so `w362-house-note.md` displaces `w88-house-note.md` the
+moment this file exists. Had this note carried no owner-items heading, the
+board would have started printing `NOT FOUND` where it used to print a count.
+That is the contract's honest outcome, but it would have looked like a
+regression and nobody would have known why. The section below therefore
+exists, and this paragraph exists so the next reader does not have to
+rediscover the mechanism.
+
+The AUTHORITY side is `docs/dyadic/owner-items-2026-08-05.md`, whose newest
+block is "Status at wave 89 (2026-08-16)" and reads **Zero items await you**.
+That block predates this wave. The board will accordingly print a
+disagreement between zero and the count below. Per the script's own header,
+"A disagreement is the product, not a failure": the memo is right about the
+docket as of wave 89, and the note is right about what has been surfaced
+since. Do not respond by editing a number into the script.
+
+## Owner items
+
+1. Whether the reviewed staged certificate PDF's bytes should be tracked.
+   `w361-staged-pdf-qa.md` pins a 29-page artifact by SHA-256, and this lane
+   confirmed the bytes at `output/pdf/w361-staged-certificates.pdf` in the main
+   clone hash to exactly the pinned
+   `3cec56dc3adde9ad9982225cbc376904a9284224f23ba0c1a07c72f17a4b71bb`. T3 has
+   now ignored `/output/`, making that path permanently untracked, so the
+   reviewed bytes exist in exactly one working copy. The artifact is
+   reproducible from tracked inputs (`scripts/w361_staged_certificates.tex`,
+   hash confirmed, plus the staged appendices under `generated/`), so nothing
+   is lost today. The call is whether a QA record that pins bytes by hash
+   should be able to point at those bytes in the repository. This lane has no
+   authority to track a 308 KB build product into a research tree and has not.
+
+Nothing else this lane found is an owner call. The remaining items are either
+verified facts, recorded above, or scope amendments proposed to the
+orchestrator: the heartbeat-baseline wording in item 10, and the four document
+flags in `docs/dyadic/w361-index.md`.
