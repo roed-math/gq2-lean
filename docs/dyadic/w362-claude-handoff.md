@@ -164,8 +164,19 @@ Carried forward from `w361-claude-code-handoff.md` section 6, in its order:
    in each of the five files under `generated/appendix/` (a grep returns 45
    because each file also carries the macro definition on a commented line).
 4. Owner and editorial decisions remain, and are listed in
-   `w361-claude-code-handoff.md` section 6 item 4. None was taken at the base
-   of this wave. G3 and release remain an owner gate.
+   `w361-claude-code-handoff.md` section 6 item 4 (six of them) and in
+   `w361-acceptance-readiness.md` under "Mathematical target decisions" (five,
+   overlapping). None was taken at the base of this wave. G3 and release
+   remain an owner gate.
+
+   **The owner's own memo does not reflect this.**
+   `docs/dyadic/owner-items-2026-08-05.md` has its newest status block at wave
+   89 (2026-08-16) reading "Zero items await you". That predates W360 and W361
+   by a month, and nobody folded their docket back into it. The W362 house
+   note carries the six forward plus one of its own, so
+   `scripts/scoreboard.sh` now prints seven against the memo's zero. That
+   disagreement is the board working as designed. Only the owner amends the
+   memo; do not resolve the disagreement by editing either number.
 
 Standing "do nots", unchanged: do not resurrect the false universal frozen-M
 placement claim; do not claim an arbitrary external two-adic unit admits a
