@@ -3,12 +3,17 @@
 Lane: M full-stabilizer lifting, step 5 of 5 (exact all-depth stages, full-frame
 stage transfer, compactness at M). Branch `claude/w362-mstages`, base `6770a87e`.
 
+`claude/w362-mhead` is merged in, so the coupled row is consumed from MHEAD
+rather than restated here (see below).
+
 Verification of record: `bash scripts/w361_lean_runner.sh <file>` for the first
-module, and `scripts/mirror.sh sweep` + `gen GQ2.Dyadic.MarkedCore.MFullFrameCompactness`
-+ `check GQ2/Dyadic/MarkedCore/MFullFrameStages.lean` for the second. Default
-limits throughout, `autoImplicit=false`, no warnings, no `sorry`, no new axioms.
-Every declaration in both files carries `#print axioms`: 25 + 13 = 38 pins, all
-exactly `[propext, Classical.choice, Quot.sound]`.
+module, and the mirror harness (`gen GQ2.Dyadic.MarkedCore.MHeadCleanup`,
+`gen GQ2.Dyadic.MarkedCore.MFullFrameCompactness`, then
+`check GQ2/Dyadic/MarkedCore/MFullFrameStages.lean`) for the second. Both were
+re-verified after the shared cache advanced under the orchestrator's Lake
+umbrella. Default limits throughout, `autoImplicit=false`, no warnings, no
+`sorry`, no new axioms. Every declaration in both files carries `#print axioms`:
+25 + 12 = 37 pins, all exactly `[propext, Classical.choice, Quot.sound]`.
 
 ## New modules
 
@@ -47,9 +52,11 @@ silently weakens.
 
 ### `GQ2/Dyadic/MarkedCore/MFullFrameStages.lean` (T2, T3)
 
-The M row is **not** a text substitution of the N row. `mStageRelWord_ordinary_row`
-records the literal two-letter row `2 f(y_0) + 2^alpha f(y_2)`. The primitive
-relation word is therefore `mStageTorsionWord alpha y = y_0 * y_2^(2^(alpha-1))`,
+The M row is **not** a text substitution of the N row: it reads the two letters
+`2 f(y_0) + 2^alpha f(y_2)`. That row is MHEAD's `mHead_ordinary_row`, imported
+and used here rather than restated; an earlier draft of this module carried a
+byte-identical copy under its own name, which was removed on merging MHEAD. The
+primitive relation word is `mStageTorsionWord alpha y = y_0 * y_2^(2^(alpha-1))`,
 and `mPhiHom_mStageTorsionWord` checks, via `mPhiHom_t`, that on the standard
 marking this is exactly the frame's torsion generator, not `Abar`.
 `mStageRelWord_row_of_torsionWord` converts fixation of that word into the exact
@@ -77,7 +84,11 @@ reduces this to two hypotheses. No lift is proved here.
 
 ## What remains for the siblings
 
-1. MKERNEL: produce `MStageStep alpha h` for `alpha >= 2`.
+1. MKERNEL: produce `MStageStep alpha h` for `alpha >= 2`. MHEAD's
+   `mHead_correction_dvd` and `mHead_exists_freeTwo_characterZero_same_class`
+   are ingredients of the relative-refinement half of that step, not a discharge
+   of it: the ambient correction supply and the arbitrary-basis all-rows
+   kernel-coset witnesses are still owned by MKERNEL.
 2. MINIT: produce the initial `e0` fixing `mStageTorsionWord alpha` (in the
    free basis `(T = A*C^m, B, C, D, handles)`), preserving `mStageOrientation`,
    and inducing `phi` on the full frame through `mStageProjection`.

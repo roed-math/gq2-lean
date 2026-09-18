@@ -1,4 +1,5 @@
 import GQ2.Dyadic.MarkedCore.MFullFrameCompactness
+import GQ2.Dyadic.MarkedCore.MHeadCleanup
 import GQ2.Dyadic.MarkedCore.FreeProTwoBasisCorrection
 
 /-!
@@ -12,9 +13,10 @@ this file is not a text substitution of the N argument.
 
 Contents:
 
-* `mStageRelWord_ordinary_row`, `mStageTorsionWord` and
-  `mStageRelWord_row_of_torsionWord`: the actual two-letter M row, and the
-  exact ordinary row obtained from a fixed primitive torsion word.
+* `mStageTorsionWord` and `mStageRelWord_row_of_torsionWord`: the primitive
+  relation word, and the exact ordinary row obtained from fixing it. The
+  two-letter row itself is MHEAD's `mHead_ordinary_row`, consumed here rather
+  than restated.
 * `MStageStep`: the **named** depth-step interface. It is a hypothesis
   everywhere below; nothing in this file proves that any `(alpha, h)` has it.
 * `exists_mStageBasis_exact_stage`: from one initial depth-three basis and that
@@ -54,23 +56,11 @@ section OrdinaryRows
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {h : ℕ}
 
 omit [IsTopologicalGroup G] in
-/-- The ordinary row of the literal full M relator, every handle included.
-Unlike the N row it reads **two** letters: `2 f(y_0) + 2^alpha f(y_2)`. -/
-theorem mStageRelWord_ordinary_row (alpha : ℕ)
-    (f : ContinuousMonoidHom G (Multiplicative ℤ_[2]))
-    (y : Fin (coreRank h) → G) :
-    toAdd (f (mRelWord alpha y)) =
-      2 * toAdd (f (y 0)) + (2 : ℤ_[2]) ^ alpha * toAdd (f (y 2)) := by
-  rw [map_mRelWord, mRelWord_comm, toAdd_mul, toAdd_pow, toAdd_pow,
-    nsmul_eq_mul, nsmul_eq_mul]
-  push_cast
-  ring
-
-omit [IsTopologicalGroup G] in
 /-- Agreement of the primitive torsion word under one ordinary character forces
-agreement of the whole M relator row under that character. This is the exact
-M replacement for the N head-fixation argument, and it uses `alpha >= 1` only
-through `2 * 2^(alpha-1) = 2^alpha`. -/
+agreement of the whole M relator row under that character, by MHEAD's coupled
+row `mHead_ordinary_row`. This is the exact M replacement for the N
+head-fixation argument, and it uses `alpha >= 1` only through
+`2 * 2^(alpha-1) = 2^alpha`. -/
 theorem mStageRelWord_row_of_torsionWord {alpha : ℕ} (ha : 1 ≤ alpha)
     (f : ContinuousMonoidHom G (Multiplicative ℤ_[2]))
     (y z : Fin (coreRank h) → G)
@@ -84,7 +74,7 @@ theorem mStageRelWord_row_of_torsionWord {alpha : ℕ} (ha : 1 ≤ alpha)
     nsmul_eq_mul] at hf
   push_cast at hf
   apply toAdd.injective
-  rw [mStageRelWord_ordinary_row, mStageRelWord_ordinary_row, hpow]
+  rw [mHead_ordinary_row, mHead_ordinary_row, hpow]
   linear_combination (2 : ℤ_[2]) * hf
 
 end OrdinaryRows
@@ -151,7 +141,7 @@ private theorem mStage_relator_row_transport {alpha h : ℕ}
     f (mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i))) =
         f (mRelWord alpha (fun i => e0 (freeTwoRankGen (coreRank h) i))) := by
       apply toAdd.injective
-      rw [mStageRelWord_ordinary_row, mStageRelWord_ordinary_row, hchar 0, hchar 2]
+      rw [mHead_ordinary_row, mHead_ordinary_row, hchar 0, hchar 2]
     _ = f target := hrow0 f
 
 /-- **The M twin of `exists_nBasis_exact_stage`.** Every depth has an actual
@@ -323,7 +313,6 @@ theorem mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
 #print axioms mStageTorsionWord
 #print axioms mStageTorsionWord_dmGen
 #print axioms mPhiHom_mStageTorsionWord
-#print axioms mStageRelWord_ordinary_row
 #print axioms mStageRelWord_row_of_torsionWord
 #print axioms MStageStep
 #print axioms mStage_relator_row_transport
