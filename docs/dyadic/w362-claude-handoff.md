@@ -86,6 +86,20 @@ Check for an in-flight build before diagnosing a runner failure:
 ps -eo pid,etime,command | grep -E 'lake build|bin/lean' | grep -v grep
 ```
 
+**The cache is also a moving target, which is the sharper half.** It is the
+main clone's `.lake/build`, so it holds whatever the main clone currently is,
+not what any lane worktree is. During the W362-HOUSE lane the main clone went
+from `6770a87e` to `8eff12ab`, 48 commits and eight new M modules. Every
+number that lane read through the cache is therefore a number about
+`8eff12ab`. Before quoting a cache-derived figure against your own base,
+diff the two and say what the diff does: additions and registrations transfer,
+a declaration count does not.
+
+```sh
+git -C /Users/roed/claude/cla/work/gq2-dyadic-campaign log --oneline -1
+git -C /Users/roed/claude/cla/work/gq2-dyadic-campaign diff --name-status <your base>..HEAD
+```
+
 `[ORCHESTRATOR: if this wave's lanes settled a convention for who may write to
 the shared cache and when, record it here. At the base of the wave there was
 none, and the housekeeping lane's first eleven runner invocations were lost to
@@ -153,6 +167,25 @@ tree rather than against the W361 handoff.
     pair/mobile packets, six word-only L/N specimens (confirmed by file shape,
     not by prose), the 29-page PDF and its wrapper both hashing as the QA
     record claims, and forty TODO invocations.
+
+11. All three audit drivers pass, run through the reviewed runner:
+    `GENERAL_AXIOM_AUDIT_PASS|16` with the ramified-i endpoint at exactly
+    twelve axioms (the standard three plus nine);
+    `ARTIFACT_AXIOM_AUDIT_PASS|691`; and `GQ2/AxiomLedger.lean` reporting zero
+    `sorryAx` dependencies, zero unknown nonstandard axiom uses and zero
+    terminal violations, with every capstone at twelve census axioms and each
+    Gamma_R capstone identical to its Gamma_A twin.
+12. The census is eleven at the environment level, not only at source level.
+    The completed umbrella build elaborated 12,964 pins over 12,814
+    declarations; exactly eleven distinct nonstandard axioms appear and all
+    eleven are `AxiomLedger.bAxioms`. No `sorryAx`, no `Lean.ofReduceBool`.
+
+**Read items 11 and 12 with the caveat in section 2.** They were measured
+through the shared cache, which had advanced to the wave's own HEAD by then,
+so they are facts about that tree. They transfer back to `6770a87e` because
+the intervening diff adds files and eight `GQ2.lean` import lines and modifies
+no pre-existing `.lean`, but the ledger's declaration *count* does not
+transfer and must not be recorded as a correction to W361's 50,991.
 
 Full detail, with the method and the traps, is in
 `docs/dyadic/w362-house-note.md`.
@@ -296,6 +329,21 @@ Two parsing traps, both of which have already produced wrong numbers:
   reports 24 unregistered files where the truth is 6.
 - Counting `dyadicAppendixTODO` by grep returns 45, not 40. See section 5
   item 3.
+- A long `#print axioms` list wraps across lines in the build log. Rejoin
+  continuation lines before matching, or wrapped entries read as truncated
+  ones and a footprint of four axioms reads as one.
+
+And one shell trap that cost this lane an hour: `pgrep -f 'lake build GQ2'`
+matches your own diagnostic shells, because their command lines contain that
+string. A wait loop built on it never exits. Wait on
+`grep -q 'Build completed successfully' <log>` instead.
+
+**A cheap source of evidence, worth knowing.** A Lean `#print axioms` emits an
+`info:` line, so a full umbrella build's log already carries the axiom
+footprint of every pin in the tree. Reading that log is free, cannot disagree
+with the build, and does not race the cache the way a separate runner
+invocation does. The W362-HOUSE lane closed its whole std-3 and census
+question out of the orchestrator's own build log.
 
 ## 7. Minimal reading list
 
