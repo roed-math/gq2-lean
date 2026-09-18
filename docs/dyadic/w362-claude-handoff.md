@@ -561,6 +561,8 @@ of this tree was started at 00:2x and its snapshot line follows this paragraph w
 in session; W366's other three lanes changed no Lean under `GQ2/` (the packet TeX, staged
 overlays and docs only), so the W365 snapshot above remains a valid record of every module
 except the two handles modules.
+
+**Fresh source-only build of the W366 tree: PASS.** Snapshot `/private/tmp/gq2-w361-fresh-_i4abvuq`: **1,567 / 1,567 local modules**, `failed: []`, `unbuilt: []`, 1,974.5 seconds, no live source or manifest drift. Verifier (`w361_verify_fresh.py <snapshot> --replay`) output: `FRESH_CONTENT_CHECK_PASS|1567`, `FRESH_VERIFICATION_REPORT|/private/tmp/gq2-w361-fresh-verified-xi6wknax/report.json`, `exit=0`. Durable copies committed beside this document with SHA-256: 1856d758f5f1903efe4a1ed19f16bbefad374c2e6584f4666ab8e364c4abb4ef  w366-fresh-build-provenance.json; 6b5c00530ec1d8db078e0dde29d21727f561c876c32c707b40f98a917010eede  w366-fresh-build-result.json; 5a6e1a49bc32f034c39384da9e930b90b3d71e2415cc995a3d0c6cb6e89b82d0  w366-fresh-verification-report.json. This, not the W365 snapshot, is the binding record of the session's final tree; do not emit artifacts into either snapshot.
 isolated build, not a signed attestation, and it reuses manifest-matching dependency artifacts.
 
 
