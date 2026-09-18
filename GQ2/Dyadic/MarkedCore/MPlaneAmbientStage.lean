@@ -1,5 +1,5 @@
 import GQ2.Dyadic.MarkedCore.MBasisRowRefinement
-import GQ2.Dyadic.MarkedCore.MHeadCleanup
+import GQ2.Dyadic.MarkedCore.MFullFrameStages
 import GQ2.Dyadic.MarkedCore.NPlaneAmbientStage
 
 /-!
@@ -12,57 +12,47 @@ class tested by the criterion is the actual free-basis target-relative M
 defect `mRelWord alpha (e gen) * (mRelWord alpha gen)⁻¹`, whose target is the
 literal M relator word of the standard free basis. The coordinate crossed maps
 are the committed `evenFamDerivModelM` models pulled back along the free
-projection to `DM`, and both actual M words die separately under every such
-map because the M relator is universally closed at the `vM` table. No relator
-death is imposed on the free tuple itself.
+projection `mStageProjection` to `DM`, and both actual M words die separately
+under every such map because the M relator is universally closed at the `vM`
+table. No relator death is imposed on the free tuple itself. The orientation
+is the landed `mStageOrientation` of `MFullFrameCompactness`, the actual
+`chiM` pulled back along that projection.
 
 The ambient theorem supplies arbitrary depth corrections improving the actual
 M defect by one level; it does not claim that they preserve orientation or
-ordinary rows. The composition with the coupled ordinary-head cleanup of
-`MHeadCleanup` and with the closed derivative-kernel interpolation is the
-one-step stage interface `MBasisStageStep`, proved at the end for every
-`alpha >= 2` and every handle count.
+ordinary rows. Composed with the coupled ordinary-head cleanup of
+`MHeadCleanup` and the closed derivative-kernel interpolation of
+`MBasisRowRefinement`, it produces the stage interface `MStageStep` of
+`MFullFrameStages` at every `alpha >= 2` and every handle count
+(`mStageStep_holds`), so the full-stabilizer lift of that module is
+conditional only on its initial-lift interface.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
 noncomputable section
 open GQ2 Multiplicative Roe.Labute FoxH StageGeneric EvenFamily
 open GQ2.Dyadic.LSquare (IsChiShadowDeriv)
+open GQ2.SectionThree (abMk)
+open scoped GQ2.SectionThree.TopAbInstances
 
-/-! ## The free projection and the pulled-back canonical M orientation -/
+/-! ## The landed free projection and orientation, at the `vM` table -/
 
-/-- The canonical projection of the free pro-two group of rank `coreRank h`
-onto the actual `D_M`, generator to generator. -/
-def mBasisProjection (α h : ℕ) :
-    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (DM α h : Type) :=
-  presLiftHom 1 (isProP_DM α h) (dmGen α h) (map_one _)
-
-theorem mBasisProjection_gen (α h : ℕ) (i : Fin (coreRank h)) :
-    mBasisProjection α h (freeTwoRankGen (coreRank h) i) = dmGen α h i :=
-  presLiftHom_gen _ _ _ _ _
-
-/-- The free M orientation: the actual canonical `chiM` pulled back along the
-free projection. Its generator values are the `vM` table. -/
-def mBasisOrientation (α h : ℕ) :
-    ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) ℤ_[2]ˣ :=
-  (chiM α h).comp (mBasisProjection α h)
-
-theorem mBasisProjection_orientation (α h : ℕ) (x : FreeTwoRank (coreRank h)) :
-    chiM α h (mBasisProjection α h x) = mBasisOrientation α h x := rfl
-
+/-- The generator values of the landed free M orientation are the `vM` row
+table of the even stage calculus. -/
 theorem mBasisOrientation_gen (α h : ℕ) (i : Fin (coreRank h)) :
-    mBasisOrientation α h (freeTwoRankGen (coreRank h) i) = vM α i := by
-  change chiM α h (mBasisProjection α h (freeTwoRankGen (coreRank h) i)) = _
-  rw [mBasisProjection_gen, evenFam_chiM_dmGen]
+    mStageOrientation α h (freeTwoRankGen (coreRank h) i) = vM α i := by
+  rw [mStageOrientation_apply, mStageProjection_gen, evenFam_chiM_dmGen]
 
+/-- Generator preservation of the landed free orientation extends to every
+element. -/
 theorem mBasisOrientation_aut {α h : ℕ}
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i))
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i))
     (z : FreeTwoRank (coreRank h)) :
-    mBasisOrientation α h (e z) = mBasisOrientation α h z := by
-  have H : (mBasisOrientation α h).comp (autHom e) = mBasisOrientation α h := by
+    mStageOrientation α h (e z) = mStageOrientation α h z := by
+  have H : (mStageOrientation α h).comp (autHom e) = mStageOrientation α h := by
     apply presPro2_hom_ext
     exact he
   exact DFunLike.congr_fun H z
@@ -71,9 +61,9 @@ theorem mBasisOrientation_aut {α h : ℕ}
 orientation: the orientation is a commutative pro-two character. -/
 theorem mBasisOrientation_eq_one_of_coordinates {α h : ℕ} (x : FreeTwoRank (coreRank h))
     (hx : ∀ j, freeTwoCoordinate (coreRank h) j x = 1) :
-    mBasisOrientation α h x = 1 := by
+    mStageOrientation α h x = 1 := by
   rw [freeTwo_commutative_hom_coordinates isProP_two_unitsPadicInt (coreRank h)
-    (mBasisOrientation α h) x]
+    (mStageOrientation α h) x]
   apply Finset.prod_eq_one
   intro i _
   rw [hx i, toAdd_one, zpowZtwo_zero_exp]
@@ -85,26 +75,26 @@ def mBasisCoordinateDeriv {α h : ℕ} (hα : 1 ≤ α) (N : ℕ) (hN : 1 ≤ N)
       (FreeTwoRank (coreRank h) : Type))
     (i : Fin (coreRank h)) : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (WL N) :=
   ((evenFamDerivModelM α h hα hN (fun j => if j=i then 1 else 0)).comp
-    (mBasisProjection α h)).comp (autHom e.symm)
+    (mStageProjection α h)).comp (autHom e.symm)
 
 theorem mBasisCoordinateDeriv_gen {α h : ℕ} (hα : 1 ≤ α) (N : ℕ) (hN : 1 ≤ N)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type)) (i j : Fin (coreRank h)) :
     mBasisCoordinateDeriv hα N hN e i (e (freeTwoRankGen (coreRank h) j)) =
       redWL N ⟨if j=i then 1 else 0, vM α j⟩ := by
-  change evenFamDerivModelM α h hα hN _ (mBasisProjection α h (e.symm (e _))) = _
-  rw [e.symm_apply_apply, mBasisProjection_gen, evenFamDerivModelM_gen]
+  change evenFamDerivModelM α h hα hN _ (mStageProjection α h (e.symm (e _))) = _
+  rw [e.symm_apply_apply, mStageProjection_gen, evenFamDerivModelM_gen]
 
 theorem mBasisCoordinateDeriv_base {α h : ℕ} (hα : 1 ≤ α) (N : ℕ) (hN : 1 ≤ N)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i))
-    (i : Fin (coreRank h)) : IsChiShadowDeriv (mBasisOrientation α h)
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i))
+    (i : Fin (coreRank h)) : IsChiShadowDeriv (mStageOrientation α h)
       (mBasisCoordinateDeriv hα N hN e i) := by
   intro z
-  change (evenFamDerivModelM α h hα hN _ (mBasisProjection α h (e.symm z))).g = _
-  rw [evenFamDerivModelM_isChiShadow, mBasisProjection_orientation]
+  change (evenFamDerivModelM α h hα hN _ (mStageProjection α h (e.symm z))).g = _
+  rw [evenFamDerivModelM_isChiShadow, ← mStageOrientation_apply]
   have H := mBasisOrientation_aut e he (e.symm z)
   rw [e.apply_symm_apply] at H
   rw [← H]
@@ -129,15 +119,15 @@ the free-basis target-relative defect is in every derivative kernel. -/
 theorem mBasisCoordinateDeriv_defect {α h : ℕ} (hα : 1 ≤ α) (N : ℕ) (hN : 1 ≤ N)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i))
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i))
     (i : Fin (coreRank h)) :
     mBasisCoordinateDeriv hα N hN e i
       (mRelWord α (fun j => e (freeTwoRankGen (coreRank h) j)) *
         (mRelWord α (freeTwoRankGen (coreRank h)))⁻¹) = 1 := by
   rw [map_mul, map_inv, map_mRelWord, map_mRelWord]
   have H (y : Fin (coreRank h) → FreeTwoRank (coreRank h))
-      (hy : ∀ j, mBasisOrientation α h (y j) = vM α j) :
+      (hy : ∀ j, mStageOrientation α h (y j) = vM α j) :
       mRelWord α (fun j => mBasisCoordinateDeriv hα N hN e i (y j)) = 1 := by
     apply mBasis_finite_mRelWord_eq_one hα
     intro j
@@ -150,10 +140,10 @@ theorem mBasisCoordinateDeriv_defect {α h : ℕ} (hα : 1 ≤ α) (N : ℕ) (hN
 def mBasisTuple {α h : ℕ} (k : ℕ)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i)) :
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i)) :
     Tuple (NPlaneAmbientStage.oneWord (coreRank h)) (vM α) (FreeTwoRank (coreRank h) : Type)
-      (mBasisOrientation α h) k where
+      (mStageOrientation α h) k where
   generators i := levelMk _ k (e (freeTwoRankGen (coreRank h) i))
   rows i := ⟨e (freeTwoRankGen (coreRank h) i),
     (he i).trans (mBasisOrientation_gen α h i), rfl⟩
@@ -163,8 +153,8 @@ def mBasisTuple {α h : ℕ} (k : ℕ)
 def mBasisFamily {α h : ℕ} (hα : 1 ≤ α) (k : ℕ)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i)) :
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i)) :
     EvenKernelDerivationFamily (mBasisTuple k e he) where
   lifts i := e (freeTwoRankGen (coreRank h) i)
   lifts_chi i := (he i).trans (mBasisOrientation_gen α h i)
@@ -187,8 +177,8 @@ whenever it lies in `lambda_k`; the crossed models are the M table models. -/
 theorem mBasis_defect_mem_rawSpan {α h k : ℕ} (hα : 2 ≤ α) (hk : 3 ≤ k)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i))
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i))
     (herr : mRelWord α (fun i => e (freeTwoRankGen (coreRank h) i)) *
       (mRelWord α (freeTwoRankGen (coreRank h)))⁻¹ ∈
         twoCentralSeries (FreeTwoRank (coreRank h) : Type) k) :
@@ -215,8 +205,8 @@ orientation of the correction. -/
 theorem mBasis_exists_ambient_stage {α h k : ℕ} (hα : 2 ≤ α) (hk : 3 ≤ k)
     (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
-    (he : ∀ i, mBasisOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation α h (freeTwoRankGen (coreRank h) i))
+    (he : ∀ i, mStageOrientation α h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation α h (freeTwoRankGen (coreRank h) i))
     (herr : mRelWord α (fun i => e (freeTwoRankGen (coreRank h) i)) *
       (mRelWord α (freeTwoRankGen (coreRank h)))⁻¹ ∈
         twoCentralSeries (FreeTwoRank (coreRank h) : Type) k) :
@@ -266,8 +256,8 @@ twin of `NAmbientStageSupply`. -/
 def MBasisAmbientStageSupply (alpha h : ℕ) : Prop :=
   ∀ n : ℕ, ∀ e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type),
-    (∀ i, mBasisOrientation alpha h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation alpha h (freeTwoRankGen (coreRank h) i)) →
+    (∀ i, mStageOrientation alpha h (e (freeTwoRankGen (coreRank h) i)) =
+      mStageOrientation alpha h (freeTwoRankGen (coreRank h) i)) →
     mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i)) *
       (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
         twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+3) →
@@ -283,38 +273,6 @@ theorem mBasisAmbientStageSupply {alpha h : ℕ} (halpha : 2 ≤ alpha) :
   have H := mBasis_exists_ambient_stage halpha (by omega : 3 ≤ n+3) e he herr
   simpa only [show n+3-1=n+2 by omega, show n+3+1=n+4 by omega] using H
 
-/-- **The coupled M ordinary-head cleanup, in the shape this file consumes.**
-For a depth-`m` correction `t` of a marking `y` agreeing with the target on
-every ordinary character, with corrected defect in `lambda_(m+2)`, the head
-correction has a representative in the same class modulo `lambda_(m+1)` with
-every ordinary character trivial. This is the M twin of
-`exists_freeTwo_nHead_characterZero_same_class`, stated with the weakest
-hypotheses this file needs (`m >= 1`, all coordinates of depth `m`; only `t 0`
-and `t 2` enter the ordinary row `2 f(t 0) + 2^alpha f(t 2)` of the M defect).
-It is discharged below from `mHead_exists_freeTwo_characterZero_same_class`. -/
-def MBasisHeadCleanupSupply (alpha h : ℕ) : Prop :=
-  ∀ (m : ℕ) (y t : Fin (coreRank h) → FreeTwoRank (coreRank h))
-    (target : FreeTwoRank (coreRank h)),
-    (∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
-      f (mRelWord alpha y) = f target) →
-    1 ≤ m →
-    (∀ i, t i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m) →
-    mRelWord alpha (fun i => y i * t i) * target⁻¹ ∈
-      twoCentralSeries (FreeTwoRank (coreRank h) : Type) (m + 2) →
-    ∃ t0 : FreeTwoRank (coreRank h),
-      t0 ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) m ∧
-      (t 0)⁻¹ * t0 ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (m + 1) ∧
-      ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
-        f t0 = 1
-
-/-- The head cleanup of `MHeadCleanup` supplies the named input at every
-`alpha >= 2`; only the `A` and `C` depth facts are consumed. -/
-theorem mBasisHeadCleanupSupply {alpha h : ℕ} (halpha : 2 ≤ alpha) :
-    MBasisHeadCleanupSupply alpha h :=
-  fun _ y t target hrow hm ht hdefect =>
-    mHead_exists_freeTwo_characterZero_same_class halpha hm y t target hrow (ht 0) (ht 2)
-      hdefect
-
 /-- Kernel interpolation packaged for the stage lane: a depth correction whose
 head ordinary rows vanish has an all-character-zero, orientation-trivial
 replacement with the same literal target-relative M defect one level deeper. -/
@@ -329,7 +287,7 @@ theorem exists_mBasis_allRows_relative_correction {alpha h : ℕ} (halpha : 2 �
       twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4)) :
     ∃ t' : Fin (coreRank h) → FreeTwoRank (coreRank h),
       (∀ i, t' i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2)) ∧
-      (∀ i, mBasisOrientation alpha h (t' i) = 1) ∧
+      (∀ i, mStageOrientation alpha h (t' i) = 1) ∧
       (∀ i, ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
         (Multiplicative ℤ_[2]), f (t' i) = 1) ∧
       mRelWord alpha ((fun i => e (freeTwoRankGen (coreRank h) i))*t') * target⁻¹ ∈
@@ -349,41 +307,37 @@ theorem exists_mBasis_allRows_relative_correction {alpha h : ℕ} (halpha : 2 �
   rw [map_mul, heq, ← map_mul]
   exact hdefect
 
-/-- **The one-step M stage interface** (the statement the stage lane consumes):
-an orientation-compatible free basis with exact ordinary agreement and actual
-target-relative M defect in `lambda_(n+3)` has a depth-`(n+2)` correction with
-trivial orientation, every ordinary character trivial (so the coordinate matrix
-is retained), and defect in `lambda_(n+4)`. -/
-def MBasisStageStep (alpha h : ℕ) : Prop :=
-  ∀ n : ℕ, ∀ e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
-      (FreeTwoRank (coreRank h) : Type),
-    (∀ i, mBasisOrientation alpha h (e (freeTwoRankGen (coreRank h) i)) =
-      mBasisOrientation alpha h (freeTwoRankGen (coreRank h) i)) →
-    (∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (Multiplicative ℤ_[2]),
-      f (mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i))) =
-        f (mRelWord alpha (freeTwoRankGen (coreRank h)))) →
-    mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i)) *
-      (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
-        twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+3) →
-    ∃ s : Fin (coreRank h) → FreeTwoRank (coreRank h),
-      (∀ i, s i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2)) ∧
-      (∀ i, mBasisOrientation alpha h (s i) = 1) ∧
+/-- **The relative-refinement half of the M stage step**, the twin of
+`exists_nBasis_full_relative_correction`. An existing depth-`(n+2)` correction
+improving the actual M defect to `lambda_(n+4)` is replaced by one that every
+ordinary character and the orientation annihilate, with the same literal
+target-relative defect. The head cleanup is the landed
+`mHead_exists_freeTwo_characterZero_same_class` (it consumes the `A` and `C`
+depth facts), the other rows are the derivative-kernel interpolation, and the
+two are glued by the slack invariance of the M relator. Exact ordinary
+agreement with the target is the load-bearing premise for the head digit. -/
+theorem exists_mBasis_full_relative_correction {alpha h : ℕ} (halpha : 2 ≤ alpha)
+    (n : ℕ) (e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
+      (FreeTwoRank (coreRank h) : Type))
+    (t : Fin (coreRank h) → FreeTwoRank (coreRank h))
+    (target : FreeTwoRank (coreRank h))
+    (hrow : ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
+        (Multiplicative ℤ_[2]),
+      f (mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i))) = f target)
+    (ht : ∀ i, t i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2))
+    (hdefect : mRelWord alpha ((fun i => e (freeTwoRankGen (coreRank h) i))*t) * target⁻¹ ∈
+      twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4)) :
+    ∃ t' : Fin (coreRank h) → FreeTwoRank (coreRank h),
+      (∀ i, t' i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2)) ∧
+      (∀ i, mStageOrientation alpha h (t' i) = 1) ∧
       (∀ i, ∀ f : ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type)
-        (Multiplicative ℤ_[2]), f (s i) = 1) ∧
-      mRelWord alpha (fun i => e (freeTwoRankGen (coreRank h) i) * s i) *
-        (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
-          twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4)
-
-/-- Ambient stage, head cleanup and kernel interpolation compose to the
-one-step interface, from any producer of the head cleanup. -/
-theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
-    (hhead : MBasisHeadCleanupSupply alpha h) : MBasisStageStep alpha h := by
+        (Multiplicative ℤ_[2]), f (t' i) = 1) ∧
+      mRelWord alpha ((fun i => e (freeTwoRankGen (coreRank h) i))*t') * target⁻¹ ∈
+        twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4) := by
   classical
-  intro n e he hrow herr
   let y := fun i => e (freeTwoRankGen (coreRank h) i)
-  let target := mRelWord alpha (freeTwoRankGen (coreRank h))
-  obtain ⟨t, ht, hterr⟩ := mBasisAmbientStageSupply halpha n e he herr
-  obtain ⟨t0, ht0, hslack0, hzero0⟩ := hhead (n+2) y t target hrow (by omega) ht hterr
+  obtain ⟨t0, ht0, hslack0, hzero0⟩ := mHead_exists_freeTwo_characterZero_same_class
+    halpha (by omega : 1 ≤ n+2) y t target hrow (ht 0) (ht 2) hdefect
   let s := Function.update t 0 t0
   have hs : ∀ i, s i ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+2) := by
     intro i
@@ -401,20 +355,33 @@ theorem mBasisStageStep_of_headCleanup {alpha h : ℕ} (halpha : 2 ≤ alpha)
     simp only [s, Function.update_self, hzero0, toAdd_one]
   have hsdefect : mRelWord alpha (y*s) * target⁻¹ ∈
       twoCentralSeries (FreeTwoRank (coreRank h) : Type) (n+4) :=
-    (mBasis_mRelWord_correction_defect_mem_iff (by omega) (n+3) y t s target hslack).mpr hterr
-  obtain ⟨t', h1, h2, h3, h4⟩ :=
-    exists_mBasis_allRows_relative_correction halpha n e s target hs hshead hsdefect
-  exact ⟨t', h1, h2, h3, h4⟩
+    (mBasis_mRelWord_correction_defect_mem_iff (by omega) (n+3) y t s target hslack).mpr
+      hdefect
+  exact exists_mBasis_allRows_relative_correction halpha n e s target hs hshead hsdefect
 
-/-- **The one-step M stage interface is a theorem** at every `alpha >= 2` and
-every handle count, with the standard free basis relator as target. -/
-theorem mBasisStageStep {alpha h : ℕ} (halpha : 2 ≤ alpha) : MBasisStageStep alpha h :=
-  mBasisStageStep_of_headCleanup halpha (mBasisHeadCleanupSupply halpha)
+/-- **The stage interface of `MFullFrameStages` is a theorem** at every
+`alpha >= 2` and every handle count: the ambient stage supplies the depth
+correction and the relative refinement makes it invisible to the orientation
+and to every ordinary character while keeping the improved defect. -/
+theorem mStageStep_holds {alpha h : ℕ} (ha : 2 ≤ alpha) : MStageStep alpha h := by
+  intro n e he hrow herr
+  obtain ⟨t, ht, hterr⟩ := mBasisAmbientStageSupply ha n e he herr
+  obtain ⟨s, hs, hschi, hsrow, hserr⟩ := exists_mBasis_full_relative_correction ha n e t
+    (mRelWord alpha (freeTwoRankGen (coreRank h))) hrow ht hterr
+  exact ⟨s, hs, hschi, hsrow, hserr⟩
 
-#print axioms mBasisProjection
-#print axioms mBasisProjection_gen
-#print axioms mBasisOrientation
-#print axioms mBasisProjection_orientation
+/-- The landed full-stabilizer composition with its stage interface
+discharged: the lift is now conditional only on the initial-lift interface
+`MStageInitialLift` (the MINIT and MCUP obligations). -/
+theorem mBasis_mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hinit : MStageInitialLift ha h phi) :
+    ∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
+      (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
+      (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
+        phi (mPhiHom (mStageOneLe ha) h (abMk x))) :=
+  mFullStabilizer_lift_of_initialLift ha phi hinit (mStageStep_holds ha)
+
 #print axioms mBasisOrientation_gen
 #print axioms mBasisOrientation_aut
 #print axioms mBasisOrientation_eq_one_of_coordinates
@@ -429,12 +396,10 @@ theorem mBasisStageStep {alpha h : ℕ} (halpha : 2 ≤ alpha) : MBasisStageStep
 #print axioms mBasis_exists_ambient_stage
 #print axioms MBasisAmbientStageSupply
 #print axioms mBasisAmbientStageSupply
-#print axioms MBasisHeadCleanupSupply
-#print axioms mBasisHeadCleanupSupply
 #print axioms exists_mBasis_allRows_relative_correction
-#print axioms MBasisStageStep
-#print axioms mBasisStageStep_of_headCleanup
-#print axioms mBasisStageStep
+#print axioms exists_mBasis_full_relative_correction
+#print axioms mStageStep_holds
+#print axioms mBasis_mFullStabilizer_lift_of_initialLift
 
 end
 end GQ2.Dyadic.MarkedCore
