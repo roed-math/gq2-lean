@@ -20,8 +20,12 @@ condition, right multiplication by the kernel preserves the M relator value one
 level deeper, the arbitrary-basis row witnesses kill every ordinary row of a
 depth correction at the M word. What does not transfer: no N relator
 conclusion is asserted for the M word, the head row `t 0` is not killed here
-(its cleanup is a separate coupled ordinary-row statement), and no correction
-is constructed from a relator defect in this file.
+(its cleanup is `MHeadCleanup`'s coupled ordinary-row statement), and no
+correction is constructed from a relator defect in this file.
+
+Downstream, the interpolation proved here is the row-refinement half of
+`MPlaneAmbientStage.mStageStep_holds`, whose corrections come from that
+module's ambient supply.
 -/
 
 namespace GQ2.Dyadic.MarkedCore

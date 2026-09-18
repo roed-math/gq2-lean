@@ -15,7 +15,12 @@ then `T * (image of C)^(-m)`, which is the explicit inverse substitution
 `A = T * C^(-m)` applied to the lifted basis.
 
 This is a free-basis lift, not a relator-preserving automorphism of D_M.
-No cup or depth-three relator condition is assumed or asserted here.
+No cup or depth-three relator condition is assumed or asserted here: the
+depth-three error of this very lift is `MFrameCupCoordinates`' obligation, and
+the relator-preserving automorphism itself is assembled from the two in
+`MFullStabilizerLift.mFullStabilizer_lift`. The fixed-`T` lift itself and
+every statement about it carry `2 <= alpha`; the orientation and projection
+material at the top of the file does not need it.
 -/
 
 namespace GQ2.Dyadic.MarkedCore

@@ -39,6 +39,12 @@ The converse ingredient is the last section: if a continuous automorphism of
 the actual core `D_M` has frame action `phi`, then `phi` is a cup isometry. It
 goes through `dmObs` and the uniqueness of the one-dimensional degree-two
 obstruction, with no coordinate computation.
+
+Both halves are consumed in `MFullStabilizerLift`: `mCupStageError_of_frame` is
+the depth-three input of `mFullStabilizer_lift`, and `mCupFrameCupIsometry_of_aut`
+is the cup half of the converse, so the two together are the cup side of the
+image characterization `mFullStabilizer_lift_iff`. Nothing here is conditional
+on a matrix realization or on a finite generator list.
 -/
 
 namespace GQ2.Dyadic.MarkedCore

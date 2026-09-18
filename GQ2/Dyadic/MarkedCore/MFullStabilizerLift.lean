@@ -24,10 +24,22 @@ every rank, and this file consumes that theorem rather than carrying the
 interface as a hypothesis.
 
 This is the M analogue of `NFullStabilizerLift`, not a copy of it. The M route
-fixes the composite word `T = A * C^(2^(alpha-1))` rather than the single letter
-`A`, its head row is the two-letter `2 f(A) + 2^alpha f(C)`, and its orientation
-sees the `B` coordinate only through its parity. Nothing from the N theorem is
-reused; only its shape is matched.
+is not a text substitution of the N proof: it fixes the composite word
+`T = A * C^(2^(alpha-1))` rather than the single letter `A`, its head row is
+the coupled two-letter `2 f(A) + 2^alpha f(C)`, its primitive relation vector
+is `e_A + 2^(alpha-1) e_C`, its depth-three step turns on the surviving head
+being a **square**, its crossed models are the M ones, and its orientation sees
+the `B` coordinate only through its parity.
+
+What the route does reuse from the N development is shared infrastructure,
+never an N relator conclusion: `N.lean`'s `nFrameModel_map_t` (applied to M
+frame automorphisms, `MFrameModel h` and `NFrameModel h` being the same Lean
+type), the commutator tail of `NInitialCupDepth` (`freeTail_eq_of_cup`,
+`freeTail_value`, `reducedRows`), the closed correction kernel
+`nPlaneCorrectionKernel` with its closedness and the row witnesses
+`nBasisKernelWitness_mem` / `_row`, `NPlaneAmbientStage.oneWord` as a tuple
+container, and `NFrameCupCoordinates`. The M defect itself is shifted by the M
+stage identity `evenRawStageShift_m`, never by the N one.
 
 Contents:
 

@@ -28,7 +28,10 @@ commutator modulo lambda-three, and the contraction of a symmetric coefficient
 matrix against the alternating bracket. Nothing here reproves it.
 
 This is only the initial-depth step. No subsequent filtered correction, no
-frame automorphism lift, and no converse is asserted in this file.
+frame automorphism lift, and no converse is asserted in this file. Those are
+`MPlaneAmbientStage`, `MFrameMatrixLift` and `MFrameCupCoordinates`; the
+result they assemble to, over the depth-three input this file supplies, is
+`MFullStabilizerLift.mFullStabilizer_lift`, for `alpha >= 2`.
 -/
 
 namespace GQ2.Dyadic.MarkedCore

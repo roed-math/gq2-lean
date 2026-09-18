@@ -24,8 +24,11 @@ Nothing here constructs the corrections, asserts a derivative image, or
 preserves a relator equation after replacement. The cleanup is exactly the
 coupled ordinary-row bookkeeping and the one divisibility it buys; the
 corrections themselves are `MPlaneAmbientStage`'s, and the closed
-derivative-kernel interpolation that consumes them is
-`MBasisRowRefinement`'s.
+derivative-kernel interpolation that consumes them is `MBasisRowRefinement`'s.
+Downstream, `mHead_ordinary_row` is what `MFullFrameStages` uses to turn
+fixation of the primitive torsion word into the exact ordinary relator row, and
+`mHead_exists_freeTwo_characterZero_same_class` is the head half of
+`MPlaneAmbientStage.mStageStep_holds`.
 
 The two derivative-kernel coordination re-exports this module used to carry,
 `mHead_mRelWord_shift_eq_evenRawDbarWord` and
