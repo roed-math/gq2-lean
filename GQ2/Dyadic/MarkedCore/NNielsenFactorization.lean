@@ -36,6 +36,9 @@ bridge) it is the N twin of `MNielsenGenerators.lean`.
   recombine to `(τ_σ, τ_{x₂})` (`nNielsenFac_couple`). The statement is `α`-free, as the N
   stabilizer is.
 * **The artifact (T3).** `nNielsenFacMap` carries the action onto `NFrameModel 0`; every parameter
+  (each equivalence takes a parameter `P` together with a supplied inverse parameter `Q` and the
+  mutual-inverse hypotheses; no inverse or group structure on `NStabParam` exists in the tree,
+  and the eight families supply their own inverses)
   fixes the integral `x̄₁` coordinate, hence preserves `nFrameOrientation`
   (`nNielsenFac_orientation`); every admissible parameter is an `NFrameCupIsometry` through wave
   363's `nNielsenGen_cup_of_mat` and the bridge `nNielsenFac_mat` (the reduced matrix of the frame

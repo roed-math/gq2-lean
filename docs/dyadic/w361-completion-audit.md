@@ -290,7 +290,7 @@ not just a claim that the old prose is “now green”:
   count theorem already preserved an arbitrary fixed boundary map.
 - Keep MC-M's stronger literal stabilizer claim separate from its proved marking
   consumers. MC-N's full mathematical assertion is now proved; reconcile only
-  its prescribed finite Nielsen-list proof method with the new uniform proof.
+  its prescribed finite Nielsen-list proof method with the new uniform proof. [W366, 2026-09-18: SETTLED by the owner's Option A; the uniform proof is accepted for both cores and the finite-family lists satisfy the section-14 sentence in the families reading (memo item 4; packet Prop. 8.2 and the section-14 rows amended by W366-APPLY).]
 - Refresh the completion summary around the new additive entry point
   `GQ2/Dyadic/GeneralMain.lean`. The old `Main.lean` still advertises the older
   frozen-quadratic assembly and does not itself express the W361 general endpoint.
