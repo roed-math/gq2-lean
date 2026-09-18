@@ -31,6 +31,12 @@ This file produces that list, at handle rank **zero** (the rank-four core) and f
   seven-element list of such generators, each of which lifts to `D_M`, whose composite is the
   parameter's own frame action, together with a lift of that composite; and
   `mNielsenGen_param_realized`, the same statement with the list projected away.
+* **The quantifier closure.** `mNielsenGen_frameAction_of_realizes` identifies the frame
+  automorphism that `mStabilizer_classification` classifies with `mNielsenGenMap` at its
+  parameter, so `mNielsenGen_stabilizer_induced` reads over *every element of the Smith-Witt
+  stabilizer* rather than over every `MStabParam`: each such element is induced by an actual
+  `chiM`-preserving continuous automorphism of `D_M`, with the exact square
+  `abMk (Psi x) = xi (abMk x)`.
 
 ## What this does *not* do
 
@@ -40,6 +46,11 @@ lifted by an explicit group-level construction here**, and no such construction 
 Families M1 and M2 do have honest independent group-level lifts elsewhere in the repo
 (`M.lean`'s `mLambdaEquiv` and HM4's `dmTauDEquiv`); families M3 through M7 do not, and this file
 does not supply them. See `docs/dyadic/w363-nielsen-note.md`.
+
+Scope of the list: the seven Nielsen *families*, each parameterized by a 2-adic number or unit;
+what the theorem produces for a given stabilizer element is one member of each family. A
+literally finite generating set is impossible here, the stabilizer not being finitely generated
+as an abstract group.
 
 Scope: handle rank **zero** only, since `mStabilizer_classification` and
 `mNielsen_factorization` are rank-four statements. `alpha >= 2` throughout.
@@ -698,6 +709,157 @@ theorem mNielsenGen_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabPa
   obtain ⟨k, b₅, e₅, c₆, d₇, β₄, _, _, hcomp, Psi, hchi, hsq⟩ := mNielsenGen_finite_list ha p
   exact ⟨Psi, hchi, fun x => (hsq x).trans (hcomp _)⟩
 
+/-! ## Closing the quantifier against `mStabilizer_classification` -/
+
+/-- The canonical rank-four M frame, the `h = 0` instance of `mFrameExists_phiEquiv`. -/
+noncomputable def mNielsenGenFrame {alpha : ℕ} (ha : 2 ≤ alpha) : MFrame alpha 0 where
+  e := mFrameExists_phiEquiv (mStageOneLe ha) 0
+  map_t := mPhiHom_t (mStageOneLe ha) 0
+  map_B := mPhiHom_B (mStageOneLe ha) 0
+  map_C := mPhiHom_C (mStageOneLe ha) 0
+  map_D := mPhiHom_D (mStageOneLe ha) 0
+  map_U := fun j => mPhiHom_U (mStageOneLe ha) j
+  map_V := fun j => mPhiHom_V (mStageOneLe ha) j
+
+/-- The frame action of a parameter, packaged as a continuous hom. -/
+noncomputable def mNielsenGenHom (p : MStabParam) :
+    ContinuousMonoidHom (MFrameModel 0) (MFrameModel 0) :=
+  ⟨MonoidHom.mk' (mNielsenGenMap p) (mNielsenGenMap_mul p), mNielsenGenMap_continuous p⟩
+
+/-- The canonical marks generate the full M frame topologically, so two continuous homs out
+of it that agree on the marks agree. -/
+theorem mNielsenGen_frame_hom_ext {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
+    {X : Type} [Group X] [TopologicalSpace X] [IsTopologicalGroup X] [T2Space X]
+    (f g : ContinuousMonoidHom (MFrameModel h) X)
+    (hgen : ∀ i, f (mCupFrameCanonicalMark ha h i) = g (mCupFrameCanonicalMark ha h i))
+    (z : MFrameModel h) : f z = g z := by
+  obtain ⟨x, rfl⟩ :=
+    (mCupFrameOfDM_surjective ha).comp (mStageProjection_surjective alpha h) z
+  have he : f.comp (mCupFreeFrameProjection ha h) = g.comp (mCupFreeFrameProjection ha h) := by
+    apply presPro2_hom_ext
+    intro i
+    change f (mCupFreeFrameProjection ha h (freeTwoRankGen (coreRank h) i)) =
+      g (mCupFreeFrameProjection ha h (freeTwoRankGen (coreRank h) i))
+    rw [mCupFreeFrameProjection_gen]
+    exact hgen i
+  exact DFunLike.congr_fun he x
+
+/-- **The frame action of a classified stabilizer element is `mNielsenGenMap` at its
+parameter.** This is the step that turns "for every `p : MStabParam`" into "for every element
+of the Smith-Witt stabilizer": `mStabilizer_classification` supplies the `p`, and this lemma
+says the frame automorphism it classifies is exactly the one this file builds. -/
+theorem mNielsenGen_frameAction_of_realizes {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (xi : ContinuousMulEquiv (topAbelianization (DM alpha 0 : Type))
+      (topAbelianization (DM alpha 0 : Type)))
+    (hp : p.Realizes (mNielsenGenFrame ha).toMDecomposition xi)
+    (x : topAbelianization (DM alpha 0 : Type)) :
+    mPhiHom (mStageOneLe ha) 0 (xi x) =
+      mNielsenGenMap p (mPhiHom (mStageOneLe ha) 0 x) := by
+  set E := mFrameExists_phiEquiv (mStageOneLe ha) 0 with hE
+  set f : ContinuousMonoidHom (MFrameModel 0) (MFrameModel 0) :=
+    (⟨E.toMulEquiv.toMonoidHom, E.continuous_toFun⟩ : ContinuousMonoidHom _ _).comp
+      ((⟨xi.toMulEquiv.toMonoidHom, xi.continuous_toFun⟩ : ContinuousMonoidHom _ _).comp
+        ⟨E.symm.toMulEquiv.toMonoidHom, E.symm.continuous_toFun⟩) with hf
+  have hmark : ∀ i, E.symm (mCupFrameCanonicalMark ha 0 i) = abMk (dmGen alpha 0 i) :=
+    fun i => E.symm_apply_apply _
+  have hfapp : ∀ i, f (mCupFrameCanonicalMark ha 0 i) = E (xi (abMk (dmGen alpha 0 i))) :=
+    fun i => congrArg (fun y => E (xi y)) (hmark i)
+  -- the three classified rows, read back in `MFrameModel 0`
+  have hrow : ∀ (i : Fin (coreRank 0)) (w : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]),
+      (mNielsenGenFrame ha).toMDecomposition.e (xi (abMk (dmGen alpha 0 i))) = ofAdd w →
+      f (mCupFrameCanonicalMark ha 0 i) = ofAdd (w.1, w.2.1, w.2.2.1, w.2.2.2, 0) := by
+    intro i w hw
+    rw [hfapp i]
+    have h2 : mFrameModelZero (E (xi (abMk (dmGen alpha 0 i)))) = ofAdd w := hw
+    exact mFrameModelZero.injective (h2.trans rfl)
+  have hgen : ∀ i, f (mCupFrameCanonicalMark ha 0 i) = mNielsenGenHom p
+      (mCupFrameCanonicalMark ha 0 i) := by
+    have hi4 : ∀ i : Fin (coreRank 0), i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by decide
+    intro i
+    rcases hi4 i with rfl | rfl | rfl | rfl
+    · have hA := mStabilizer_A_row (le_trans one_le_two ha)
+        (mNielsenGenFrame ha).toMDecomposition xi hp
+      rw [hrow 0 _ hA]
+      show _ = mNielsenGenMap p (mCupFrameCanonicalMark ha 0 0)
+      rw [show mCupFrameCanonicalMark ha 0 (0 : Fin (coreRank 0))
+          = ofAdd ((1 : ZMod 2), 0, -(2 : ℤ_[2]) ^ (alpha - 1), 0, 0) from
+        mPhiHom_A (mStageOneLe ha) 0]
+      refine Multiplicative.toAdd.injective
+        (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext rfl rfl))))
+      · show (1 : ZMod 2) = 1 + mParityZ 0 * p.tau + mParityZ 0 * mParityZ p.bc
+        rw [mParityZ_zero]; ring
+      · show -(2 : ℤ_[2]) ^ (alpha - 1) * (2 * p.c1) =
+          0 * (p.beta : ℤ_[2]) + -(2 : ℤ_[2]) ^ (alpha - 1) * (2 * p.c1) + 0 * (2 * p.d1)
+        ring
+      · show -(2 : ℤ_[2]) ^ (alpha - 1) * (p.gamma : ℤ_[2]) =
+          0 * p.bc + -(2 : ℤ_[2]) ^ (alpha - 1) * (p.gamma : ℤ_[2]) + 0 * p.e
+        ring
+    · rw [hrow 1 _ hp.1]
+      show _ = mNielsenGenMap p (mCupFrameCanonicalMark ha 0 1)
+      rw [show mCupFrameCanonicalMark ha 0 (1 : Fin (coreRank 0))
+          = ofAdd ((0 : ZMod 2), 1, 0, 0, 0) from mPhiHom_B (mStageOneLe ha) 0]
+      refine Multiplicative.toAdd.injective
+        (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext rfl rfl))))
+      · show p.tau = 0 + mParityZ 1 * p.tau + mParityZ 0 * mParityZ p.bc
+        rw [mParityZ_zero, mParityZ_one]; ring
+      · show ((p.beta : ℤ_[2])) = 1 * (p.beta : ℤ_[2]) + 0 * (2 * p.c1) + 0 * (2 * p.d1)
+        ring
+      · show p.bc = 1 * p.bc + 0 * (p.gamma : ℤ_[2]) + 0 * p.e
+        ring
+    · rw [hrow 2 _ hp.2.1]
+      show _ = mNielsenGenMap p (mCupFrameCanonicalMark ha 0 2)
+      rw [show mCupFrameCanonicalMark ha 0 (2 : Fin (coreRank 0))
+          = ofAdd ((0 : ZMod 2), 0, 1, 0, 0) from mPhiHom_C (mStageOneLe ha) 0]
+      refine Multiplicative.toAdd.injective
+        (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext rfl rfl))))
+      · show (0 : ZMod 2) = 0 + mParityZ 0 * p.tau + mParityZ 0 * mParityZ p.bc
+        rw [mParityZ_zero]; ring
+      · show 2 * p.c1 = 0 * (p.beta : ℤ_[2]) + 1 * (2 * p.c1) + 0 * (2 * p.d1)
+        ring
+      · show ((p.gamma : ℤ_[2])) = 0 * p.bc + 1 * (p.gamma : ℤ_[2]) + 0 * p.e
+        ring
+    · rw [hrow 3 _ hp.2.2]
+      show _ = mNielsenGenMap p (mCupFrameCanonicalMark ha 0 3)
+      rw [show mCupFrameCanonicalMark ha 0 (3 : Fin (coreRank 0))
+          = ofAdd ((0 : ZMod 2), 0, 0, 1, 0) from mPhiHom_D (mStageOneLe ha) 0]
+      refine Multiplicative.toAdd.injective
+        (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext rfl rfl))))
+      · show mParityZ p.bc = 0 + mParityZ 0 * p.tau + mParityZ 1 * mParityZ p.bc
+        rw [mParityZ_zero, mParityZ_one]; ring
+      · show 2 * p.d1 = 0 * (p.beta : ℤ_[2]) + 0 * (2 * p.c1) + 1 * (2 * p.d1)
+        ring
+      · show p.e = 0 * p.bc + 0 * (p.gamma : ℤ_[2]) + 1 * p.e
+        ring
+  have hall := mNielsenGen_frame_hom_ext ha 0 f (mNielsenGenHom p) hgen
+  have hx : f (E x) = E (xi x) := congrArg (fun y => E (xi y)) (E.symm_apply_apply x)
+  exact hx.symm.trans (hall (E x))
+
+/-- **Every element of the Smith-Witt stabilizer of the rank-four M abelianization is induced
+by an actual `chiM`-preserving continuous automorphism of `D_M`**, through the seven Nielsen
+generators: `mStabilizer_classification` gives the parameter, `mNielsen_factorization` splits
+it into the seven families, each lifts by `mFullStabilizer_lift_of_frame`, and the composite
+of those lifts is the automorphism produced here.
+
+The conclusion is the exact square `abMk (Psi x) = xi (abMk x)`, so `xi` really is the map
+induced by `Psi` on the topological abelianization. -/
+theorem mNielsenGen_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha)
+    (chi : ContinuousMonoidHom (topAbelianization (DM alpha 0 : Type)) ℤ_[2]ˣ)
+    (hchiA : chi (abMk (dmA alpha 0)) = 1) (hchiB : chi (abMk (dmB alpha 0)) = -1)
+    (hchiC : chi (abMk (dmC alpha 0)) = 1) (hchiD : chi (abMk (dmD alpha 0)) = mUnit alpha)
+    (xi : ContinuousMulEquiv (topAbelianization (DM alpha 0 : Type))
+      (topAbelianization (DM alpha 0 : Type)))
+    (hxi : IsMStabilizer (mNielsenGenFrame ha).toMDecomposition chi xi) :
+    ∃ Psi : ContinuousMulEquiv (DM alpha 0 : Type) (DM alpha 0 : Type),
+      (∀ x, chiM alpha 0 (Psi x) = chiM alpha 0 x) ∧
+      (∀ x, abMk (Psi x) = xi (abMk x)) := by
+  obtain ⟨p, hp, -⟩ := mStabilizer_classification ha (mNielsenGenFrame ha).toMDecomposition
+    chi hchiA hchiB hchiC hchiD xi hxi
+  obtain ⟨Psi, hchi, hsq⟩ := mNielsenGen_param_realized ha p
+  refine ⟨Psi, hchi, fun x => ?_⟩
+  refine (mFrameExists_phiEquiv (mStageOneLe ha) 0).injective ?_
+  show mPhiHom (mStageOneLe ha) 0 (abMk (Psi x)) = mPhiHom (mStageOneLe ha) 0 (xi (abMk x))
+  rw [hsq x, mNielsenGen_frameAction_of_realizes ha p xi hp (abMk x)]
+
 #print axioms mNielsenGen_nRed_eq_parity
 #print axioms mNielsenGen_cupFreeFrameProjection_eq
 #print axioms mNielsenGen_coord
@@ -763,6 +925,11 @@ theorem mNielsenGen_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabPa
 #print axioms mNielsenGenList_props
 #print axioms mNielsenGen_finite_list
 #print axioms mNielsenGen_param_realized
+#print axioms mNielsenGenFrame
+#print axioms mNielsenGenHom
+#print axioms mNielsenGen_frame_hom_ext
+#print axioms mNielsenGen_frameAction_of_realizes
+#print axioms mNielsenGen_stabilizer_induced
 
 end
 end GQ2.Dyadic.MarkedCore
