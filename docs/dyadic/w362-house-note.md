@@ -315,10 +315,30 @@ since. Do not respond by editing a number into the script.
 
 ## Owner items
 
-1. Whether the reviewed staged certificate PDF's bytes should be tracked.
-   `w361-staged-pdf-qa.md` pins a 29-page artifact by SHA-256, and this lane
-   confirmed the bytes at `output/pdf/w361-staged-certificates.pdf` in the main
-   clone hash to exactly the pinned
+The owner memo's newest block is wave 89 (2026-08-16) and reads "Zero items
+await you". That block predates W360 and W361 by a month. The W361 corpus
+records a docket that has never been folded back into it:
+`w361-claude-code-handoff.md` section 6 item 4 names six unapproved adoptions,
+and `w361-acceptance-readiness.md` section "Mathematical target decisions: do
+not conceal these as formatting" names five, overlapping. Items 1 to 6 below
+are the handoff's six, carried forward verbatim and not adopted, changed or
+adjudicated by this lane. Item 7 is new and is this lane's own.
+
+1. Adoption of the changed M pair/mobile words.
+2. The corrected RN interface.
+3. The existential realization and calibration quantifiers.
+4. The symbolic display contract for the new words.
+5. The treatment of the legacy L/N artifacts.
+6. Acceptance of N's alternative proof method. The full unrestricted
+   handle-mixing stabilizer assertion is proved by `nFullStabilizer_lift_iff`,
+   but by uniform filtered correction and compactness, not by the finite
+   Nielsen-generator list that packet lines 1077-1082 prescribe. Either accept
+   the method or commission the literal presentation artifact.
+7. **New this wave.** Whether the reviewed staged certificate PDF's bytes
+   should be tracked. `w361-staged-pdf-qa.md` pins a 29-page artifact by
+   SHA-256, and this lane confirmed the bytes at
+   `output/pdf/w361-staged-certificates.pdf` in the main clone hash to exactly
+   the pinned
    `3cec56dc3adde9ad9982225cbc376904a9284224f23ba0c1a07c72f17a4b71bb`. T3 has
    now ignored `/output/`, making that path permanently untracked, so the
    reviewed bytes exist in exactly one working copy. The artifact is
@@ -328,7 +348,14 @@ since. Do not respond by editing a number into the script.
    should be able to point at those bytes in the repository. This lane has no
    authority to track a 308 KB build product into a research tree and has not.
 
-Nothing else this lane found is an owner call. The remaining items are either
-verified facts, recorded above, or scope amendments proposed to the
-orchestrator: the heartbeat-baseline wording in item 10, and the four document
-flags in `docs/dyadic/w361-index.md`.
+Nothing else this lane found is an owner call. The rest is either verified
+fact, recorded above, or a scope amendment proposed to the orchestrator: the
+heartbeat-baseline wording in item 10, and the five document flags in
+`docs/dyadic/w361-index.md`.
+
+**The board will print a disagreement between the memo's zero and the seven
+above. That is the contract working.** The memo is right about the docket as
+of wave 89; the note is right about what W360, W361 and this wave have put on
+it since. Per the script's own header, do not respond by editing a number
+into the script. The memo is the owner's own file and only the owner amends
+it.
