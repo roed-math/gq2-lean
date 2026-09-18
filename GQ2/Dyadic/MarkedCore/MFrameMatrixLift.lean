@@ -881,6 +881,155 @@ theorem exists_mFrame_freeBasis_lift {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
     mFrameLiftEquiv_orientation hα h φ hχ, mFrameLiftEquiv_projection hα h φ,
     fun _ hi j => mFrameLiftEquiv_coordinate_gen_of_ne hα h φ hi j⟩
 
+/-! ## The torsion shear: an orientation-preserving frame automorphism defeating
+independent sections
+
+`(ε, b, c, d, f) ↦ (ε + parity c, b, c, d, f)` is a continuous automorphism of the
+frame model (an involution), preserves the actual orientation (which reads only
+the B and D slots), and sends `Cbar` to `Cbar + t`. For it the independent-section
+matrix does not fix the primitive relation vector. -/
+
+theorem mFrameParity_continuous : Continuous mParityZ := by
+  have hcont : Continuous (PadicInt.toZModPow (p := 2) 1 : ℤ_[2] → ZMod (2 ^ 1)) := by
+    rw [continuous_def]
+    intro T _
+    exact isOpen_preimage_toZModPow 1 T
+  exact (continuous_of_discreteTopology
+    (f := fun x : ZMod (2 ^ 1) => ((x.val : ℕ) : ZMod 2))).comp hcont
+
+theorem mFrameParity_add_self (ε p : ZMod 2) : ε + p + p = ε := by
+  revert ε p
+  decide
+
+def mFrameTorsionShear (h : ℕ) : ContinuousMulEquiv (MFrameModel h) (MFrameModel h) where
+  toFun z := ofAdd (z.toAdd.1 + mParityZ z.toAdd.2.2.1, z.toAdd.2.1, z.toAdd.2.2.1,
+    z.toAdd.2.2.2.1, z.toAdd.2.2.2.2)
+  invFun z := ofAdd (z.toAdd.1 + mParityZ z.toAdd.2.2.1, z.toAdd.2.1, z.toAdd.2.2.1,
+    z.toAdd.2.2.2.1, z.toAdd.2.2.2.2)
+  left_inv z := by
+    apply Multiplicative.toAdd.injective
+    simp only [toAdd_ofAdd]
+    conv_rhs => rw [← ofAdd_toAdd z, toAdd_ofAdd]
+    exact Prod.ext (mFrameParity_add_self _ _) rfl
+  right_inv z := by
+    apply Multiplicative.toAdd.injective
+    simp only [toAdd_ofAdd]
+    conv_rhs => rw [← ofAdd_toAdd z, toAdd_ofAdd]
+    exact Prod.ext (mFrameParity_add_self _ _) rfl
+  map_mul' x y := by
+    apply Multiplicative.toAdd.injective
+    simp only [toAdd_mul, toAdd_ofAdd, Prod.fst_add, Prod.snd_add, mParityZ_add]
+    refine Prod.ext ?_ rfl
+    show x.toAdd.1 + y.toAdd.1 + (mParityZ x.toAdd.2.2.1 + mParityZ y.toAdd.2.2.1) =
+      x.toAdd.1 + mParityZ x.toAdd.2.2.1 + (y.toAdd.1 + mParityZ y.toAdd.2.2.1)
+    abel
+  continuous_toFun := by
+    refine continuous_ofAdd.comp ?_
+    have h1 : Continuous fun z : MFrameModel h => z.toAdd.1 := continuous_fst.comp continuous_toAdd
+    have h21 : Continuous fun z : MFrameModel h => z.toAdd.2.1 :=
+      continuous_fst.comp (continuous_snd.comp continuous_toAdd)
+    have h221 : Continuous fun z : MFrameModel h => z.toAdd.2.2.1 :=
+      continuous_fst.comp (continuous_snd.comp (continuous_snd.comp continuous_toAdd))
+    have h2221 : Continuous fun z : MFrameModel h => z.toAdd.2.2.2.1 :=
+      continuous_fst.comp (continuous_snd.comp (continuous_snd.comp
+        (continuous_snd.comp continuous_toAdd)))
+    have h2222 : Continuous fun z : MFrameModel h => z.toAdd.2.2.2.2 :=
+      continuous_snd.comp (continuous_snd.comp (continuous_snd.comp
+        (continuous_snd.comp continuous_toAdd)))
+    exact (h1.add (mFrameParity_continuous.comp h221)).prodMk
+      (h21.prodMk (h221.prodMk (h2221.prodMk h2222)))
+  continuous_invFun := by
+    refine continuous_ofAdd.comp ?_
+    have h1 : Continuous fun z : MFrameModel h => z.toAdd.1 := continuous_fst.comp continuous_toAdd
+    have h21 : Continuous fun z : MFrameModel h => z.toAdd.2.1 :=
+      continuous_fst.comp (continuous_snd.comp continuous_toAdd)
+    have h221 : Continuous fun z : MFrameModel h => z.toAdd.2.2.1 :=
+      continuous_fst.comp (continuous_snd.comp (continuous_snd.comp continuous_toAdd))
+    have h2221 : Continuous fun z : MFrameModel h => z.toAdd.2.2.2.1 :=
+      continuous_fst.comp (continuous_snd.comp (continuous_snd.comp
+        (continuous_snd.comp continuous_toAdd)))
+    have h2222 : Continuous fun z : MFrameModel h => z.toAdd.2.2.2.2 :=
+      continuous_snd.comp (continuous_snd.comp (continuous_snd.comp
+        (continuous_snd.comp continuous_toAdd)))
+    exact (h1.add (mFrameParity_continuous.comp h221)).prodMk
+      (h21.prodMk (h221.prodMk (h2221.prodMk h2222)))
+
+theorem mFrameTorsionShear_apply (h : ℕ) (z : MFrameModel h) :
+    mFrameTorsionShear h z = ofAdd (z.toAdd.1 + mParityZ z.toAdd.2.2.1, z.toAdd.2.1,
+      z.toAdd.2.2.1, z.toAdd.2.2.2.1, z.toAdd.2.2.2.2) := rfl
+
+theorem mFrameTorsionShear_orientation {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (z : MFrameModel h) :
+    mFrameOrientation hα h (mFrameTorsionShear h z) = mFrameOrientation hα h z := by
+  rw [mFrameOrientation_apply, mFrameOrientation_apply, mFrameTorsionShear_apply, toAdd_ofAdd]
+
+theorem mFrameTorsionShear_gen_two {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    (mFrameTorsionShear h (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1 = 1 := by
+  rw [mFrameProjection_gen_two, mFrameTorsionShear_apply, toAdd_ofAdd, toAdd_ofAdd]
+  show (0 : ZMod 2) + mParityZ 1 = 1
+  rw [mParityZ_one, zero_add]
+
+/-- The precise obstruction: for the orientation-preserving torsion shear, the
+independent zero-or-one sections on the A and C columns do not fix the primitive
+relation vector. The fixed-T lift of the same automorphism does
+(`mFrameLiftEquiv_relVec`). -/
+theorem mFrameNaiveLiftMatrix_torsionShear_not_relVec {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :
+    ¬ ∀ j, ∑ i, mFrameNaiveLiftMatrix hα h (mFrameTorsionShear h) j i * mFrameRelVec α i =
+      mFrameRelVec α j := by
+  rw [mFrameNaiveLiftMatrix_relVec_iff, mFrameTorsionShear_gen_two]
+  decide
+
+/-! ## The cup-side interface
+
+The fixed-T lift does not fix A literally: `A⁻¹ * e(A) = C^m * (e C)^(-m)`. For
+`alpha ≥ 2` both factors are `2^(alpha-1)`-th powers, so `e(A)` agrees with `A`
+modulo lambda-two, and every reduced (mod-two) coordinate of `e(A)` is that of `A`. -/
+
+theorem mFrame_pow_halfExp_mem_two {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (g : FreeTwoRank (coreRank h)) :
+    g ^ (2 ^ (α - 1)) ∈ Roe.Labute.twoCentralSeries (FreeTwoRank (coreRank h) : Type) 2 :=
+  Roe.Labute.twoCentralSeries_antitone (FreeTwoRank (coreRank h) : Type)
+    (by omega : 2 ≤ α - 1 + 1)
+    (Roe.Labute.pow_two_pow_mem_twoCentralSeries_succ (FreeTwoRank (coreRank h) : Type) g (α - 1))
+
+/-- The cup-side interface, group form: the lifted A agrees with A modulo lambda-two. -/
+theorem mFrameLiftEquiv_gen_zero_mem_two {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    (freeTwoRankGen (coreRank h) 0)⁻¹ *
+      mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) 0) ∈
+      Roe.Labute.twoCentralSeries (FreeTwoRank (coreRank h) : Type) 2 := by
+  rw [mFrameLiftEquiv_apply, mFrameLiftHom_gen_zero, mFrameHead, ← mul_assoc, inv_mul_cancel_left]
+  exact Subgroup.mul_mem _ (mFrame_pow_halfExp_mem_two hα h _)
+    (Subgroup.inv_mem _ (mFrame_pow_halfExp_mem_two hα h _))
+
+/-- The cup-side interface, quotient form: equality in the level-two quotient. -/
+theorem mFrameLiftEquiv_levelMk_two_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    Roe.Labute.levelMk (FreeTwoRank (coreRank h) : Type) 2
+        (mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) 0)) =
+      Roe.Labute.levelMk (FreeTwoRank (coreRank h) : Type) 2 (freeTwoRankGen (coreRank h) 0) := by
+  symm
+  exact (QuotientGroup.eq).mpr (mFrameLiftEquiv_gen_zero_mem_two hα h φ)
+
+theorem mFrame_nRed_two : nRed (2 : ℤ_[2]) = 0 := by
+  rw [show (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) by norm_num, map_natCast]
+  decide
+
+theorem mFrame_nRed_halfExp {α : ℕ} (hα : 2 ≤ α) : nRed ((2 : ℤ_[2]) ^ (α - 1)) = 0 := by
+  obtain ⟨r, hr⟩ : ∃ r, α - 1 = r + 1 := ⟨α - 2, by omega⟩
+  rw [hr, pow_succ, map_mul, mFrame_nRed_two, mul_zero]
+
+/-- The cup-side interface, coordinate form: the reduced A column of the lift is the
+first standard basis vector, exactly as for the N lift. -/
+theorem mFrameLiftEquiv_reduced_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) (j : Fin (coreRank h)) :
+    nRed (toAdd (freeTwoCoordinate (coreRank h) j
+      (mFrameLiftEquiv hα h φ (freeTwoRankGen (coreRank h) 0)))) = if j = 0 then 1 else 0 := by
+  rw [mFrameLiftEquiv_coordinate_gen_zero, map_sub, map_mul, mFrame_nRed_halfExp hα, zero_mul,
+    sub_zero, mFrameRelVec]
+  split_ifs
+  · exact map_one nRed
+  · exact mFrame_nRed_halfExp hα
+  · exact map_zero nRed
+
 #print axioms mFrameFreeProjection
 #print axioms mFrameFreeProjection_gen
 #print axioms mFrameFreeProjection_surjective
@@ -974,6 +1123,19 @@ theorem exists_mFrame_freeBasis_lift {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 #print axioms mFrameLiftEquiv_coordinate_gen_zero
 #print axioms mFrameLiftEquiv_relVec
 #print axioms exists_mFrame_freeBasis_lift
+#print axioms mFrameParity_continuous
+#print axioms mFrameParity_add_self
+#print axioms mFrameTorsionShear
+#print axioms mFrameTorsionShear_apply
+#print axioms mFrameTorsionShear_orientation
+#print axioms mFrameTorsionShear_gen_two
+#print axioms mFrameNaiveLiftMatrix_torsionShear_not_relVec
+#print axioms mFrame_pow_halfExp_mem_two
+#print axioms mFrameLiftEquiv_gen_zero_mem_two
+#print axioms mFrameLiftEquiv_levelMk_two_gen_zero
+#print axioms mFrame_nRed_two
+#print axioms mFrame_nRed_halfExp
+#print axioms mFrameLiftEquiv_reduced_gen_zero
 
 end
 end GQ2.Dyadic.MarkedCore
