@@ -57,10 +57,37 @@ Imports `MBasisRowRefinement` and `NPlaneAmbientStage` (for the constant-one
 | `mBasis_defect_mem_rawSpan` | The actual free-basis target-relative M defect in `lambda_k` lies in the raw shift span (`evenKernel_vM_*` inputs). |
 | `mBasis_exists_ambient_stage` | **T2 ambient stage.** Orientation-compatible basis, defect in `lambda_k` (`k >= 3`): a depth-`(k-1)` correction with defect in `lambda_(k+1)`. Uses `evenRawStageShift_m`. |
 | `MBasisAmbientStageSupply`, `mBasisAmbientStageSupply` | The same in the stage indexing `n+3 -> n+4`; proved. |
-| `MBasisHeadCleanupSupply` | **Named input (not proved here).** The coupled M ordinary-head cleanup owned by the MHeadCleanup lane, stated with the weakest hypotheses this file needs. |
-| `exists_mBasis_allRows_relative_correction` | Kernel interpolation packaged with the literal target-relative defect and the orientation conclusion. |
+| `MBasisHeadCleanupSupply`, `mBasisHeadCleanupSupply` | The coupled M ordinary-head cleanup in the shape this file consumes (`m >= 1`, all coordinates of depth `m`, defect in `lambda_(m+2)`; same-class all-character-zero head representative). Discharged from the landed `mHead_exists_freeTwo_characterZero_same_class` (MHEAD), passing `ht 0` and `ht 2`. |
+| `exists_mBasis_allRows_relative_correction` | Kernel interpolation packaged with the literal target-relative defect and the orientation conclusion (head row zero as input). |
 | `MBasisStageStep` | **T3 interface.** Orientation-compatible basis, exact ordinary agreement, defect in `lambda_(n+3)`: a depth-`(n+2)` correction with orientation one, every ordinary character one (coordinate matrix retained), defect in `lambda_(n+4)`. |
 | `mBasisStageStep_of_headCleanup` | `MBasisHeadCleanupSupply alpha h -> MBasisStageStep alpha h`, `alpha >= 2`. |
+| `mBasisStageStep` | **T3 theorem.** `MBasisStageStep alpha h` for every `alpha >= 2` and every `h`. |
+
+Import cost: `MPlaneAmbientStage` imports `MBasisRowRefinement` (hence
+`NBasisRowRefinement` and `StageAbstractionEvenRawSpan`), `MHeadCleanup` and
+`NPlaneAmbientStage` (hence `EvenFamilyConstruct` and
+`StageAbstractionEvenDerivKer`).
+
+## Bridge to the stage lane (MSTAGES)
+
+The MSTAGES worktree defines `mStageProjection`, `mStageOrientation` and the
+`Prop` `MStageStep alpha h` (read-only inspection of
+`worktrees/w362-mstages/GQ2/Dyadic/MarkedCore/MFullFrame{Compactness,Stages}.lean`).
+Those are term-for-term the definitions `mBasisProjection`, `mBasisOrientation`
+and `MBasisStageStep` of this lane. A scratch file (not committed) that copies
+the three sibling definitions verbatim and imports `MPlaneAmbientStage` checks
+
+```lean
+example (α h : ℕ) : mStageOrientation' α h = mBasisOrientation α h := rfl
+example (alpha h : ℕ) : MStageStep' alpha h = MBasisStageStep alpha h := rfl
+example {alpha h : ℕ} (halpha : 2 ≤ alpha) : MStageStep' alpha h := mBasisStageStep halpha
+```
+
+through `scripts/mirror.sh check`. So once both lanes are merged, the stage
+lane's producer is the one-liner
+`theorem mStageStep (halpha : 2 ≤ alpha) : MStageStep alpha h := mBasisStageStep halpha`,
+and `exists_mStageBasis_exact_stage` becomes unconditional in its `hstep`.
+Two names for one definition are a merge-time cleanup, not a mathematical gap.
 
 ## Status
 
