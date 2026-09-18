@@ -20,7 +20,7 @@ No Lean, no `generated/`, no packet TeX, no ledger, no W361 amendment/readiness 
 - [x] Inputs read (packet obligations, ledger, completion audit section 3, the six
       theorems read verbatim from the Lean, the two W363 audits, the W363/W364 notes,
       the owner memo wave-362 block).
-- [x] T1 amendment drafted (`w364-proof-packet-amendment-mc.md`, 543 lines).
+- [x] T1 amendment drafted (`w364-proof-packet-amendment-mc.md`, 542 lines).
 - [x] T2 readiness drafted (`w364-acceptance-readiness-mc.md`).
 - [x] Contradictions in the inputs recorded (amendment section 6, five of them).
 - [x] One dated pointer line added at the top of each W361 MC record.
