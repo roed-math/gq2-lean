@@ -1,9 +1,16 @@
 # W362-MASSEMBLE lane note
 
-Lane: M full-stabilizer lifting, step 5 of 5 (the assembly: the final theorem
-and its converse). Branch `claude/w362-massemble`, base `da50ba68`, with
+Lane: M full-stabilizer lifting, the assembly (the final theorem and its
+converse). Branch `claude/w362-massemble`, base `da50ba68`, with
 `claude/w362-mkernel` merged in mid-lane.
-Route item 5 of `docs/dyadic/w361-m-next-general-scaffold.md`.
+
+The assembly is **not** one of the five numbered research items of
+`docs/dyadic/w361-m-next-general-scaffold.md`. That scaffold stops at the
+stage/compactness wrapper, which is its item 5 and which `w362-mstages-note.md`
+carried out; the scaffold says in terms that "The M adapters and their
+composition have not been proved by this note". (This header originally read
+"step 5 of 5" and cited "Route item 5", double-claiming the item with the
+MSTAGES lane; corrected in W363-MCONSOL after W363-MAUDIT FLAG-2.)
 
 One new module, `GQ2/Dyadic/MarkedCore/MFullStabilizerLift.lean`, 9
 declarations. No existing module edited, `GQ2.lean` untouched. Default limits
@@ -41,28 +48,52 @@ torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on),
 Nothing here says anything about `alpha = 1`.
 
 This is the M analogue of `NFullStabilizerLift`, not a copy of it. The M route
-fixes the composite word `T = A * C^(2^(alpha-1))` rather than the single letter
-`A`, its head row is the two-letter `2 f(A) + 2^alpha f(C)`, and its
-orientation sees the `B` coordinate only through its parity. Nothing from the N
-theorem is reused; only its shape is matched.
+is not a text substitution of the N proof: it fixes the composite word
+`T = A * C^(2^(alpha-1))` rather than the single letter `A`, its head row is
+the coupled two-letter `2 f(A) + 2^alpha f(C)`, its primitive relation vector
+is `e_A + 2^(alpha-1) e_C`, its depth-three step turns on the surviving head
+being a **square**, its crossed models are the M ones, and its orientation sees
+the `B` coordinate only through its parity.
 
-## A name that had to change
+What the route does reuse from the N development is shared infrastructure,
+never an N relator conclusion: `N.lean`'s `nFrameModel_map_t` (applied to M
+frame automorphisms, `MFrameModel h` and `NFrameModel h` being the same Lean
+type), the commutator tail of `NInitialCupDepth` (`freeTail_eq_of_cup`,
+`freeTail_value`, `reducedRows`), the closed correction kernel
+`nPlaneCorrectionKernel` with its closedness and the row witnesses
+`nBasisKernelWitness_mem` / `_row`, `NPlaneAmbientStage.oneWord` as a tuple
+container, and `NFrameCupCoordinates`. The M defect itself is shifted by the M
+stage identity `evenRawStageShift_m`, never by the N one.
+
+(The last paragraph was corrected in W363-MCONSOL: the sentence originally read
+"Nothing from the N theorem is reused; only its shape is matched", which
+W363-MAUDIT FLAG-1 showed to be false as written.)
+
+## A name that had to change, and has since changed back
 
 The ticket and the coordinator both asked for `mFullStabilizer_lift`.
-That name is **already taken** in namespace `GQ2.Dyadic.MarkedCore`, by
-`MFullFrameStages.mFullStabilizer_lift`, which is the *conditional composition
-shape* with five interface hypotheses. The lane may not edit existing modules,
-so the landed theorem is
+At the time of this lane that name was **already taken** in namespace
+`GQ2.Dyadic.MarkedCore`, by `MFullFrameStages.mFullStabilizer_lift`, which is
+the *composition shape* over five interface hypotheses. This lane may not edit
+existing modules, so the landed theorem was named
 
 ```
 mFullStabilizer_lift_of_frame
 ```
 
 "of_frame" = from frame-level hypotheses (orientation and cup). The
-characterization keeps the exact N-parallel name `mFullStabilizer_lift_iff`,
-which was free. A later consolidation wave that is allowed to touch
-`MFullFrameStages.lean` could rename the conditional shape (say to
-`mStage_fullStabilizer_lift_of_interfaces`) and free the plain name.
+characterization kept the exact N-parallel name `mFullStabilizer_lift_iff`,
+which was free.
+
+**Resolved in W363-MCONSOL**, which held the edit grant on the nine modules.
+The composition shape in `MFullFrameStages.lean` is now
+`mFullStabilizer_lift_of_interfaces`, and the landed theorem in
+`MFullStabilizerLift.lean` carries the plain name `mFullStabilizer_lift`.
+`mFullStabilizer_lift_of_frame` survives in that module as an alias of it, with
+the identical statement, so references written against the earlier spelling
+keep elaborating. The public pair is now `mFullStabilizer_lift` /
+`mFullStabilizer_lift_iff`, the exact twins of `nFullStabilizer_lift` /
+`nFullStabilizer_lift_iff`.
 
 ## The two landed theorems
 
@@ -209,7 +240,7 @@ proved by `mFrameLiftEquiv_torsionWord` alone.
 | --- | --- |
 | `mFullStabilizer_liftEquiv_head` | torsion-word bridge |
 | `mFullStabilizer_relError_of_cup` | depth-three error from cup alone |
-| `mFullStabilizer_lift_of_frame` | **sufficiency, unconditional** |
+| `mFullStabilizer_lift` (W363 rename; alias kept) | **sufficiency, unconditional** |
 | `mCupFrameOfDM_surjective` | frame quotient is onto |
 | `mFrameOrientation_cupFrameOfDM` | `chiM` to frame orientation |
 | `mFullStabilizer_orientation_of_lift` | necessity, orientation half |
@@ -224,9 +255,10 @@ imports `MFrameCupCoordinates`, `MFrameMatrixLift` and `MPlaneAmbientStage`.
 
 Nothing in this lane. Two things a later wave may want:
 
-1. Free the name `mFullStabilizer_lift` by renaming the conditional composition
+1. ~~Free the name `mFullStabilizer_lift` by renaming the conditional composition
    shape in `MFullFrameStages.lean`, then rename `mFullStabilizer_lift_of_frame`
-   onto it for exact N parity.
+   onto it for exact N parity.~~ **Done in W363-MCONSOL**; see "A name that had
+   to change, and has since changed back" above.
 2. `MCupFrameCupIsometry` is the semantic predicate, quantified over every
    continuous mod-two frame character. MCUP's
    `MCupFrameCupIsometry.reducedRows_of_projection` already converts it to the

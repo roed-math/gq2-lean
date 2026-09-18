@@ -1,5 +1,14 @@
 # W362-MINIT: the initial free lift at M, respecting the primitive relation
 
+> **W363-MCONSOL rename.** `MFullFrameStages`'s five-hypothesis composition
+> shape, called `mFullStabilizer_lift` when this note was written, is now
+> `mFullStabilizer_lift_of_interfaces`. The plain name `mFullStabilizer_lift`
+> now belongs to the unconditional theorem in `MFullStabilizerLift.lean`
+> (whose earlier spelling `mFullStabilizer_lift_of_frame` is kept as an alias).
+> Read every bare `mFullStabilizer_lift` below as
+> `mFullStabilizer_lift_of_interfaces`.
+
+
 Lane note, 2026-09-17. Module `GQ2/Dyadic/MarkedCore/MFrameMatrixLift.lean`
 (namespace `GQ2.Dyadic.MarkedCore`, prefix `mFrame`), 111 declarations, every
 one pinned in the file; all print the std-3 set

@@ -39,6 +39,12 @@ The converse ingredient is the last section: if a continuous automorphism of
 the actual core `D_M` has frame action `phi`, then `phi` is a cup isometry. It
 goes through `dmObs` and the uniqueness of the one-dimensional degree-two
 obstruction, with no coordinate computation.
+
+Both halves are consumed in `MFullStabilizerLift`: `mCupStageError_of_frame` is
+the depth-three input of `mFullStabilizer_lift`, and `mCupFrameCupIsometry_of_aut`
+is the cup half of the converse, so the two together are the cup side of the
+image characterization `mFullStabilizer_lift_iff`. Nothing here is conditional
+on a matrix realization or on a finite generator list.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -122,7 +128,8 @@ theorem mCupFrameModTwoCoordinate_canonicalMark {alpha : ℕ} (ha : 2 ≤ alpha)
 
 /-- The composite free cover of the full M frame. The core cover is the
 sibling stage file's `mStageProjection`, not a private copy, so the projection
-hypothesis below is literally the one `mFullStabilizer_lift` carries. -/
+hypothesis below is literally the one
+`MFullFrameStages.mFullStabilizer_lift_of_interfaces` carries. -/
 def mCupFreeFrameProjection {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) :
     ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (MFrameModel h) :=
   (mCupFrameOfDM ha h).comp (mStageProjection alpha h)
@@ -220,14 +227,16 @@ theorem mCupRelWord_error_mem_three_of_frame_fixedT {alpha h : ℕ} {ha : 2 ≤ 
   mCupRelWord_error_mem_three_of_fixed_T ha m (freeTwoRankGen (coreRank h)) hT
     (hcup.reducedRows_of_projection m hproj)
 
-/-- **The MCUP obligation of `MFullFrameStages.mFullStabilizer_lift`,
-discharged.** This is verbatim that theorem's `herror0`, from verbatim its
-`hframe0` plus its `hT` (the hypothesis is `mStageTorsionWord` fixation written
-out) and the semantic frame cup condition.
+/-- **The MCUP obligation of
+`MFullFrameStages.mFullStabilizer_lift_of_interfaces`, discharged.** This is
+verbatim that theorem's `herror0`, from verbatim its `hframe0` plus its `hT`
+(the hypothesis is `mStageTorsionWord` fixation written out) and the semantic
+frame cup condition.
 
-The orientation hypothesis `hchi0` that `mFullStabilizer_lift` also carries is
-deliberately **absent** here: the initial depth-three step does not use it, so
-this statement is the stronger one and still applies unchanged. -/
+The orientation hypothesis `hchi0` that `mFullStabilizer_lift_of_interfaces`
+also carries is deliberately **absent** here: the initial depth-three step does
+not use it, so this statement is the stronger one and still applies
+unchanged. -/
 theorem mCupStageError_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
     {phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)}
     (e0 : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)

@@ -22,10 +22,14 @@ The ambient theorem supplies arbitrary depth corrections improving the actual
 M defect by one level; it does not claim that they preserve orientation or
 ordinary rows. Composed with the coupled ordinary-head cleanup of
 `MHeadCleanup` and the closed derivative-kernel interpolation of
-`MBasisRowRefinement`, it produces the stage interface `MStageStep` of
+`MBasisRowRefinement`, it **proves** the stage interface `MStageStep` of
 `MFullFrameStages` at every `alpha >= 2` and every handle count
-(`mStageStep_holds`), so the full-stabilizer lift of that module is
-conditional only on its initial-lift interface.
+(`mStageStep_holds`), so the composition of that module is left carrying only
+its initial-lift interface (`mBasis_mFullStabilizer_lift_of_initialLift`
+below). That interface is discharged in turn by `MFrameMatrixLift` and
+`MFrameCupCoordinates`, and the assembled unconditional theorem is
+`MFullStabilizerLift.mFullStabilizer_lift`. Nothing here states a finite
+Nielsen generator list for the stabilizer, which is a separate artifact.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -370,9 +374,13 @@ theorem mStageStep_holds {alpha h : ℕ} (ha : 2 ≤ alpha) : MStageStep alpha h
     (mRelWord alpha (freeTwoRankGen (coreRank h))) hrow ht hterr
   exact ⟨s, hs, hschi, hsrow, hserr⟩
 
-/-- The landed full-stabilizer composition with its stage interface
-discharged: the lift is now conditional only on the initial-lift interface
-`MStageInitialLift` (the MINIT and MCUP obligations). -/
+/-- The full-stabilizer composition with its stage interface discharged: the
+only hypothesis left is the initial-lift interface `MStageInitialLift` (the
+MINIT and MCUP obligations), and that one is discharged in turn by
+`MFrameMatrixLift.mStageInitialLift_of_fixedHead_error` over
+`MFrameCupCoordinates.mCupStageError_of_frame`. The fully assembled statement,
+with `phi` carrying only orientation and cup hypotheses, is
+`MFullStabilizerLift.mFullStabilizer_lift`. -/
 theorem mBasis_mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hinit : MStageInitialLift ha h phi) :

@@ -1,5 +1,14 @@
 # W362-MSTAGES lane note
 
+> **W363-MCONSOL rename.** `MFullFrameStages`'s five-hypothesis composition
+> shape, called `mFullStabilizer_lift` when this note was written, is now
+> `mFullStabilizer_lift_of_interfaces`. The plain name `mFullStabilizer_lift`
+> now belongs to the unconditional theorem in `MFullStabilizerLift.lean`
+> (whose earlier spelling `mFullStabilizer_lift_of_frame` is kept as an alias).
+> Read every bare `mFullStabilizer_lift` below as
+> `mFullStabilizer_lift_of_interfaces`.
+
+
 Lane: M full-stabilizer lifting, step 5 of 5 (exact all-depth stages, full-frame
 stage transfer, compactness at M). Branch `claude/w362-mstages`, base `6770a87e`.
 

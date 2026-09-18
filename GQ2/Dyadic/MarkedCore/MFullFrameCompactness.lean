@@ -15,10 +15,16 @@ the composite torsion generator `t = Abar + m Cbar` with `m = 2^(alpha-1)`
 unramified-marking-only condition and no compatible choice of stage witnesses
 occurs.
 
-Nonemptiness of the stage sets at every depth is assumed, not proved: this
-file is a reduction. The free-basis transfer at the end is likewise
-conditional on a supplied free automorphism with exact coordinates and an
-actual filtered relator defect.
+Nonemptiness of the stage sets at every depth is a hypothesis here and not
+a theorem of this file: this file is a reduction. The free-basis transfer at
+the end likewise takes as given a free automorphism with exact coordinates and
+an actual filtered relator defect.
+
+Both are supplied downstream. `MFullFrameStages.exists_mStageBasis_exact_stage`
+produces a stage at every depth over the named `MStageStep` interface, and
+`MPlaneAmbientStage.mStageStep_holds` proves that interface at every
+`alpha >= 2` and every handle count, so the compact limit assembled here is one
+half of the unconditional `MFullStabilizerLift.mFullStabilizer_lift`.
 -/
 
 namespace GQ2.Dyadic.MarkedCore

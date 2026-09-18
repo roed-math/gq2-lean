@@ -1,5 +1,14 @@
 # W362-MCUP lane note
 
+> **W363-MCONSOL rename.** `MFullFrameStages`'s five-hypothesis composition
+> shape, called `mFullStabilizer_lift` when this note was written, is now
+> `mFullStabilizer_lift_of_interfaces`. The plain name `mFullStabilizer_lift`
+> now belongs to the unconditional theorem in `MFullStabilizerLift.lean`
+> (whose earlier spelling `mFullStabilizer_lift_of_frame` is kept as an alias).
+> Read every bare `mFullStabilizer_lift` below as
+> `mFullStabilizer_lift_of_interfaces`.
+
+
 Lane: M full-stabilizer lifting, step 4 of 5 (the initial depth-three and cup
 comparison adapter at M). Branch `claude/w362-mcup`, base `6770a87e`.
 Route item 4 of `docs/dyadic/w361-m-next-general-scaffold.md`.

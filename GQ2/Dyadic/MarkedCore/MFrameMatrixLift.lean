@@ -15,7 +15,12 @@ then `T * (image of C)^(-m)`, which is the explicit inverse substitution
 `A = T * C^(-m)` applied to the lifted basis.
 
 This is a free-basis lift, not a relator-preserving automorphism of D_M.
-No cup or depth-three relator condition is assumed or asserted here.
+No cup or depth-three relator condition is assumed or asserted here: the
+depth-three error of this very lift is `MFrameCupCoordinates`' obligation, and
+the relator-preserving automorphism itself is assembled from the two in
+`MFullStabilizerLift.mFullStabilizer_lift`. The fixed-`T` lift itself and
+every statement about it carry `2 <= alpha`; the orientation and projection
+material at the top of the file does not need it.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -1035,12 +1040,13 @@ theorem mFrameLiftEquiv_reduced_gen_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
 
 /-! ## The MSTAGES interface
 
-`mFullStabilizer_lift` (`MFullFrameStages`) consumes an initial free basis `e0`
-with the primitive torsion word `T` fixed, the orientation `mStageOrientation`
-preserved on generators and the full frame square through `mPhiHom` on
-generators. The fixed-T lift supplies exactly these. The fourth component of
-`MStageInitialLift`, the depth-three relator error, is MCUP's obligation and is
-carried here as a hypothesis, not proved. -/
+`mFullStabilizer_lift_of_interfaces` (`MFullFrameStages`) consumes an initial
+free basis `e0` with the primitive torsion word `T` fixed, the orientation
+`mStageOrientation` preserved on generators and the full frame square through
+`mPhiHom` on generators. The fixed-T lift supplies exactly these. The fourth
+component of `MStageInitialLift`, the depth-three relator error, is MCUP's
+obligation (`MFrameCupCoordinates.mCupStageError_of_frame`) and is carried here
+as a hypothesis, not proved. -/
 
 /-- The transported orientation on the frame is the existing model character of
 `MFrameApi`, so preserving it is preserving the actual `chiM` through the frame. -/
@@ -1090,9 +1096,12 @@ theorem mStageInitialLift_of_fixedHead_error {α : ℕ} (hα : 2 ≤ α) (h : �
   ⟨mFrameLiftEquiv hα h φ, mFrameLiftEquiv_torsionWord hα h φ,
     mFrameLiftEquiv_stageOrientation hα h φ hχ, mFrameLiftEquiv_stageFrame hα h φ, herror⟩
 
-/-- The composition with `mFullStabilizer_lift`, with the MINIT obligations
-discharged by the fixed-T lift. Still conditional on MCUP's depth-three error
-for this lift and on the `MStageStep` depth interface; it is not a proved lift. -/
+/-- The composition with `mFullStabilizer_lift_of_interfaces`, with the MINIT
+obligations discharged by the fixed-T lift. Still stated over MCUP's
+depth-three error for this lift and over the `MStageStep` depth interface, so
+it is not itself the lifting theorem; both remaining hypotheses are discharged
+downstream, and `MFullStabilizerLift.mFullStabilizer_lift` is the assembled
+unconditional statement. -/
 theorem mFullStabilizer_lift_of_fixedHead {α h : ℕ} (hα : 2 ≤ α)
     (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hχ : ∀ z, mFrameOrientation hα h (φ z) = mFrameOrientation hα h z)

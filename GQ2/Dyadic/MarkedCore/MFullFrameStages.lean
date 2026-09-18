@@ -3,7 +3,7 @@ import GQ2.Dyadic.MarkedCore.MHeadCleanup
 import GQ2.Dyadic.MarkedCore.FreeProTwoBasisCorrection
 
 /-!
-# Arbitrarily deep exact M stages, and the conditional full-stabilizer shape
+# Arbitrarily deep exact M stages, and the interface-level full-stabilizer shape
 
 The M relator has the **two-letter** ordinary row `2 f(A) + 2^alpha f(C)`, not
 the single-letter N row. Its primitive relation vector is therefore carried by
@@ -18,13 +18,18 @@ Contents:
   two-letter row itself is MHEAD's `mHead_ordinary_row`, consumed here rather
   than restated.
 * `MStageStep`: the **named** depth-step interface. It is a hypothesis
-  everywhere below; nothing in this file proves that any `(alpha, h)` has it.
+  everywhere in this file, and nothing here proves that any `(alpha, h)` has
+  it. It is not an open problem, though: `MPlaneAmbientStage.mStageStep_holds`
+  proves it downstream for every `alpha >= 2` and every handle count.
 * `exists_mStageBasis_exact_stage`: from one initial depth-three basis and that
   interface, an actual free basis at every depth with exactly the initial
   coordinate matrix.
-* `mFullStabilizer_lift`: the composition shape. It is **conditional** on the
-  three named sibling interfaces listed in its own docstring; it is not a
-  proved lifting theorem.
+* `mFullStabilizer_lift_of_interfaces`: the composition shape, stated over the
+  three named sibling obligations so that the assembly is settled in advance.
+  It is not itself the lifting theorem. Every one of its hypotheses is
+  discharged elsewhere, and the assembled unconditional statement is
+  `MFullStabilizerLift.mFullStabilizer_lift`, for which the plain name is
+  deliberately left free here.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -94,10 +99,12 @@ which
   coordinate of the basis unchanged, and
 * pushes the literal relator error into `lambda_(d+2)`.
 
-Nothing in this file proves that any `(alpha, h)` satisfies this. It is the
-exact M analogue of the composite of `NAmbientStageSupply` with
-`exists_nBasis_full_relative_correction`, and it is stated on the actual free
-pro-two group, with no assumed derivative image and no diagonal restriction. -/
+Nothing in this file proves that any `(alpha, h)` satisfies this; that is
+`MPlaneAmbientStage.mStageStep_holds`, which proves it at every `alpha >= 2`
+and every handle count. It is the exact M analogue of the composite of
+`NAmbientStageSupply` with `exists_nBasis_full_relative_correction`, and it is
+stated on the actual free pro-two group, with no assumed derivative image and
+no diagonal restriction. -/
 def MStageStep (alpha h : ℕ) : Prop :=
   ∀ n : ℕ, ∀ e : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type),
@@ -154,8 +161,8 @@ separately quantified stage witnesses is asserted or needed.
 There is deliberately **no** `2 ≤ alpha` binder here: the iteration is pure
 bookkeeping over the named interface, and every `alpha`-dependent fact of the
 M route sits inside `MStageStep` and inside the initial data. This is not a
-claim that anything is available at `alpha = 1`, where `MStageStep` has no
-producer at all. -/
+claim that anything is available at `alpha = 1`: the producer of `MStageStep`,
+`MPlaneAmbientStage.mStageStep_holds`, carries `2 <= alpha`. -/
 theorem exists_mStageBasis_exact_stage {alpha h : ℕ}
     (hstep : MStageStep alpha h)
     (e0 : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
@@ -200,7 +207,7 @@ theorem exists_mStageBasis_exact_stage {alpha h : ℕ}
       rw [htuple, show n + 1 + 3 = n + 4 by omega]
       exact hserror
 
-/-! ## The conditional composition -/
+/-! ## The composition over the named interfaces -/
 
 /-- The actual full abelian frame quotient of `D_M`. -/
 def mStageFrameHom {alpha : ℕ} (ha : 1 ≤ alpha) (h : ℕ) :
@@ -212,23 +219,31 @@ def mStageFrameHom {alpha : ℕ} (ha : 1 ≤ alpha) (h : ℕ) :
 theorem mStageFrameHom_apply {alpha : ℕ} (ha : 1 ≤ alpha) (h : ℕ) (x : DM alpha h) :
     mStageFrameHom ha h x = mPhiHom ha h (abMk x) := rfl
 
-/-- **Conditional full M-frame stabilizer lifting.** This is *not* a proved
-lift: every one of its hypotheses is an unproved sibling interface, named here
-so that the composition is settled in advance.
+/-- **Full M-frame stabilizer lifting over the three named interfaces.** The
+hypotheses are exactly the sibling obligations, named here so that the
+composition was settled in advance of their producers. Each of them is now
+discharged, elsewhere:
 
 * `e0`, `hT`, `hchi0`, `hframe0` -- the MINIT obligation: an actual initial
   free basis fixing the primitive torsion word `T = A * C^(2^(alpha-1))`,
   preserving the canonical orientation, and inducing `phi` on the full frame.
+  Supplied by `MFrameMatrixLift.mStageInitialLift_of_fixedHead_error` from the
+  fixed-`T` lift.
 * `herror0` -- the MCUP obligation: that same basis has literal relator error
-  in `lambda_3`.
+  in `lambda_3`. Supplied by `MFrameCupCoordinates.mCupStageError_of_frame`.
 * `hstep` -- the MKERNEL obligation: the named `MStageStep` depth interface.
+  Supplied by `MPlaneAmbientStage.mStageStep_holds` at every `alpha >= 2`.
 
 Everything else is proved here: the exact ordinary relator row from `hT`, all
 higher exact stages, the transfer to `D_M` and the torsion-sensitive compact
 limit. The conclusion is an all-element commuting square for the **full**
 abelianization `mPhiHom`, torsion slot included, not for a selected unramified
-marking. -/
-theorem mFullStabilizer_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
+marking.
+
+This is the composition shape, not the landed theorem: the assembled
+unconditional statement, with every hypothesis above discharged, is
+`MFullStabilizerLift.mFullStabilizer_lift`. -/
+theorem mFullStabilizer_lift_of_interfaces {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (e0 : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
       (FreeTwoRank (coreRank h) : Type))
@@ -281,8 +296,10 @@ theorem mFullStabilizer_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
   exact DFunLike.congr_fun heq x
 
 /-- The MINIT and MCUP obligations bundled as one named interface, so the
-final composition has exactly two hypotheses. Still conditional: this file
-supplies no instance of it. -/
+final composition has exactly two hypotheses. This file supplies no instance of
+it; `MFrameMatrixLift.mStageInitialLift_of_fixedHead_error` does, for the
+fixed-`T` lift of any orientation-preserving full-frame automorphism whose
+depth-three relator error is known. -/
 def MStageInitialLift {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) : Prop :=
   ∃ e0 : ContinuousMulEquiv (FreeTwoRank (coreRank h) : Type)
@@ -298,8 +315,10 @@ def MStageInitialLift {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
       (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
         twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3
 
-/-- The same conditional composition, with the initial data packaged.
-`MStageInitialLift` and `MStageStep` are both unproved interfaces here. -/
+/-- The same composition, with the initial data packaged. `MStageInitialLift`
+and `MStageStep` are both interfaces as far as this file is concerned; both are
+discharged downstream, and `MPlaneAmbientStage.mBasis_mFullStabilizer_lift_of_initialLift`
+is this statement with `hstep` already supplied. -/
 theorem mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hinit : MStageInitialLift ha h phi) (hstep : MStageStep alpha h) :
@@ -308,7 +327,7 @@ theorem mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
       (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
         phi (mPhiHom (mStageOneLe ha) h (abMk x))) := by
   obtain ⟨e0, hT, hchi0, hframe0, herror0⟩ := hinit
-  exact mFullStabilizer_lift ha phi e0 hT hchi0 hframe0 herror0 hstep
+  exact mFullStabilizer_lift_of_interfaces ha phi e0 hT hchi0 hframe0 herror0 hstep
 
 #print axioms mStageTorsionWord
 #print axioms mStageTorsionWord_dmGen
@@ -319,7 +338,7 @@ theorem mFullStabilizer_lift_of_initialLift {alpha h : ℕ} (ha : 2 ≤ alpha)
 #print axioms exists_mStageBasis_exact_stage
 #print axioms mStageFrameHom
 #print axioms mStageFrameHom_apply
-#print axioms mFullStabilizer_lift
+#print axioms mFullStabilizer_lift_of_interfaces
 #print axioms MStageInitialLift
 #print axioms mFullStabilizer_lift_of_initialLift
 
