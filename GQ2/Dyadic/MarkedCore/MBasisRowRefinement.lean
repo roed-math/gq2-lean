@@ -54,6 +54,46 @@ theorem mBasis_mFiltered_mRelWord (k : ℕ) (hk : 3 ≤ k) (alpha : ℕ) (halpha
   change (mRelWord alpha m)⁻¹ * mRelWord alpha (fun i => m i * t i) = _ at h2
   rw [mBasis_nFilteredDerivative_eq_evenRawDbarWord k hk m t ht, ← h2, mul_inv_cancel_left]
 
+/-! ### The derivative-kernel coordination re-exports
+
+The next two statements are the same two adapters in the packaging the M
+kernel lane asks for: the literal `mRelWord` shift, with no `StageWord` datum
+to construct. They were introduced in `MHeadCleanup` and moved here in W363,
+because they are restatements of the two theorems directly above and were the
+only thing forcing `MHeadCleanup` to import `StageAbstractionEvenRawSpan`.
+Their `mHead` prefix is kept so that the names stay stable across the move; it
+records where they were first stated, not where they now live.
+-/
+
+/-- The literal `M_alpha` relator shift in `levelQuot G (k+1)` is the even
+crossed-derivation word, for `alpha >= 2`, `k >= 3` and depth-`(k-1)`
+corrections. This is `mBasis_mFiltered_mRelWord` followed by
+`mBasis_nFilteredDerivative_eq_evenRawDbarWord`, in shift form. -/
+theorem mHead_mRelWord_shift_eq_evenRawDbarWord {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    (mRelWord alpha base)⁻¹ * mRelWord alpha (fun i => base i * correction i) =
+      StageGeneric.evenRawDbarWord base correction := by
+  rw [mBasis_mFiltered_mRelWord k hk alpha halpha base correction hdepth,
+    inv_mul_cancel_left,
+    mBasis_nFilteredDerivative_eq_evenRawDbarWord k hk base correction hdepth]
+
+/-- The `M` and `N` filtered derivatives literally agree, as an equation
+between relator shifts in the actual quotient group `levelQuot G (k+1)`, and
+not merely an associated-graded analogy. This is the identification asked for
+before any `N` kernel witness may be reused on the `M` side. It is **not** a
+claim that any `N`-relator conclusion is an `M` theorem. -/
+theorem mHead_mRelWord_shift_eq_nRelWord_shift {alpha : ℕ} (halpha : 2 ≤ alpha)
+    (h k : ℕ) (hk : 3 ≤ k)
+    (base correction : Fin (coreRank h) → levelQuot G (k + 1))
+    (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
+    (mRelWord alpha base)⁻¹ * mRelWord alpha (fun i => base i * correction i) =
+      (nRelWord alpha base)⁻¹ * nRelWord alpha (fun i => base i * correction i) := by
+  rw [mHead_mRelWord_shift_eq_evenRawDbarWord halpha h k hk base correction hdepth]
+  exact (StageGeneric.evenRawStageShift_n halpha (by omega) h k hk base correction
+    hdepth).symm
+
 /-- The M relator shift on the actual group, projected to `Q_(k+1)`. -/
 theorem mBasis_relator_shift (k : ℕ) (hk : 3 ≤ k)
     (alpha : ℕ) (halpha : 2 ≤ alpha) {h : ℕ} (m t : Fin (coreRank h) → G)
@@ -229,6 +269,8 @@ theorem exists_mBasis_allRows_same_kernelCoset {alpha h : ℕ} (halpha : 2 ≤ a
 
 #print axioms mBasis_nFilteredDerivative_eq_evenRawDbarWord
 #print axioms mBasis_mFiltered_mRelWord
+#print axioms mHead_mRelWord_shift_eq_evenRawDbarWord
+#print axioms mHead_mRelWord_shift_eq_nRelWord_shift
 #print axioms mBasis_relator_shift
 #print axioms mBasis_mem_nPlaneCorrectionKernel_iff_mError
 #print axioms mBasis_mRelWord_mul_correctionKernel
