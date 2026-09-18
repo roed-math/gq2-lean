@@ -316,7 +316,9 @@ def mFrameBasisChangeHom (α h : ℕ) :
   presLiftHom 1 (isProP_presPro2 1)
     (fun i => if i = 0 then mFrameHead α h else freeTwoRankGen (coreRank h) i) (map_one _)
 
-/-- The explicit inverse substitution `A ↦ T * C^(-m)`, every other generator fixed. -/
+/-- The inverse of the substitution: slot 0 goes to `X_0 * X_2^(-m)`, every other
+generator is fixed. Reading slot 0 as `T`, this is the explicit inverse
+substitution `A = T * C^(-m)`. -/
 def mFrameBasisChangeInvHom (α h : ℕ) :
     ContinuousMonoidHom (FreeTwoRank (coreRank h) : Type) (FreeTwoRank (coreRank h) : Type) :=
   presLiftHom 1 (isProP_presPro2 1)
@@ -422,9 +424,9 @@ theorem mFrameBasisChange_symm_gen_zero (α h : ℕ) :
 /-! ## The coordinate dictionary
 
 `mFrameHeadCoordinate α h j x` is the `j`-th coordinate of `x` in the free basis
-`(T, B, C, D, handles)`: the original coordinate of the inverse substitution
-`A ↦ T * C^(-m)` applied to `x`. In these coordinates the frame projection has the
-N shape (torsion slot = the T coordinate modulo two, every other slot integral). -/
+`(T, B, C, D, handles)`: the original `j`-th coordinate of the inverse basis
+change applied to `x`. In these coordinates the frame projection has the N shape
+(torsion slot = the T coordinate modulo two, every other slot copied). -/
 
 /-- The coordinates in the free basis `(T, B, C, D, handles)`. -/
 def mFrameHeadCoordinate (α h : ℕ) (j : Fin (coreRank h)) (x : FreeTwoRank (coreRank h)) : ℤ_[2] :=
@@ -595,17 +597,19 @@ theorem mFrameNaive_image_zero {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
   rw [← hφ]
   abel
 
-/-- The independent-section matrix fixes the primitive relation vector exactly
-if and only if the torsion coordinate of `φ(Cbar)` vanishes. -/
-theorem mFrameNaiveLiftMatrix_relVec_iff {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
-    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
-    (∀ j, ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i = mFrameRelVec α j) ↔
-      (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1 = 0 := by
+/-- The independent-section matrix sends the primitive relation vector to the
+unit multiple `(1 + 2^(alpha-1) * digit) r`, where `digit` is the torsion
+coordinate of `φ(Cbar)` read as zero or one. -/
+theorem mFrameNaiveLiftMatrix_relVec {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) (j : Fin (coreRank h)) :
+    ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i =
+      (1 + (2 : ℤ_[2]) ^ (α - 1) *
+        (((φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1.val : ℕ) : ℤ_[2])) *
+        mFrameRelVec α j := by
   set γ := φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2)) with hγ
-  have hsum : ∀ j, ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i =
+  have hsum : ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i =
       mFrameNaiveLiftMatrix hα h φ j 0 +
         (2 : ℤ_[2]) ^ (α - 1) * mFrameNaiveLiftMatrix hα h φ j 2 := by
-    intro j
     have hsupp : ∀ i ∈ (Finset.univ : Finset (Fin (coreRank h))),
         i ∉ ({0, 2} : Finset (Fin (coreRank h))) →
         mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i = 0 := by
@@ -630,40 +634,49 @@ theorem mFrameNaiveLiftMatrix_relVec_iff {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
     rfl
   have hε : (1 : ZMod 2) - (2 ^ (α - 1)) • γ.toAdd.1 = 1 := by
     rw [mFrame_halfExp_smul_zmod2 hα, sub_zero]
+  rw [hsum, hcol0, hcol2]
+  rcases mIdx_cases j with rfl | rfl | rfl | rfl | ⟨k, rfl⟩
+  · rw [mSurjVec_zero, mSurjVec_zero, hε, mFrameRelVec_zero, mFrameZMod2_val_one]
+    push_cast
+    ring
+  · rw [mSurjVec_one, mSurjVec_one, mFrameRelVec_one, nsmul_eq_mul]
+    push_cast
+    ring
+  · rw [mSurjVec_two, mSurjVec_two, hε, mFrameRelVec_two, mFrameZMod2_val_one, nsmul_eq_mul]
+    push_cast
+    ring
+  · rw [mSurjVec_three, mSurjVec_three, mFrameRelVec_three, nsmul_eq_mul]
+    push_cast
+    ring
+  · rw [mSurjVec_handle, mSurjVec_handle, mFrameRelVec_handle, Pi.sub_apply, Pi.zero_apply,
+      Pi.smul_apply, nsmul_eq_mul]
+    push_cast
+    ring
+
+/-- The independent-section matrix fixes the primitive relation vector exactly
+if and only if the torsion coordinate of `φ(Cbar)` vanishes. -/
+theorem mFrameNaiveLiftMatrix_relVec_iff {α : ℕ} (hα : 2 ≤ α) (h : ℕ)
+    (φ : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
+    (∀ j, ∑ i, mFrameNaiveLiftMatrix hα h φ j i * mFrameRelVec α i = mFrameRelVec α j) ↔
+      (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1 = 0 := by
   have hm0 : (2 : ℤ_[2]) ^ (α - 1) ≠ 0 := pow_ne_zero _ (by norm_num)
   constructor
   · intro hall
     have h0 := hall 0
-    rw [hsum, hcol0, hcol2, mSurjVec_zero, mSurjVec_zero, hε, mFrameRelVec_zero,
-      mFrameZMod2_val_one] at h0
-    have hv : ((2 : ℤ_[2]) ^ (α - 1)) * ((γ.toAdd.1.val : ℕ) : ℤ_[2]) = 0 := by
-      push_cast at h0
+    rw [mFrameNaiveLiftMatrix_relVec, mFrameRelVec_zero, mul_one] at h0
+    have hv : ((2 : ℤ_[2]) ^ (α - 1)) *
+        (((φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1.val : ℕ) :
+          ℤ_[2]) = 0 := by
       linear_combination h0
     rcases mul_eq_zero.mp hv with hc | hc
     · exact absurd hc hm0
-    · have : γ.toAdd.1.val = 0 := by exact_mod_cast hc
+    · have : (φ (mFrameProjection hα h (freeTwoRankGen (coreRank h) 2))).toAdd.1.val = 0 := by
+        exact_mod_cast hc
       exact (ZMod.val_eq_zero _).mp this
   · intro h1 j
-    rw [hsum, hcol0, hcol2]
-    rcases mIdx_cases j with rfl | rfl | rfl | rfl | ⟨k, rfl⟩
-    · rw [mSurjVec_zero, mSurjVec_zero, hε, h1, mFrameRelVec_zero, ZMod.val_zero,
-        mFrameZMod2_val_one]
-      push_cast
-      ring
-    · rw [mSurjVec_one, mSurjVec_one, mFrameRelVec_one, nsmul_eq_mul]
-      push_cast
-      ring
-    · rw [mSurjVec_two, mSurjVec_two, hε, h1, mFrameRelVec_two, ZMod.val_zero,
-        mFrameZMod2_val_one, nsmul_eq_mul]
-      push_cast
-      ring
-    · rw [mSurjVec_three, mSurjVec_three, mFrameRelVec_three, nsmul_eq_mul]
-      push_cast
-      ring
-    · rw [mSurjVec_handle, mSurjVec_handle, mFrameRelVec_handle, Pi.sub_apply, Pi.zero_apply,
-        Pi.smul_apply, nsmul_eq_mul]
-      push_cast
-      ring
+    rw [mFrameNaiveLiftMatrix_relVec, h1, ZMod.val_zero]
+    push_cast
+    ring
 
 /-! ## The fixed-T free lift of a frame automorphism -/
 
@@ -1162,6 +1175,7 @@ theorem mFullStabilizer_lift_of_fixedHead {α h : ℕ} (hα : 2 ≤ α)
 #print axioms mFrameProjection_gen_two
 #print axioms mFrame_halfExp_smul_zmod2
 #print axioms mFrameNaive_image_zero
+#print axioms mFrameNaiveLiftMatrix_relVec
 #print axioms mFrameNaiveLiftMatrix_relVec_iff
 #print axioms mFrameLiftWord
 #print axioms mFrameProjection_liftWord
