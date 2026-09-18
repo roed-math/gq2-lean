@@ -300,6 +300,68 @@ risk of being committed. No action is required and none was taken.
     contrast takes an arbitrary `phi` and concludes an all-element square. The
     warning is not stylistic.
 
+## T1c and T1d closed by elaboration, with a staleness correction
+
+18. **All three audit drivers PASS.** Run with
+    `bash scripts/w361_lean_runner.sh <driver>`, exit 0 each:
+
+    - `scripts/w361_general_axiom_audit.lean` -> `GENERAL_AXIOM_AUDIT_PASS|16`,
+      32 s. Every one of the 16 declarations matched its expected footprint
+      exactly, with no extra **and** no missing dependency. The endpoint the
+      handoff names,
+      `...FieldFamilySpliceOriginalMarked.hasSelectedOriginalMarkedWordPresentationRN_ramifiedI`,
+      reports **12** axioms, that is the standard three plus nine, exactly as
+      the handoff's trust-boundary paragraph says. The three structural lemmas
+      report 3, the six supplied-bundle endpoints 9, and the seven canonical
+      `K + RI` endpoints 12. T1c closed.
+    - `scripts/w361_artifact_axiom_audit.lean` -> `ARTIFACT_AXIOM_AUDIT_PASS|691`,
+      31 s. All 691 pins, standard three only.
+    - `GQ2/AxiomLedger.lean` -> 25 s, and it reports: **gap map 0**
+      declarations depending on `sorryAx`; **ALARM 0** unknown nonstandard
+      axiom uses; **0 terminal violations**; every capstone at 12 axioms all in
+      the census, with each Gamma_R capstone identical to its Gamma_A twin,
+      including `main_presentation_literal_roe_unconditional`.
+
+19. **Census eleven at the environment level.** The completed umbrella build
+    elaborated 12,964 pins over 12,814 distinct declarations. Exactly eleven
+    distinct nonstandard axioms appear and all eleven are
+    `AxiomLedger.bAxioms`, `orientedTameQuotientAt` included this time with 13
+    consumers. No `sorryAx` and no `Lean.ofReduceBool`, so nothing reachable
+    uses a proof placeholder or a native decision. T1d closed.
+
+20. **STALENESS CORRECTION, and the most useful operational fact this lane
+    found.** These three runs do **not** measure base `6770a87e`. The shared
+    cache is the main clone's `.lake/build`, and the main clone advanced
+    during this lane: its HEAD is now `8eff12ab` ("register the kernel
+    modules"), 48 commits past this lane's base, carrying the wave's M lanes.
+    Anything measured through the shared cache measures whatever the main
+    clone currently is, not the lane's own base. A lane that reports a
+    cache-derived number against its base is wrong by however much the wave
+    has moved.
+
+    Here the correction is benign, and checkably so. `6770a87e..8eff12ab` is
+    13 added files and exactly one modified one, `GQ2.lean`, which gains eight
+    import lines and nothing else. No pre-existing `.lean` was touched. All
+    eleven N modules are byte-identical across the two commits, as are
+    `scripts/w361_artifact_axiom_audit.lean`,
+    `scripts/w361_general_axiom_audit.lean` and `GQ2/AxiomLedger.lean`.
+    Registering a module cannot change an existing declaration's axiom
+    footprint, so items 18 and 19 hold at `6770a87e` for every declaration
+    they cover.
+
+    **One number does not transfer, and it is not a discrepancy.** The ledger
+    reports **51,203** tracked declarations under `GQ2`. The W361 handoff says
+    50,991, twice. The difference of 212 is what the wave's eight new M
+    modules contribute; the handoff's figure was measured on the W361 tree and
+    mine on `8eff12ab`. I cannot re-derive 50,991 now, because the cache that
+    matched `6770a87e` has been overwritten. Do not record 51,203 as a
+    correction to the handoff, and do not record 50,991 as the current count.
+
+21. **Registration is still complete at the wave's current HEAD.** At
+    `8eff12ab` there are 1,565 `.lean` files under `GQ2/`, eight more than at
+    this lane's base, and all eight new `MarkedCore/M*.lean` modules appear in
+    `GQ2.lean`. The six-file exception set is unchanged.
+
 ## Interaction with the machine scoreboard, flagged before it surprises anyone
 
 Creating this file changes what `scripts/scoreboard.sh` reports. Its OWNER
