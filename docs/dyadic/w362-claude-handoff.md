@@ -514,6 +514,27 @@ first, or nearly did.
 
 ## 4. Verification record
 
+**End-state record (orchestrator, session close).** Tree `d05976b6` (the last commit is the
+memo note; the last Lean change is the registration of `GaussPhaseValues`, one commit
+earlier). `lake build GQ2` from the main clone: **green, 5,187 jobs** (Mathlib and
+dependencies accepted from the gq2-paper package store; the GQ2 tree fully traced since the
+first umbrella of the session). Full ordinary gate with the ledger, through the dependency
+wrapper now kept at `scripts/w361_run_with_deps.sh`:
+
+```sh
+bash scripts/w361_run_with_deps.sh env -u GQ2_LEDGER_FIXTURE GQ2_LEDGER_GATE=1 bash scripts/check_dyadic.sh
+```
+
+**all checks passed**: `check_axioms` all-pass, axiom census **11** (= expected), the five
+capstones at the expected census set, the ledger at **51,436 tracked declarations** with **0**
+`sorryAx` dependencies, **0** unknown non-standard axiom uses, **0** terminal violations.
+(The wave-362 tree gated at 51,212; the difference is the W363 to W365 modules.) The fresh
+source-only build of this tree by `scripts/w361_fresh_build.py --require-live-match` was
+started at the close; its result is recorded in the paragraph that follows when it finished
+before the session ended, otherwise the next session runs it first (section 6 has the exact
+command) and it is the only verification artifact this session did not produce.
+
+
 ### Verified in the W362-HOUSE lane against base `6770a87e`
 
 These are re-derived facts, not carried claims. Each was checked against the
