@@ -5,43 +5,48 @@ Authors: David Roe, roed@mit.edu, using Claude Opus 5
 -/
 import GQ2.Dyadic.MarkedCore.MFrameCupCoordinates
 import GQ2.Dyadic.MarkedCore.MFrameMatrixLift
+import GQ2.Dyadic.MarkedCore.MPlaneAmbientStage
 
 /-!
-# The full M-frame stabilizer, conditional on the stage step, and its converse
+# Lifting the full M-frame orientation/cup stabilizer
 
-This file assembles the three merged halves of wave 362 into one statement and
-its converse. It proves no new mathematics about the M tower; it reconciles the
-three interfaces and records exactly what is still owed.
+Every continuous automorphism of the actual full M abelian frame preserving the
+canonical orientation and the full mod-two cup form lifts to an actual
+continuous automorphism of `D_M` preserving `chiM`. Handles may mix arbitrarily.
+The conclusion is an all-element commuting square for the full abelianization
+`mPhiHom`, torsion coordinate included, and the condition is exact: it is also
+necessary.
 
-**What is conditional and what is not.** The forward direction carries the
-hypothesis `MStageStep alpha h` of `MFullFrameStages`, and nothing in this
-repository produces an instance of that hypothesis at any `(alpha, h)`. So the
-forward theorem is *not* a proved lifting theorem: read it as "the M
-full-stabilizer lift holds at `(alpha, h)` as soon as `MStageStep alpha h`
-does". The converse direction carries no such hypothesis and is unconditional.
+**Unconditional.** No stage-supply, group-lift or matrix premise remains. The
+`MStageStep` interface that `MFullFrameStages` left open is discharged by
+`MPlaneAmbientStage.mStageStep_holds` for every `alpha >= 2` and every rank, and
+this file consumes that theorem rather than carrying the interface as a
+hypothesis.
 
-Do not read this file as the M copy of `NFullStabilizerLift`. The N theorem
-`nFullStabilizer_lift` is unconditional; this one is not, and the M route also
+This is the M analogue of `NFullStabilizerLift`, not a copy of it. The M route
 fixes the composite word `T = A * C^(2^(alpha-1))` rather than the single letter
-`A`. The N file is the shape that was matched, not a result that was reused.
+`A`, its head row is the two-letter `2 f(A) + 2^alpha f(C)`, and its orientation
+sees the `B` coordinate only through its parity. Nothing from the N theorem is
+reused; only its shape is matched.
 
 Contents:
 
-* `mFullStabilizer_relError_of_cup`: the MCUP obligation of
-  `mFullStabilizer_lift_of_fixedHead`, discharged for the fixed-`T` lift out of
-  the semantic full-frame cup predicate alone. Unconditional, and it does not
-  use the orientation.
-* `mFullStabilizer_lift_of_step`: the forward theorem, conditional on
-  `MStageStep alpha h` and on nothing else.
+* `mFullStabilizer_relError_of_cup`: the depth-three relator error of the
+  fixed-`T` lift, from the semantic full-frame cup predicate alone. It uses no
+  orientation hypothesis.
+* `mFullStabilizer_lift_of_frame`: sufficiency. The name is `_of_frame` rather
+  than the N-parallel `mFullStabilizer_lift` only because
+  `MFullFrameStages.mFullStabilizer_lift` already occupies that name in this
+  namespace with the conditional composition shape; this is the landed theorem.
 * `mFrameOrientation_cupFrameOfDM`, `mFullStabilizer_orientation_of_lift`,
-  `mFullStabilizer_cup_of_lift`, `mFullStabilizer_orientation_cup_of_lift`: the
-  converse, unconditional.
-* `mFullStabilizer_lift_iff_of_step`: the image characterization, the M twin of
-  `nFullStabilizer_lift_iff`, conditional in one direction only.
+  `mFullStabilizer_cup_of_lift`, `mFullStabilizer_orientation_cup_of_lift`:
+  necessity.
+* `mFullStabilizer_lift_iff`: the exact image characterization, the M twin of
+  `nFullStabilizer_lift_iff`.
 
 `alpha >= 2` throughout: `MFrameMatrixLift`'s fixed-`T` lift needs it (the
-torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on), and
-`MCupFrameCupIsometry` is stated with that binder.
+torsion digit is killed by `2 ^ (alpha - 1)` only from `alpha = 2` on),
+`MCupFrameCupIsometry` carries that binder, and so does `mStageStep_holds`.
 -/
 
 namespace GQ2.Dyadic.MarkedCore
@@ -50,24 +55,25 @@ noncomputable section
 open GQ2 GQ2.SectionThree Multiplicative Roe.Labute
 open scoped GQ2.SectionThree.TopAbInstances
 
-/-! ## Bridging the three interfaces
+/-! ## Bridging the assembled interfaces
 
-The three merged halves speak three dialects of the same two notions.
+The merged halves speak three dialects of the same two notions.
 
 * **Orientation.** `MFrameMatrixLift.mFrameOrientation` lives on the frame
-  `MFrameModel h`; `MFullFrameStages` states its hypothesis with
+  `MFrameModel h`; `MFullFrameStages` states its hypotheses with
   `mStageOrientation`, which lives on the free pro-two group. They are *not*
   the same function and there is no definitional identity between them: the
   bridge is `mStageOrientation_eq_freeOrientation` composed with
-  `mFrameOrientation_projection`, and it is already packaged upstream as
-  `mFrameLiftEquiv_stageOrientation`. That lemma is used below rather than
-  restated.
-* **Projection.** `mFrameProjection` and `mPhiHom _ h ∘ abMk ∘ mStageProjection`
-  *are* definitionally equal (`mFrameProjection_apply` and
-  `mFrameFreeAbProjection_gen` are both `rfl` on generators); the upstream
-  packaging is `mFrameLiftEquiv_stageFrame`, again used rather than restated.
-  `MCUP`'s `mCupFreeFrameProjection` is the same composite once more, and
-  `mCupFreeFrameProjection_apply` is `rfl`.
+  `mFrameOrientation_projection`, already packaged upstream as
+  `mFrameLiftEquiv_stageOrientation`, which is used below rather than restated.
+  `mFrameOrientation_eq_apiChiModel` further identifies `mFrameOrientation`
+  with `MFrameApi`'s `mFrameApiChiModel` on the nose.
+* **Projection.** `mFrameProjection`, `mCupFreeFrameProjection` and
+  `mPhiHom _ h ∘ abMk ∘ mStageProjection` *are* definitionally equal:
+  `mFrameProjection_apply`, `mCupFreeFrameProjection_apply` and
+  `mStageFrameHom_apply` are all `rfl`, and `mFrameFreeAbProjection_gen` closes
+  the generator case. The upstream packaging is `mFrameLiftEquiv_stageFrame`,
+  again used rather than restated.
 
 The one bridge genuinely missing upstream is the torsion word, where
 `MFullFrameStages` says `mStageTorsionWord` and `MFrameCupCoordinates` writes
@@ -85,14 +91,14 @@ theorem mFullStabilizer_liftEquiv_head {alpha h : ℕ} (ha : 2 ≤ alpha)
         freeTwoRankGen (coreRank h) 2 ^ 2 ^ (alpha - 1) :=
   mFrameLiftEquiv_torsionWord ha h phi
 
-/-! ## The forward theorem -/
+/-! ## Sufficiency -/
 
-/-- **The MCUP obligation of `mFullStabilizer_lift_of_fixedHead`, discharged.**
-The literal depth-three relator error of the fixed-`T` lift follows from the
+/-- The literal depth-three relator error of the fixed-`T` lift, from the
 semantic full-frame cup predicate alone.
 
-Unconditional: no `MStageStep`, and no orientation hypothesis either, since
-`mCupStageError_of_frame` does not use one. -/
+This carries **no orientation hypothesis**: `mCupStageError_of_frame` does not
+use one, so cup preservation by itself already puts the actual M relator error
+in lambda-three. -/
 theorem mFullStabilizer_relError_of_cup {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hcup : MCupFrameCupIsometry ha phi) :
@@ -102,34 +108,33 @@ theorem mFullStabilizer_relError_of_cup {alpha h : ℕ} (ha : 2 ≤ alpha)
   mCupStageError_of_frame ha (mFrameLiftEquiv ha h phi) hcup
     (mFullStabilizer_liftEquiv_head ha phi) (mFrameLiftEquiv_stageFrame ha h phi)
 
-/-- **Full M-frame stabilizer sufficiency, conditional on the stage step.**
-A continuous automorphism of the actual full M frame preserving the canonical
-orientation and the full mod-two cup form is induced by a continuous
-automorphism of `D_M` preserving `chiM`, *provided* `MStageStep alpha h` holds.
+/-- **Full M-frame stabilizer sufficiency, with no identity-handle
+restriction.** A continuous automorphism of the actual full M frame preserving
+the canonical orientation and the full mod-two cup form is induced by a
+continuous automorphism of `D_M` preserving `chiM`.
 
-This is not a proved lift. `MStageStep alpha h` is the named depth-step
-interface of `MFullFrameStages`, and no `(alpha, h)` is known to satisfy it;
-the kernel lane owns its producer. Everything else is discharged:
-`MFrameMatrixLift` supplies the initial fixed-`T` free basis with the exact
-frame square and the preserved orientation, `MFrameCupCoordinates` supplies its
-depth-three relator error, and `MFullFrameStages` supplies the iteration and
-the torsion-sensitive compact limit.
+Unconditional. `MFrameMatrixLift` supplies the initial fixed-`T` free basis with
+the exact frame square and the preserved orientation,
+`mFullStabilizer_relError_of_cup` supplies its depth-three relator error,
+`MFullFrameStages` supplies the iteration and the torsion-sensitive compact
+limit, and `MPlaneAmbientStage.mStageStep_holds` discharges the depth-step
+interface that iteration consumes.
 
-Handles may mix arbitrarily and the conclusion is an all-element commuting
-square for the full abelianization `mPhiHom`, torsion slot included. -/
-theorem mFullStabilizer_lift_of_step {alpha h : ℕ} (ha : 2 ≤ alpha)
+The name avoids `mFullStabilizer_lift`, which
+`MFullFrameStages.mFullStabilizer_lift` already occupies in this namespace with
+the conditional composition shape. -/
+theorem mFullStabilizer_lift_of_frame {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (hchi : ∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z)
-    (hcup : MCupFrameCupIsometry ha phi)
-    (hstep : MStageStep alpha h) :
+    (hcup : MCupFrameCupIsometry ha phi) :
     ∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
       (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
       (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
         phi (mPhiHom (mStageOneLe ha) h (abMk x))) :=
   mFullStabilizer_lift_of_fixedHead ha phi hchi
-    (mFullStabilizer_relError_of_cup ha phi hcup) hstep
+    (mFullStabilizer_relError_of_cup ha phi hcup) (mStageStep_holds ha)
 
-/-! ## The converse, unconditional -/
+/-! ## Necessity -/
 
 /-- The full frame quotient of `D_M` is surjective. -/
 theorem mCupFrameOfDM_surjective {alpha h : ℕ} (ha : 2 ≤ alpha) :
@@ -147,9 +152,9 @@ theorem mFrameOrientation_cupFrameOfDM {alpha h : ℕ} (ha : 2 ≤ alpha)
     (mFrameExists_phiEquiv (mStageOneLe ha) h (abMk x))) = _
   rw [ContinuousMulEquiv.symm_apply_apply, abLiftG_abMk]
 
-/-- **Converse, orientation half.** If `phi` is induced on the full frame by a
+/-- **Necessity, orientation half.** If `phi` is induced on the full frame by a
 `chiM`-preserving continuous automorphism of `D_M`, it preserves the canonical
-orientation. Unconditional. -/
+orientation. -/
 theorem mFullStabilizer_orientation_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type))
@@ -162,9 +167,9 @@ theorem mFullStabilizer_orientation_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
   have hf : mCupFrameOfDM ha h (Psi x) = phi (mCupFrameOfDM ha h x) := hframe x
   rw [← hf, mFrameOrientation_cupFrameOfDM, mFrameOrientation_cupFrameOfDM, hchi]
 
-/-- **Converse, cup half.** If `phi` is induced on the full frame by a
-continuous automorphism of `D_M`, it is a full-frame cup isometry.
-Unconditional, and it needs no `chiM` hypothesis. -/
+/-- **Necessity, cup half.** If `phi` is induced on the full frame by a
+continuous automorphism of `D_M`, it is a full-frame cup isometry. It needs no
+`chiM` hypothesis. -/
 theorem mFullStabilizer_cup_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type))
@@ -173,12 +178,9 @@ theorem mFullStabilizer_cup_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
     MCupFrameCupIsometry ha phi :=
   mCupFrameCupIsometry_of_aut ha Psi phi fun i => (hframe (dmGen alpha h i)).symm
 
-/-- **The converse of the M full-stabilizer theorem, stated on its own.**
-Everything induced on the full M frame by a `chiM`-preserving continuous
-automorphism of `D_M` preserves the orientation and the full mod-two cup form.
-
-This half is **unconditional**: it does not mention `MStageStep`, and it would
-stand unchanged if that interface were refuted. -/
+/-- **Necessity.** Everything induced on the full M frame by a
+`chiM`-preserving continuous automorphism of `D_M` preserves the orientation and
+the full mod-two cup form. -/
 theorem mFullStabilizer_orientation_cup_of_lift {alpha h : ℕ} (ha : 2 ≤ alpha)
     (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
     (Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type))
@@ -192,23 +194,16 @@ theorem mFullStabilizer_orientation_cup_of_lift {alpha h : ℕ} (ha : 2 ≤ alph
 
 /-! ## The image characterization -/
 
-/-- **The exact image condition on the full M frame, the M twin of
-`nFullStabilizer_lift_iff`.** A continuous frame automorphism is induced by a
-`chiM`-preserving continuous automorphism of `D_M` exactly when it preserves the
-canonical orientation and the full mod-two cup form.
+/-- **The exact image condition, stated entirely on the full M abelian frame.**
+A continuous frame automorphism is induced by a `chiM`-preserving continuous
+automorphism of `D_M` exactly when it preserves the canonical orientation and
+the full mod-two cup form.
 
-**Conditional in one direction only.** The hypothesis `MStageStep alpha h` is
-consumed by the right-to-left direction; the left-to-right direction is the
-unconditional `mFullStabilizer_orientation_cup_of_lift` and does not use it.
-So this is an iff modulo the stage step, not a proved characterization: nothing
-in this repository exhibits an `(alpha, h)` with `MStageStep alpha h`.
-
-Like its N twin, this asserts no finite explicit Nielsen-generator presentation
-of the stabilizer; the condition is stated entirely on the full abelian
-frame. -/
-theorem mFullStabilizer_lift_iff_of_step {alpha h : ℕ} (ha : 2 ≤ alpha)
-    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
-    (hstep : MStageStep alpha h) :
+Unconditional in both directions. Like its N twin `nFullStabilizer_lift_iff`
+this does not assert a finite explicit Nielsen-generator presentation of the
+stabilizer. -/
+theorem mFullStabilizer_lift_iff {alpha h : ℕ} (ha : 2 ≤ alpha)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)) :
     (∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
       (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
       (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
@@ -219,17 +214,17 @@ theorem mFullStabilizer_lift_iff_of_step {alpha h : ℕ} (ha : 2 ≤ alpha)
   · rintro ⟨Psi, hchi, hframe⟩
     exact mFullStabilizer_orientation_cup_of_lift ha phi Psi hchi hframe
   · rintro ⟨hchi, hcup⟩
-    exact mFullStabilizer_lift_of_step ha phi hchi hcup hstep
+    exact mFullStabilizer_lift_of_frame ha phi hchi hcup
 
 #print axioms mFullStabilizer_liftEquiv_head
 #print axioms mFullStabilizer_relError_of_cup
-#print axioms mFullStabilizer_lift_of_step
+#print axioms mFullStabilizer_lift_of_frame
 #print axioms mCupFrameOfDM_surjective
 #print axioms mFrameOrientation_cupFrameOfDM
 #print axioms mFullStabilizer_orientation_of_lift
 #print axioms mFullStabilizer_cup_of_lift
 #print axioms mFullStabilizer_orientation_cup_of_lift
-#print axioms mFullStabilizer_lift_iff_of_step
+#print axioms mFullStabilizer_lift_iff
 
 end
 end GQ2.Dyadic.MarkedCore
