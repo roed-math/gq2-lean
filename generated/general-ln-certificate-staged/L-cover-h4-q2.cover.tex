@@ -1,0 +1,21 @@
+% STAGED L/N affine phase-cover certificate; ledger item 9 only.
+% ln-cover-hash: 0b3a205fd224278d7b52678ecf3c2c9b812128436c965b7d08610e3521157049
+% family: L; structural: {"h":4,"q":2}
+% Ledger item 9 only: the wiring, the two-clause structure and the Gauss multipliers of the L/N0/Npc affine determinant certificate. No coefficient module, marking, field, resolver, eta or source certificate is selected.
+% AffineDeterminantCertificate is a Prop, so this display is NOT a rendering of the phase-cover proof and no formula is substituted for one. Lean has definitional proof irrelevance, so a field binding certifies that the producer proves exactly the statement the record's determinant field demands, at the record's own parameters, and NOT that the record was built from that proof term. The clause statements themselves remain in the packet's stored proofs transcript.
+% Identity of the serialized wiring, clause structure and Gauss multiplier sign and exponent at the stated discrete parameters. It is not a hash of any proof.
+% The L determinant is the only one of the three whose scope is a power of two with an odd exponent rather than a condition on alpha and q, and the only one that reaches the word certificate through a record field supplied as a parameter rather than through a theorem. Its unramified Gauss sign is minus one, because the L degree 2h+1 is odd.
+% clause record: GQ2.Dyadic.AffineDeterminantCertificate
+% producer: GQ2.Dyadic.LSquare.determinantResidue_lSq_pow (degree 9; scope: q = 2^f with f odd, which is narrower than the alpha and q conditions the even families use)
+% consumer: GQ2.Dyadic.LSquare.wordCertificateRN_lSq_of_actionImage, field determinant (degree 9)
+% supply route: analytic_leaves_record_field
+% binding (field_statement_identity): GQ2.Dyadic.W363LNCover.lDeterminant_field
+% record field carrying the producer: GQ2.Dyadic.W363LNCover.lDeterminant_leaves
+% numerics record: GQ2.Dyadic.standardNumerics
+% half-dimension: m, with block order 2^(2m) and 1 <= m
+% gauss_unram bridge: GQ2.Dyadic.W363LNCover.standardNumerics_gaussUnram
+% gauss_ram bridge: GQ2.Dyadic.W363LNCover.standardNumerics_gaussRam
+\begin{enumerate}
+\item[(1)] \textbf{gauss unramified} At every nonzero radical line of a simple nontrivial block enrichment, the Gauss-Z residue of the source boundary map equals the unramified Gauss multiplier at the block's half-dimension. Head condition: the frame element at the tame tau acts trivially on the head quotient. The degree enters only through $\mathrm{gaussUnram}(m)=-2^{9m}$.
+\item[(2)] \textbf{gauss ramified} At the same lines, with the opposite head condition, the residue equals the ramified Gauss multiplier at the block's half-dimension. Head condition: the frame element at the tame tau moves some vector of the head quotient. The degree enters only through $\mathrm{gaussRam}(m)=2^{9m}$.
+\end{enumerate}
