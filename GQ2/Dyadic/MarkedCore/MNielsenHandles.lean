@@ -238,6 +238,192 @@ theorem mNielsenHdl_orientation {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabPar
   (mFrameOrientation_preserved_iff ha h (mNielsenHdlEquiv p q hpq hqp h)).mpr
     (fun w => ⟨mNielsenHdlMap_parity_B p w, mNielsenHdlMap_coord_D p w⟩) z
 
+/-! ## Cup at every handle count
+
+`MCupFrameCupIsometry` quantifies over *pairs of continuous mod-two frame characters*, not
+over pairs of mod-two vectors, so the rank-four statement cannot simply be transported: the
+predicate at handle count `h` sees `4 + 2h` coordinates of every character. The route taken
+here is the rank-four one of `MNielsenGenerators` run at general `h`. The character expansion
+`mNielsenGen_character_apply` and the coordinate readings `mNielsenGen_coord_*` are already
+stated at general `h`; what is new is the handle coordinate reading, the head-plus-handles
+split of the expansion sum, and the observation that the handle marks are fixed **on the
+nose** by the extension, so the handle block of `evenCupForm` is literally the same term on
+both sides of the isometry equation. Only the head block then has to be checked, and that
+check is the rank-four one. -/
+
+/-- The mod-two reading of a handle coordinate of an arbitrary frame element. -/
+theorem mNielsenHdl_coord_handle {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (k : Fin (2 * h))
+    (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) z) = mParityZ (z.toAdd.2.2.2.2 k) := by
+  rw [mNielsenGen_coord ha h (mHandleIdx k) z]
+  show nRed (mSurjVec alpha _ _ _ _ _ (mHandleIdx k)) = _
+  rw [mSurjVec_handle, mNielsenGen_nRed_eq_parity]
+
+theorem mNielsenHdl_image_coord_zero {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h 0 (mNielsenHdlMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha h 0 z)
+        + toAdd (mCupFrameModTwoCoordinate ha h 1 z) * p.tau
+        + toAdd (mCupFrameModTwoCoordinate ha h 3 z) * mParityZ p.bc := by
+  rw [mNielsenGen_coord_zero ha h (mNielsenHdlMap p z), mNielsenGen_coord_zero ha h z,
+    mNielsenGen_coord_one ha h z, mNielsenGen_coord_three ha h z]
+  rfl
+
+theorem mNielsenHdl_image_coord_one {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h 1 (mNielsenHdlMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha h 1 z) := by
+  rw [mNielsenGen_coord_one ha h (mNielsenHdlMap p z), mNielsenGen_coord_one ha h z]
+  exact mNielsenHdlMap_parity_B p z
+
+theorem mNielsenHdl_image_coord_two {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h 2 (mNielsenHdlMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha h 1 z) * mParityZ p.bc
+        + toAdd (mCupFrameModTwoCoordinate ha h 2 z)
+        + toAdd (mCupFrameModTwoCoordinate ha h 3 z) * mParityZ p.e := by
+  have hz : (mNielsenHdlMap p z).toAdd.2.2.1
+      = z.toAdd.2.1 * p.bc + z.toAdd.2.2.1 * (p.gamma : ℤ_[2])
+        + z.toAdd.2.2.2.1 * p.e := rfl
+  rw [mNielsenGen_coord_two ha h (mNielsenHdlMap p z), mNielsenGen_coord_one ha h z,
+    mNielsenGen_coord_two ha h z, mNielsenGen_coord_three ha h z, hz,
+    mParityZ_add, mParityZ_add, mParityZ_mul, mParityZ_mul, mParityZ_mul,
+    mParityZ_of_isUnit p.gamma.isUnit]
+  ring
+
+theorem mNielsenHdl_image_coord_three {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h 3 (mNielsenHdlMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha h 3 z) := by
+  rw [mNielsenGen_coord_three ha h (mNielsenHdlMap p z), mNielsenGen_coord_three ha h z]
+  rfl
+
+/-- **The handle coordinates of the image are the handle coordinates of the source.** -/
+theorem mNielsenHdl_image_coord_handle {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (k : Fin (2 * h)) (z : MFrameModel h) :
+    toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mNielsenHdlMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) z) := by
+  rw [mNielsenHdl_coord_handle ha k (mNielsenHdlMap p z), mNielsenHdl_coord_handle ha k z,
+    mNielsenHdlMap_handle p z]
+
+/-- The value of a mod-two character on the image of a frame element, head block expanded
+and handle block left as a sum. -/
+theorem mNielsenHdl_char_image {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel h) (Multiplicative (ZMod 2))) (z : MFrameModel h) :
+    toAdd (c (mNielsenHdlMap p z))
+      = (toAdd (mCupFrameModTwoCoordinate ha h 0 z)
+            + toAdd (mCupFrameModTwoCoordinate ha h 1 z) * p.tau
+            + toAdd (mCupFrameModTwoCoordinate ha h 3 z) * mParityZ p.bc)
+          * toAdd (c (mCupFrameCanonicalMark ha h 0))
+        + toAdd (mCupFrameModTwoCoordinate ha h 1 z)
+          * toAdd (c (mCupFrameCanonicalMark ha h 1))
+        + (toAdd (mCupFrameModTwoCoordinate ha h 1 z) * mParityZ p.bc
+            + toAdd (mCupFrameModTwoCoordinate ha h 2 z)
+            + toAdd (mCupFrameModTwoCoordinate ha h 3 z) * mParityZ p.e)
+          * toAdd (c (mCupFrameCanonicalMark ha h 2))
+        + toAdd (mCupFrameModTwoCoordinate ha h 3 z)
+          * toAdd (c (mCupFrameCanonicalMark ha h 3))
+        + ∑ k : Fin (2 * h), toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) z)
+            * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k))) := by
+  have hsum : (∑ k : Fin (2 * h), toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k)
+        (mNielsenHdlMap p z)) * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k))))
+      = ∑ k : Fin (2 * h), toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) z)
+          * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k))) :=
+    Finset.sum_congr rfl fun k _ => by rw [mNielsenHdl_image_coord_handle ha p k z]
+  rw [mNielsenGen_character_apply ha h c (mNielsenHdlMap p z), mNielsenHdl_sum_split, hsum,
+    mNielsenHdl_image_coord_zero ha p z, mNielsenHdl_image_coord_one ha p z,
+    mNielsenHdl_image_coord_two ha p z, mNielsenHdl_image_coord_three ha p z]
+
+theorem mNielsenHdl_markCoord {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (i j : Fin (coreRank h)) :
+    toAdd (mCupFrameModTwoCoordinate ha h j (mCupFrameCanonicalMark ha h i))
+      = if i = j then 1 else 0 :=
+  mCupFrameModTwoCoordinate_canonicalMark ha h j i
+
+/-- A core mark has no handle coordinate. -/
+theorem mNielsenHdl_markCoord_core_handle {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ}
+    (i : Fin (coreRank h)) (hi : (i : ℕ) < 4) (k : Fin (2 * h)) :
+    toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mCupFrameCanonicalMark ha h i))
+      = 0 := by
+  rw [mNielsenHdl_markCoord ha i (mHandleIdx k), if_neg]
+  intro hc
+  have hv := congrArg (fun t : Fin (coreRank h) => (t : ℕ)) hc
+  rw [mHandleIdx_val] at hv
+  omega
+
+theorem mNielsenHdl_char_mark_zero {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel h) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenHdlMap p (mCupFrameCanonicalMark ha h 0)))
+      = toAdd (c (mCupFrameCanonicalMark ha h 0)) := by
+  have htail : (∑ k : Fin (2 * h),
+      toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mCupFrameCanonicalMark ha h 0))
+        * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k)))) = 0 :=
+    Finset.sum_eq_zero fun k _ => by
+      rw [mNielsenHdl_markCoord_core_handle ha 0 (by rw [coreVal_zero]; omega) k, zero_mul]
+  rw [mNielsenHdl_char_image ha p c (mCupFrameCanonicalMark ha h 0), htail, add_zero]
+  simp only [mNielsenHdl_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenHdl_char_mark_one {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel h) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenHdlMap p (mCupFrameCanonicalMark ha h 1)))
+      = p.tau * toAdd (c (mCupFrameCanonicalMark ha h 0))
+        + toAdd (c (mCupFrameCanonicalMark ha h 1))
+        + mParityZ p.bc * toAdd (c (mCupFrameCanonicalMark ha h 2)) := by
+  have htail : (∑ k : Fin (2 * h),
+      toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mCupFrameCanonicalMark ha h 1))
+        * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k)))) = 0 :=
+    Finset.sum_eq_zero fun k _ => by
+      rw [mNielsenHdl_markCoord_core_handle ha 1 (by rw [coreVal_one]; omega) k, zero_mul]
+  rw [mNielsenHdl_char_image ha p c (mCupFrameCanonicalMark ha h 1), htail, add_zero]
+  simp only [mNielsenHdl_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenHdl_char_mark_two {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel h) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenHdlMap p (mCupFrameCanonicalMark ha h 2)))
+      = toAdd (c (mCupFrameCanonicalMark ha h 2)) := by
+  have htail : (∑ k : Fin (2 * h),
+      toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mCupFrameCanonicalMark ha h 2))
+        * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k)))) = 0 :=
+    Finset.sum_eq_zero fun k _ => by
+      rw [mNielsenHdl_markCoord_core_handle ha 2 (by rw [coreVal_two]; omega) k, zero_mul]
+  rw [mNielsenHdl_char_image ha p c (mCupFrameCanonicalMark ha h 2), htail, add_zero]
+  simp only [mNielsenHdl_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenHdl_char_mark_three {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel h) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenHdlMap p (mCupFrameCanonicalMark ha h 3)))
+      = mParityZ p.bc * toAdd (c (mCupFrameCanonicalMark ha h 0))
+        + mParityZ p.e * toAdd (c (mCupFrameCanonicalMark ha h 2))
+        + toAdd (c (mCupFrameCanonicalMark ha h 3)) := by
+  have htail : (∑ k : Fin (2 * h),
+      toAdd (mCupFrameModTwoCoordinate ha h (mHandleIdx k) (mCupFrameCanonicalMark ha h 3))
+        * toAdd (c (mCupFrameCanonicalMark ha h (mHandleIdx k)))) = 0 :=
+    Finset.sum_eq_zero fun k _ => by
+      rw [mNielsenHdl_markCoord_core_handle ha 3 (by rw [coreVal_three]; omega) k, zero_mul]
+  rw [mNielsenHdl_char_image ha p c (mCupFrameCanonicalMark ha h 3), htail, add_zero]
+  simp only [mNielsenHdl_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+#print axioms mNielsenHdl_coord_handle
+#print axioms mNielsenHdl_image_coord_zero
+#print axioms mNielsenHdl_image_coord_one
+#print axioms mNielsenHdl_image_coord_two
+#print axioms mNielsenHdl_image_coord_three
+#print axioms mNielsenHdl_image_coord_handle
+#print axioms mNielsenHdl_char_image
+#print axioms mNielsenHdl_markCoord
+#print axioms mNielsenHdl_markCoord_core_handle
+#print axioms mNielsenHdl_char_mark_zero
+#print axioms mNielsenHdl_char_mark_one
+#print axioms mNielsenHdl_char_mark_two
+#print axioms mNielsenHdl_char_mark_three
+
 #print axioms mNielsenHdlCore
 #print axioms mNielsenHdlMap
 #print axioms mNielsenHdlMap_zero
