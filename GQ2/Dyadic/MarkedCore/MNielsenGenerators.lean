@@ -113,6 +113,10 @@ theorem mNielsenGen_character_apply {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
 
 private theorem mNielsenGen_cancel_two (a b : ZMod 2) : a + b + b = a := by revert a b; decide
 
+private theorem mNielsenGen_parity_two : mParityZ (2 : ℤ_[2]) = 0 := by
+  have h := mParityZ_two_mul 1
+  rwa [mul_one] at h
+
 /-- `MStabParam.act` written on the rank-four full M frame model `MFrameModel 0`. The empty
 handle tail rides along untouched. -/
 noncomputable def mNielsenGenMap (p : MStabParam) (z : MFrameModel 0) : MFrameModel 0 :=
@@ -208,6 +212,172 @@ noncomputable def mNielsenGenEquiv (p q : MStabParam)
 @[simp] theorem mNielsenGenEquiv_apply (p q : MStabParam)
     (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) (z : MFrameModel 0) :
     mNielsenGenEquiv p q hpq hqp z = mNielsenGenMap p z := rfl
+
+/-! ## Orientation: every stabilizer parameter preserves it -/
+
+theorem mNielsenGenMap_parity_B (p : MStabParam) (z : MFrameModel 0) :
+    mParityZ (mNielsenGenMap p z).toAdd.2.1 = mParityZ z.toAdd.2.1 := by
+  have h : (mNielsenGenMap p z).toAdd.2.1 =
+      z.toAdd.2.1 * (p.beta : ℤ_[2]) + z.toAdd.2.2.1 * (2 * p.c1)
+        + z.toAdd.2.2.2.1 * (2 * p.d1) := rfl
+  rw [h]
+  simp only [mParityZ_add, mParityZ_mul, mNielsenGen_parity_two,
+    mParityZ_of_isUnit p.beta.isUnit]
+  ring
+
+theorem mNielsenGenMap_coord_D (p : MStabParam) (z : MFrameModel 0) :
+    (mNielsenGenMap p z).toAdd.2.2.2.1 = z.toAdd.2.2.2.1 := rfl
+
+/-- **T1, orientation half.** The frame action of *every* rank-four stabilizer parameter
+preserves the canonical M orientation: the integral `B` parity survives because `beta` is a
+unit and the two other contributions are even, and the integral `D` coordinate is fixed
+outright. -/
+theorem mNielsenGen_orientation {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) (z : MFrameModel 0) :
+    mFrameOrientation ha 0 (mNielsenGenEquiv p q hpq hqp z) = mFrameOrientation ha 0 z :=
+  (mFrameOrientation_preserved_iff ha 0 (mNielsenGenEquiv p q hpq hqp)).mpr
+    (fun w => ⟨mNielsenGenMap_parity_B p w, mNielsenGenMap_coord_D p w⟩) z
+
+/-! ## Cup: every stabilizer parameter is a full-frame cup isometry -/
+
+private theorem mNielsenGen_sum_four (f : Fin (coreRank 0) → ZMod 2) :
+    ∑ j, f j = f 0 + f 1 + f 2 + f 3 := by
+  show ∑ j : Fin 4, f j = _
+  rw [Fin.sum_univ_four]
+  rfl
+
+theorem mNielsenGen_evenCup_zero (v w : Fin (coreRank 0) → ZMod 2) :
+    evenCupForm v w = v 0 * w 0 + (v 0 * w 1 + v 1 * w 0) + (v 2 * w 3 + v 3 * w 2) := by
+  rw [evenCupForm]
+  simp
+
+/-- The mod-two frame coordinates of the image, in terms of those of the source: this is the
+column-convention reduced matrix of the parameter, read semantically. -/
+theorem mNielsenGen_image_coord_zero {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (z : MFrameModel 0) :
+    toAdd (mCupFrameModTwoCoordinate ha 0 0 (mNielsenGenMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha 0 0 z)
+        + toAdd (mCupFrameModTwoCoordinate ha 0 1 z) * p.tau
+        + toAdd (mCupFrameModTwoCoordinate ha 0 3 z) * mParityZ p.bc := by
+  rw [mNielsenGen_coord_zero ha 0 (mNielsenGenMap p z), mNielsenGen_coord_zero ha 0 z,
+    mNielsenGen_coord_one ha 0 z, mNielsenGen_coord_three ha 0 z]
+  rfl
+
+theorem mNielsenGen_image_coord_one {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (z : MFrameModel 0) :
+    toAdd (mCupFrameModTwoCoordinate ha 0 1 (mNielsenGenMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha 0 1 z) := by
+  rw [mNielsenGen_coord_one ha 0 (mNielsenGenMap p z), mNielsenGen_coord_one ha 0 z]
+  exact mNielsenGenMap_parity_B p z
+
+theorem mNielsenGen_image_coord_two {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (z : MFrameModel 0) :
+    toAdd (mCupFrameModTwoCoordinate ha 0 2 (mNielsenGenMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha 0 1 z) * mParityZ p.bc
+        + toAdd (mCupFrameModTwoCoordinate ha 0 2 z)
+        + toAdd (mCupFrameModTwoCoordinate ha 0 3 z) * mParityZ p.e := by
+  have h : (mNielsenGenMap p z).toAdd.2.2.1
+      = z.toAdd.2.1 * p.bc + z.toAdd.2.2.1 * (p.gamma : ℤ_[2])
+        + z.toAdd.2.2.2.1 * p.e := rfl
+  rw [mNielsenGen_coord_two ha 0 (mNielsenGenMap p z), mNielsenGen_coord_one ha 0 z,
+    mNielsenGen_coord_two ha 0 z, mNielsenGen_coord_three ha 0 z, h,
+    mParityZ_add, mParityZ_add, mParityZ_mul, mParityZ_mul, mParityZ_mul,
+    mParityZ_of_isUnit p.gamma.isUnit]
+  ring
+
+theorem mNielsenGen_image_coord_three {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (z : MFrameModel 0) :
+    toAdd (mCupFrameModTwoCoordinate ha 0 3 (mNielsenGenMap p z))
+      = toAdd (mCupFrameModTwoCoordinate ha 0 3 z) := by
+  rw [mNielsenGen_coord_three ha 0 (mNielsenGenMap p z), mNielsenGen_coord_three ha 0 z]
+  rfl
+
+/-- The value of a mod-two character on the image of a frame element. -/
+theorem mNielsenGen_char_image {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel 0) (Multiplicative (ZMod 2))) (z : MFrameModel 0) :
+    toAdd (c (mNielsenGenMap p z))
+      = (toAdd (mCupFrameModTwoCoordinate ha 0 0 z)
+            + toAdd (mCupFrameModTwoCoordinate ha 0 1 z) * p.tau
+            + toAdd (mCupFrameModTwoCoordinate ha 0 3 z) * mParityZ p.bc)
+          * toAdd (c (mCupFrameCanonicalMark ha 0 0))
+        + toAdd (mCupFrameModTwoCoordinate ha 0 1 z)
+          * toAdd (c (mCupFrameCanonicalMark ha 0 1))
+        + (toAdd (mCupFrameModTwoCoordinate ha 0 1 z) * mParityZ p.bc
+            + toAdd (mCupFrameModTwoCoordinate ha 0 2 z)
+            + toAdd (mCupFrameModTwoCoordinate ha 0 3 z) * mParityZ p.e)
+          * toAdd (c (mCupFrameCanonicalMark ha 0 2))
+        + toAdd (mCupFrameModTwoCoordinate ha 0 3 z)
+          * toAdd (c (mCupFrameCanonicalMark ha 0 3)) := by
+  rw [mNielsenGen_character_apply ha 0 c (mNielsenGenMap p z), mNielsenGen_sum_four,
+    mNielsenGen_image_coord_zero ha p z, mNielsenGen_image_coord_one ha p z,
+    mNielsenGen_image_coord_two ha p z, mNielsenGen_image_coord_three ha p z]
+
+private theorem mNielsenGen_markCoord {alpha : ℕ} (ha : 2 ≤ alpha) (i j : Fin (coreRank 0)) :
+    toAdd (mCupFrameModTwoCoordinate ha 0 j (mCupFrameCanonicalMark ha 0 i))
+      = if i = j then 1 else 0 :=
+  mCupFrameModTwoCoordinate_canonicalMark ha 0 j i
+
+theorem mNielsenGen_char_mark_zero {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel 0) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenGenMap p (mCupFrameCanonicalMark ha 0 0)))
+      = toAdd (c (mCupFrameCanonicalMark ha 0 0)) := by
+  rw [mNielsenGen_char_image ha p c (mCupFrameCanonicalMark ha 0 0)]
+  simp only [mNielsenGen_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenGen_char_mark_one {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel 0) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenGenMap p (mCupFrameCanonicalMark ha 0 1)))
+      = p.tau * toAdd (c (mCupFrameCanonicalMark ha 0 0))
+        + toAdd (c (mCupFrameCanonicalMark ha 0 1))
+        + mParityZ p.bc * toAdd (c (mCupFrameCanonicalMark ha 0 2)) := by
+  rw [mNielsenGen_char_image ha p c (mCupFrameCanonicalMark ha 0 1)]
+  simp only [mNielsenGen_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenGen_char_mark_two {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel 0) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenGenMap p (mCupFrameCanonicalMark ha 0 2)))
+      = toAdd (c (mCupFrameCanonicalMark ha 0 2)) := by
+  rw [mNielsenGen_char_image ha p c (mCupFrameCanonicalMark ha 0 2)]
+  simp only [mNielsenGen_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+theorem mNielsenGen_char_mark_three {alpha : ℕ} (ha : 2 ≤ alpha) (p : MStabParam)
+    (c : ContinuousMonoidHom (MFrameModel 0) (Multiplicative (ZMod 2))) :
+    toAdd (c (mNielsenGenMap p (mCupFrameCanonicalMark ha 0 3)))
+      = mParityZ p.bc * toAdd (c (mCupFrameCanonicalMark ha 0 0))
+        + mParityZ p.e * toAdd (c (mCupFrameCanonicalMark ha 0 2))
+        + toAdd (c (mCupFrameCanonicalMark ha 0 3)) := by
+  rw [mNielsenGen_char_image ha p c (mCupFrameCanonicalMark ha 0 3)]
+  simp only [mNielsenGen_markCoord ha, Fin.ext_iff, coreVal_zero, coreVal_one, coreVal_two,
+    coreVal_three]
+  norm_num
+
+private theorem mNielsenGen_cup_core (s m n a0 a1 a2 a3 b0 b1 b2 b3 : ZMod 2) :
+    a0 * b0 + (a0 * (s * b0 + b1 + m * b2) + (s * a0 + a1 + m * a2) * b0)
+        + (a2 * (m * b0 + n * b2 + b3) + (m * a0 + n * a2 + a3) * b2)
+      = a0 * b0 + (a0 * b1 + a1 * b0) + (a2 * b3 + a3 * b2) := by
+  revert s m n a0 a1 a2 a3 b0 b1 b2 b3
+  decide
+
+/-- **T1, cup half.** The frame action of *every* rank-four stabilizer parameter is a full
+mod-two cup isometry of the actual M frame, in the semantic sense that quantifies over all
+continuous mod-two frame characters. -/
+theorem mNielsenGen_cupIsometry {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabParam)
+    (hpq : ∀ v, p.act (q.act v) = v) (hqp : ∀ v, q.act (p.act v) = v) :
+    MCupFrameCupIsometry ha (mNielsenGenEquiv p q hpq hqp) := by
+  intro c d
+  rw [mNielsenGen_evenCup_zero, mNielsenGen_evenCup_zero]
+  simp only [mNielsenGenEquiv_apply]
+  rw [mNielsenGen_char_mark_zero ha p c, mNielsenGen_char_mark_one ha p c,
+    mNielsenGen_char_mark_two ha p c, mNielsenGen_char_mark_three ha p c,
+    mNielsenGen_char_mark_zero ha p d, mNielsenGen_char_mark_one ha p d,
+    mNielsenGen_char_mark_two ha p d, mNielsenGen_char_mark_three ha p d]
+  exact mNielsenGen_cup_core _ _ _ _ _ _ _ _ _ _ _
 
 end
 end GQ2.Dyadic.MarkedCore
