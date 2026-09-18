@@ -21,9 +21,9 @@ Two M-specific points are checked here rather than copied from the N file.
   not the N obligation `m 0 ^ (2 + 2 ^ alpha) = 1`. Every mod-two coordinate
   marking satisfies it, including the `C` coordinate `i = 2`, because squares
   are trivial in `Multiplicative (ZMod 2)` and `2 ^ alpha` is even. So all
-  `4 + 2h` mod-two coordinates of the M frame really are characters. The
-  integral `C` coordinate of the M frame is twisted (`mPhiHom_word`); its
-  mod-two reduction is not, which is why this works.
+  `4 + 2h` mod-two coordinates of the M frame really are characters. What is
+  proved below is exactly that relator obligation; no statement is made here
+  about the integral `C` coordinate, which `mPhiHom_word` shows is twisted.
 * **The variance is the column-image one.** `NInitialCupDepth.reducedRows m i`
   is the `i`-th coordinate row of the matrix whose **columns** are the images of
   the generators, so the condition proved below is `Abar G Abar^T = G`.
@@ -205,6 +205,24 @@ theorem mCupRelWord_error_mem_three_of_frame {alpha h : ℕ} {ha : 2 ≤ alpha}
   mCupRelWord_error_mem_three ha m (freeTwoRankGen (coreRank h)) hhead
     (hcup.reducedRows_of_projection m hproj)
 
+/-- The same composite with the fixed-`T` head hypothesis in place of the
+mod-two one: a lift preserving the full frame cup form and fixing the composite
+letter `T = A * C^(2^(alpha-1))` has its actual M relator error in
+lambda-three. -/
+theorem mCupRelWord_error_mem_three_of_frame_fixedT {alpha h : ℕ} {ha : 2 ≤ alpha}
+    {phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h)}
+    (hcup : MCupFrameCupIsometry ha phi)
+    (m : Fin (coreRank h) → FreeTwoRank (coreRank h))
+    (hproj : ∀ k, mCupFreeFrameProjection ha h (m k) =
+      phi (mCupFrameCanonicalMark ha h k))
+    (hT : m 0 * m 2 ^ 2 ^ (alpha - 1) =
+      freeTwoRankGen (coreRank h) 0 *
+        freeTwoRankGen (coreRank h) 2 ^ 2 ^ (alpha - 1)) :
+    mRelWord alpha m * (mRelWord alpha (freeTwoRankGen (coreRank h)))⁻¹ ∈
+      twoCentralSeries (FreeTwoRank (coreRank h) : Type) 3 :=
+  mCupRelWord_error_mem_three_of_fixed_T ha m (freeTwoRankGen (coreRank h)) hT
+    (hcup.reducedRows_of_projection m hproj)
+
 /-! ## The converse ingredient -/
 
 /-- **T3.** Any continuous automorphism of the actual core whose frame action is
@@ -246,6 +264,7 @@ theorem mCupFrameCupIsometry_of_aut {alpha h : ℕ} (ha : 2 ≤ alpha)
 #print axioms mCupFrameModTwoCoordinate_projection
 #print axioms MCupFrameCupIsometry.reducedRows_of_projection
 #print axioms mCupRelWord_error_mem_three_of_frame
+#print axioms mCupRelWord_error_mem_three_of_frame_fixedT
 #print axioms mCupFrameCupIsometry_of_aut
 
 end

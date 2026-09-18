@@ -130,7 +130,8 @@ preserves the full mod-two cup form in the row-vector variance, has the same M
 relator as the reference tuple in the class-two quotient.
 
 The head hypothesis is deliberately the weak one: literal fixing of the `A`
-letter is **not** required, and is false for the fixed-`T` initial lift. -/
+letter is **not** required, which is what the fixed-`T` initial lift needs,
+since fixing `T` does not by itself fix `A`. -/
 theorem mCupRelWord_level_three_eq {α : ℕ} (hα : 2 ≤ α)
     (m m' : Fin (coreRank h) → FreeTwoRank (coreRank h))
     (hhead : m 0 * (m' 0)⁻¹ ∈ twoCentralSeries (FreeTwoRank (coreRank h) : Type) 2)
