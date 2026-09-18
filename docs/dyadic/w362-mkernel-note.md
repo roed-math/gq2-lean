@@ -44,59 +44,45 @@ the kernel (the kernel witnesses exist only at `i ≠ 0`).
 
 ### `GQ2/Dyadic/MarkedCore/MPlaneAmbientStage.lean` (T2 ambient stage, T3)
 
-Imports `MBasisRowRefinement` and `NPlaneAmbientStage` (for the constant-one
-`oneWord`, `free_finite_gen`, `basis_generates`).
+Imports `MBasisRowRefinement`, the landed `MFullFrameStages` (MSTAGES; it
+brings `MFullFrameCompactness` and `MHeadCleanup`) and `NPlaneAmbientStage`
+(for the constant-one `oneWord`, `free_finite_gen`, `basis_generates`). The
+free projection and orientation are the landed `mStageProjection` and
+`mStageOrientation` (the actual `chiM` pulled back along the projection); this
+lane defines no second copy of either.
 
 | Declaration | Statement |
 |---|---|
-| `mBasisProjection`, `_gen` | Free rank-`coreRank h` group onto `DM alpha h`, generator to generator. |
-| `mBasisOrientation`, `_gen`, `mBasisProjection_orientation` | `chiM` pulled back along the projection; generator values `vM alpha`. |
-| `mBasisOrientation_aut`, `mBasisOrientation_eq_one_of_coordinates` | Generator preservation extends; all coordinates zero forces orientation one. |
+| `mBasisOrientation_gen` | `mStageOrientation alpha h (gen i) = vM alpha i`. |
+| `mBasisOrientation_aut`, `mBasisOrientation_eq_one_of_coordinates` | Generator preservation extends to every element; all coordinates zero forces orientation one. |
 | `mBasisCoordinateDeriv`, `_gen`, `_base`, `_defect` | The `evenFamDerivModelM` crossed maps on an arbitrary basis; `chiM`-shadowed; both actual M words die separately (`mBasis_finite_mRelWord_eq_one`). |
 | `mBasisTuple`, `mBasisFamily` | The constant-one-word tuple and its derivation family at the `vM` table. |
 | `mBasis_defect_mem_rawSpan` | The actual free-basis target-relative M defect in `lambda_k` lies in the raw shift span (`evenKernel_vM_*` inputs). |
 | `mBasis_exists_ambient_stage` | **T2 ambient stage.** Orientation-compatible basis, defect in `lambda_k` (`k >= 3`): a depth-`(k-1)` correction with defect in `lambda_(k+1)`. Uses `evenRawStageShift_m`. |
-| `MBasisAmbientStageSupply`, `mBasisAmbientStageSupply` | The same in the stage indexing `n+3 -> n+4`; proved. |
-| `MBasisHeadCleanupSupply`, `mBasisHeadCleanupSupply` | The coupled M ordinary-head cleanup in the shape this file consumes (`m >= 1`, all coordinates of depth `m`, defect in `lambda_(m+2)`; same-class all-character-zero head representative). Discharged from the landed `mHead_exists_freeTwo_characterZero_same_class` (MHEAD), passing `ht 0` and `ht 2`. |
+| `MBasisAmbientStageSupply`, `mBasisAmbientStageSupply` | The same in the stage indexing `n+3 -> n+4`; proved. Twin of `NAmbientStageSupply`. |
 | `exists_mBasis_allRows_relative_correction` | Kernel interpolation packaged with the literal target-relative defect and the orientation conclusion (head row zero as input). |
-| `MBasisStageStep` | **T3 interface.** Orientation-compatible basis, exact ordinary agreement, defect in `lambda_(n+3)`: a depth-`(n+2)` correction with orientation one, every ordinary character one (coordinate matrix retained), defect in `lambda_(n+4)`. |
-| `mBasisStageStep_of_headCleanup` | `MBasisHeadCleanupSupply alpha h -> MBasisStageStep alpha h`, `alpha >= 2`. |
-| `mBasisStageStep` | **T3 theorem.** `MBasisStageStep alpha h` for every `alpha >= 2` and every `h`. |
+| `exists_mBasis_full_relative_correction` | **The relative-refinement half**, twin of `exists_nBasis_full_relative_correction`: head cleanup (`mHead_exists_freeTwo_characterZero_same_class`, consuming the `A` and `C` depth facts) + slack invariance + kernel interpolation. |
+| `mStageStep_holds` | **T3 theorem.** `MStageStep alpha h` of `MFullFrameStages`, for every `alpha >= 2` and every `h`. |
+| `mBasis_mFullStabilizer_lift_of_initialLift` | `mFullStabilizer_lift_of_initialLift` with `hstep` discharged: the full-stabilizer lift is conditional only on `MStageInitialLift ha h phi`. |
 
-Import cost: `MPlaneAmbientStage` imports `MBasisRowRefinement` (hence
-`NBasisRowRefinement` and `StageAbstractionEvenRawSpan`), `MHeadCleanup` and
-`NPlaneAmbientStage` (hence `EvenFamilyConstruct` and
-`StageAbstractionEvenDerivKer`).
+## What the stage lane receives
 
-## Bridge to the stage lane (MSTAGES)
-
-The MSTAGES worktree defines `mStageProjection`, `mStageOrientation` and the
-`Prop` `MStageStep alpha h` (read-only inspection of
-`worktrees/w362-mstages/GQ2/Dyadic/MarkedCore/MFullFrame{Compactness,Stages}.lean`).
-Those are term-for-term the definitions `mBasisProjection`, `mBasisOrientation`
-and `MBasisStageStep` of this lane. A scratch file (not committed) that copies
-the three sibling definitions verbatim and imports `MPlaneAmbientStage` checks
-
-```lean
-example (α h : ℕ) : mStageOrientation' α h = mBasisOrientation α h := rfl
-example (alpha h : ℕ) : MStageStep' alpha h = MBasisStageStep alpha h := rfl
-example {alpha h : ℕ} (halpha : 2 ≤ alpha) : MStageStep' alpha h := mBasisStageStep halpha
-```
-
-through `scripts/mirror.sh check`. So once both lanes are merged, the stage
-lane's producer is the one-liner
-`theorem mStageStep (halpha : 2 ≤ alpha) : MStageStep alpha h := mBasisStageStep halpha`,
-and `exists_mStageBasis_exact_stage` becomes unconditional in its `hstep`.
-Two names for one definition are a merge-time cleanup, not a mathematical gap.
+`MStageStep alpha h` (MFullFrameStages.lean:111) is now produced by
+`mStageStep_holds ha`, so `exists_mStageBasis_exact_stage (mStageStep_holds ha)`
+and `mFullStabilizer_lift ha phi e0 hT hchi0 hframe0 herror0 (mStageStep_holds ha)`
+are available; the remaining input of the M full-stabilizer route is the
+initial lift `MStageInitialLift` (MINIT: the primitive-relation-respecting free
+basis lift; MCUP: the depth-three comparison from full cup preservation).
 
 ## Status
 
 Opened 2026-09-17. `MBasisRowRefinement.lean` verified by the runner of
 record: exit 0, 9 pins, all `[propext, Classical.choice, Quot.sound]`, no
-warnings. `MPlaneAmbientStage.lean` now imports the landed `MHeadCleanup`
-(merged from `claude/w362-mhead`), so the one-step interface `MBasisStageStep`
-is proved unconditionally; its verification goes through the mirror harness
-once the shared cache rebuild that was running when the lane opened finishes.
+warnings. `MPlaneAmbientStage.lean` verified through the mirror harness
+(sweep; gen `MHeadCleanup`, `MFullFrameCompactness`, `MFullFrameStages`,
+`MBasisRowRefinement`; check `MPlaneAmbientStage`): exit 0, 18 pins, all
+std-3, no warnings. Both `claude/w362-mhead` and `claude/w362-mstages` are
+merged into this branch (same-history merges, no conflicts).
 
 ## Log
 
@@ -107,3 +93,8 @@ once the shared cache rebuild that was running when the lane opened finishes.
 - Commit 4: `MPlaneAmbientStage` consumes `mHead_exists_freeTwo_characterZero_same_class`;
   `mBasisHeadCleanupSupply` and `mBasisStageStep` are theorems.
 - Commit 5: `MBasisRowRefinement.lean` verified (9 pins, std-3).
+- Commit 6: bridge to the MSTAGES interface noted (scratch `rfl` check).
+- Merge: `claude/w362-mstages` (landed stage lane) merged in.
+- Commit 7: `MPlaneAmbientStage` rewritten onto the landed `mStageOrientation`;
+  `mStageStep_holds : MStageStep alpha h` and the initial-lift-only
+  full-stabilizer corollary; mirror check 18 pins, std-3.
