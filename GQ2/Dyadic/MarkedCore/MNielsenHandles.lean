@@ -679,6 +679,130 @@ theorem mNielsenHdl_param_realized {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) (p
   obtain ⟨k, b₅, e₅, c₆, d₇, β₄, -, -, hcomp, Psi, hchi, hsq⟩ := mNielsenHdl_finite_list ha h p
   exact ⟨Psi, hchi, fun x => (hsq x).trans (hcomp _)⟩
 
+/-! ## The closure: identification from the two block conditions
+
+At rank four the quantifier is closed against `mStabilizer_classification`, which is a
+rank-four statement and has no general-`h` counterpart. What can be closed at general `h` is
+the identity-tail statement itself: a full-frame automorphism that *is* a rank-four
+stabilizer element on the core block and the identity on the handle block is `mNielsenHdlMap`
+at that parameter, hence is induced by an actual automorphism of `D_M α h`. -/
+
+/-- The two block conditions pin the map. -/
+theorem mNielsenHdl_eq_of_blocks {h : ℕ} (p : MStabParam)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hcore : ∀ z, mNielsenHdlCore (phi z) = mNielsenGenMap p (mNielsenHdlCore z))
+    (hhandle : ∀ z, (phi z).toAdd.2.2.2.2 = z.toAdd.2.2.2.2) (z : MFrameModel h) :
+    phi z = mNielsenHdlMap p z := by
+  have h1 := congrArg (fun w : MFrameModel 0 => w.toAdd.1) (hcore z)
+  have h2 := congrArg (fun w : MFrameModel 0 => w.toAdd.2.1) (hcore z)
+  have h3 := congrArg (fun w : MFrameModel 0 => w.toAdd.2.2.1) (hcore z)
+  have h4 := congrArg (fun w : MFrameModel 0 => w.toAdd.2.2.2.1) (hcore z)
+  exact Multiplicative.toAdd.injective
+    (Prod.ext h1 (Prod.ext h2 (Prod.ext h3 (Prod.ext h4 (hhandle z)))))
+
+/-- **T1, the closure at every handle count.** Every continuous automorphism of the full `M`
+frame at handle count `h` that acts on the rank-four core block by a Smith-Witt stabilizer
+parameter and by the **identity** on the `2h` handle coordinates is induced by an actual
+`chiM`-preserving continuous automorphism of `D_M α h`, with the exact all-element commuting
+frame square.
+
+The two hypotheses are exactly the scope of this lane: `hcore` says the core block is a
+rank-four stabilizer element, `hhandle` says the handle block is not moved. An automorphism
+that mixes handles satisfies neither and is not covered. -/
+theorem mNielsenHdl_stabilizer_induced {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ} (p : MStabParam)
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hcore : ∀ z, mNielsenHdlCore (phi z) = mNielsenGenMap p (mNielsenHdlCore z))
+    (hhandle : ∀ z, (phi z).toAdd.2.2.2.2 = z.toAdd.2.2.2.2) :
+    ∃ Psi : ContinuousMulEquiv (DM alpha h : Type) (DM alpha h : Type),
+      (∀ x, chiM alpha h (Psi x) = chiM alpha h x) ∧
+      (∀ x, mPhiHom (mStageOneLe ha) h (abMk (Psi x)) =
+        phi (mPhiHom (mStageOneLe ha) h (abMk x))) := by
+  obtain ⟨Psi, hchi, hsq⟩ := mNielsenHdl_param_realized ha h p
+  exact ⟨Psi, hchi, fun x => (hsq x).trans
+    (mNielsenHdl_eq_of_blocks p phi hcore hhandle _).symm⟩
+
+/-! ## T3: the shape of the handle-mixing classification that does **not** exist
+
+Everything above extends the rank-four list by the identity handle tail. The statement that
+would extend it by *handle-mixing* generators is recorded here as a named `Prop` and is
+**not proved**; no proof of it, and no ingredient of one, exists anywhere in the repo. -/
+
+/-- The action of a `2h x 2h` matrix of 2-adic integers on a handle tail. -/
+def mNielsenHdlHandleApply {h : ℕ} (S : Fin (2 * h) → Fin (2 * h) → ℤ_[2])
+    (f : Fin (2 * h) → ℤ_[2]) : Fin (2 * h) → ℤ_[2] := fun k => ∑ l, S k l * f l
+
+/-- The mod-two symplectic form of the handle block, on handle tails. This is the
+`∑ j` term of `evenCupForm`, read on the `Fin (2h)` indexing. -/
+def mNielsenHdlHandleForm {h : ℕ} (f g : Fin (2 * h) → ℤ_[2]) : ZMod 2 :=
+  ∑ j : Fin h, (mParityZ (f (mHandleCoordU j)) * mParityZ (g (mHandleCoordV j))
+    + mParityZ (f (mHandleCoordV j)) * mParityZ (g (mHandleCoordU j)))
+
+/-- **The handle-mixing classification a full extension would need. NOT PROVED, and no proof
+exists in the repo.**
+
+`MNielsenHdlStabilizerShape ha h` says: every continuous automorphism of `MFrameModel h`
+preserving `mFrameOrientation` and `MCupFrameCupIsometry` is given, in coordinates, by
+
+* a **core parameter** `p : MStabParam` on the rank-four block -- the same seven-parameter
+  family `mStabilizer_classification` produces at rank four;
+* an invertible **handle block** `S` preserving the handle block's own mod-two symplectic
+  form `mNielsenHdlHandleForm` -- this is the `GL` factor, and it is what makes the
+  statement more than the identity-tail extension proved above;
+* **handle-to-core shears** `lam` (into the torsion slot, a mod-two functional of the handle
+  parities), `mu` and `nu` (into the `B` and `C` slots); and
+* **core-to-handle shears** `rB`, `rC`, `rD`.
+
+Two slots are absent by design, not by oversight. There is no core-to-handle shear out of the
+torsion slot, because `ℤ₂` is torsion free and a hom `ℤ/2 → ℤ₂` is zero. There is no
+handle-to-`D` shear, because `mFrameOrientation_preserved_iff` already forces the integral `D`
+coordinate to be fixed on the nose at every `h`.
+
+The identity-tail statement proved in this file is the special case `S = 1`, all shears zero.
+The lane claims **nothing** about this `Prop` beyond `mNielsenHdlShape_lifts` below, which is
+the lifting half and is free. -/
+def MNielsenHdlStabilizerShape {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ) : Prop :=
+  ∀ phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h),
+    (∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z) →
+    MCupFrameCupIsometry ha phi →
+    ∃ (p : MStabParam) (S S' : Fin (2 * h) → Fin (2 * h) → ℤ_[2])
+      (lam : Fin (2 * h) → ZMod 2) (mu nu rB rC rD : Fin (2 * h) → ℤ_[2]),
+      (∀ f, mNielsenHdlHandleApply S (mNielsenHdlHandleApply S' f) = f) ∧
+      (∀ f, mNielsenHdlHandleApply S' (mNielsenHdlHandleApply S f) = f) ∧
+      (∀ f g, mNielsenHdlHandleForm (mNielsenHdlHandleApply S f)
+        (mNielsenHdlHandleApply S g) = mNielsenHdlHandleForm f g) ∧
+      (∀ z : MFrameModel h, phi z = ofAdd
+        ((p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).1
+            + ∑ k, lam k * mParityZ (z.toAdd.2.2.2.2 k),
+          (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.1
+            + ∑ k, mu k * z.toAdd.2.2.2.2 k,
+          (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.1
+            + ∑ k, nu k * z.toAdd.2.2.2.2 k,
+          (p.act (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2.1)).2.2.2,
+          fun k => rB k * z.toAdd.2.1 + rC k * z.toAdd.2.2.1 + rD k * z.toAdd.2.2.2.1
+            + mNielsenHdlHandleApply S z.toAdd.2.2.2.2 k))
+
+/-- **The free direction of T3, and it is free because it is the lifting theorem restated.**
+
+This is `mFullStabilizer_lift` verbatim, at the same generality it already had: wave 362's
+theorem never restricted the handle block. It is recorded here only to say explicitly which
+half of a handle-mixing classification is already available -- the lifting half, for *every*
+orientation-preserving full-frame cup isometry, handle-mixing or not. **It proves no part of
+`MNielsenHdlStabilizerShape`**, which is a statement about the *shape* of such automorphisms
+and is exactly the half that is missing. -/
+theorem mNielsenHdlShape_lifts {alpha : ℕ} (ha : 2 ≤ alpha) {h : ℕ}
+    (phi : ContinuousMulEquiv (MFrameModel h) (MFrameModel h))
+    (hchi : ∀ z, mFrameOrientation ha h (phi z) = mFrameOrientation ha h z)
+    (hcup : MCupFrameCupIsometry ha phi) :
+    MNielsenHdlLifts (alpha := alpha) ha phi :=
+  mFullStabilizer_lift ha phi hchi hcup
+
+#print axioms mNielsenHdl_eq_of_blocks
+#print axioms mNielsenHdl_stabilizer_induced
+#print axioms mNielsenHdlHandleApply
+#print axioms mNielsenHdlHandleForm
+#print axioms MNielsenHdlStabilizerShape
+#print axioms mNielsenHdlShape_lifts
+
 #print axioms mNielsenHdlM1
 #print axioms mNielsenHdlM2
 #print axioms mNielsenHdlM3
