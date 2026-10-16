@@ -13,7 +13,11 @@ when their surrounding project-management prose is historical.
 For current truth use the Lean sources, [`../../formalization.yaml`](../../formalization.yaml),
 and the repository gates. The maintained documentation index is [`../README.md`](../README.md).
 
-**As of the owner's G2 sign-off (2026-07-26), everything in this directory is archival.**
+**Live since 2026-10-16:** [`tauceti-proof-plan.md`](tauceti-proof-plan.md) and
+[`tauceti-tickets.md`](tauceti-tickets.md), the plan and board for proving the nine literature
+inputs from the Tau Ceti library. Everything else here is archival.
+
+**As of the owner's G2 sign-off (2026-07-26), everything else in this directory is archival.**
 [`roe-tickets.md`](roe-tickets.md) (the Γ_R/Labute campaign board — the ground truth for
 what happened, closed by the G2 entry at its foot) and
 [`roe-verification-plan.md`](roe-verification-plan.md) (the campaign plan with its dated

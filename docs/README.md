@@ -4,9 +4,10 @@ The documentation is organized by review task. Files at the top level of `docs/`
 mathematical or technical references. `docs/orchestration/` is a historical archive of the agent
 workflow that produced the proof; it is useful for provenance and design rationale, but its ticket
 states are not current project status. Two files in that directory are the exception and are
-live: [`orchestration/roe-tickets.md`](orchestration/roe-tickets.md) and
-[`orchestration/roe-verification-plan.md`](orchestration/roe-verification-plan.md), the board and
-plan for the in-flight Γ_R campaign.
+live: [`orchestration/tauceti-tickets.md`](orchestration/tauceti-tickets.md) and
+[`orchestration/tauceti-proof-plan.md`](orchestration/tauceti-proof-plan.md), the board and plan
+for the campaign that proves the nine literature inputs from the Tau Ceti library (the earlier
+Γ_R board and plan were archived on 2026-07-26).
 
 The original submitted paper is retained at
 [`paper/A_Profinite_Presentation_for_G__Q_2.pdf`](../paper/A_Profinite_Presentation_for_G__Q_2.pdf).
