@@ -82,8 +82,7 @@ theorem coatom_index_of_pGroup (hQ : IsPGroup p Q) {M : Subgroup Q} (hM : IsCoat
       exact Subgroup.map_top_of_surjective _ (QuotientGroup.mk'_surjective M)
   -- a simple `p`-group is abelian (its centre is nontrivial and normal) …
   have hZ : Subgroup.center (Q ⧸ M) = ⊤ := by
-    rcases IsSimpleGroup.eq_bot_or_eq_top_of_normal (Subgroup.center (Q ⧸ M)) inferInstance
-      with hbot | htop
+    rcases IsSimpleGroup.eq_bot_or_eq_top_of_normal (Subgroup.center (Q ⧸ M)) with hbot | htop
     · haveI := hT.center_nontrivial
       rw [hbot] at this
       exact absurd this (not_nontrivial _)

@@ -8,6 +8,7 @@ module
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Algebra.Order.Star.Real
 public import Mathlib.Topology.Algebra.Monoid.AddChar
+public import Mathlib.Topology.Algebra.Group.Units
 public import GQ2.Zhat
 public import GQ2.MaxProP
 public import GQ2.PropOneOne
