@@ -401,7 +401,7 @@ theorem subring_eq_top_of_normOne_le {m : ℕ} (hm : 1 ≤ m)
           | some u =>
             have hne : ((⟨↑u.1, u.2⟩ : ↥S) : D) ≠ 0 := u.1.ne_zero
             simp only [Option.elim_some]
-            rw [dif_neg hne]
+            refine (dif_neg hne).trans ?_
             congr 1
             exact Subtype.ext (Units.ext rfl)
         right_inv := fun x => by
