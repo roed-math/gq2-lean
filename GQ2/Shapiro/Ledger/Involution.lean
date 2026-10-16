@@ -976,7 +976,7 @@ theorem invLambda_continuous (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (gh
       fun v _ => invLambda_summand_eq N α ghat U₀ hU₀ v σ)
   rw [hEq]
   refine continuous_finsetSum Finset.univ (fun v _ => ?_)
-  refine Continuous.mul ?_ (Continuous.mul ?_ ?_)
+  refine Continuous.fun_mul ?_ (Continuous.fun_mul ?_ ?_)
   · -- the alignment indicator factors through the discrete `G/N`
     have hword : Continuous fun σ : G => lWordT U₀ (invLift N ghat U₀ hU₀) v σ := by
       simp only [lWordT]
