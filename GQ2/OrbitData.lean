@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.QuadraticFp2
+public import Mathlib.Algebra.BigOperators.Finprod
 
 @[expose] public section
 

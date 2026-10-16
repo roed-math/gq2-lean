@@ -6,6 +6,8 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import Mathlib.Topology.Algebra.ClopenNhdofOne
+public import Mathlib.Topology.Separation.Connected
+public import Mathlib.Topology.Separation.Regular
 
 @[expose] public section
 

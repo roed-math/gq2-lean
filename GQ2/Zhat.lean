@@ -146,6 +146,7 @@ end Zhat
 
 /-! ## `ω₂` as an element of `ℤ̂` -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **The profinite idempotent `ω₂ ∈ ℤ̂`** (paper §1 and App. A/B): the unique element of
 `ℤ̂ = lim_N ℤ/N` that is `≡ 1` on the pro-2 part and `≡ 0` on the odd part.  Constructed
 componentwise: at a finite-index subgroup `H ≤ ℤ` the component is the integer representative
@@ -219,6 +220,7 @@ lemma map_zpowHat (f : ContinuousMonoidHom G H) (x : G) (γ : Zhat) :
 
 /-! ## Evaluation of `ω₂` through finite quotients -/
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **`ω₂` acts on finite groups as the 2-primary projection**: in a finite (discrete) group,
 `x ^ᶻ ω₂ = powOmega2 x = x ^ omega2Exp (orderOf x)`.  This ties the profinite element `omega2`
 to the entire finite `ω₂`-calculus of Appendices A/B (`GQ2.powOmega2`, `GQ2.markOmega2`, the
