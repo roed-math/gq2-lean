@@ -117,15 +117,14 @@ the master count's `ι_Γ(ρ'^*Δ)`-signs with `phaseSign`'s lift-condition at `
 theorem rho0_descData_rhoPrime (ρ : BoundaryLifts b F RF.TC) (γ : Γ) :
     rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ = ρ.1.1 γ := by
   show liftC0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ γ) = ρ.1.1 γ
-  rw [RecursionFrame.rhoPrime_apply]
   obtain ⟨bb, hbb⟩ :=
     QuotientGroup.mk_surjective ((RF.piBCiso (En.radData l h) rfl).symm (ρ.1.1 γ))
-  rw [← hbb, liftC0_mk]
-  show RF.piBC bb = ρ.1.1 γ
+  have h1 : RF.rhoPrime b F (En.radData l h) rfl ρ γ = QuotientGroup.mk bb :=
+    (RF.rhoPrime_apply b F (En.radData l h) rfl ρ γ).trans hbb.symm
   have h2 : RF.piBCiso (En.radData l h) rfl (QuotientGroup.mk bb) = ρ.1.1 γ := by
     rw [hbb, MulEquiv.apply_symm_apply]
-  rw [← RF.piBCiso_mk (En.radData l h) rfl bb]
-  exact h2
+  exact (congrArg (liftC0 (En.descData l h)) h1).trans
+    ((liftC0_mk (En.descData l h) bb).trans ((RF.piBCiso_mk (En.radData l h) rfl bb).symm.trans h2))
 
 end Transport
 

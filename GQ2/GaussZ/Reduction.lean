@@ -47,8 +47,8 @@ theorem kappa0_cocycle {q : W → ZMod 2} {dat : FactorSet C W}
     (hdat : IsEquivariantFactorSet q dat) (a b c : SemiProd C W) :
     kappa0 dat a b + kappa0 dat (a * b) c = kappa0 dat a (b * c) + kappa0 dat b c := by
   obtain ⟨fcoc, _, _, _, _, mquad, mmul, _⟩ := hdat
-  obtain ⟨v, cc⟩ := a; obtain ⟨w, d⟩ := b; obtain ⟨x, e⟩ := c
   simp only [kappa0, SemiProd.mul_def, smul_add, mul_smul]
+  obtain ⟨v, cc⟩ := a; obtain ⟨w, d⟩ := b; obtain ⟨x, e⟩ := c
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
     mmul cc d x + mquad cc w (d • x) + fcoc v (cc • w) (cc • (d • x))
 
@@ -106,8 +106,8 @@ theorem graphPullback_shift_mem_B2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m
   -- the conjugation identity `s · (c γ, ρ'γ) · s⁻¹ = ((c + vCob v).c γ, ρ'γ)`
   have hconj : ∀ γ : Γ, s * φ γ * s⁻¹ = ((c + vCob DD ρ v).c γ, rho0 DD ρ γ) := by
     intro γ
-    simp only [hs, hφ, SemiProd.mul_def, SemiProd.inv_def, one_smul, one_mul, mul_one,
-      inv_one, neg_neg]
+    rw [SemiProd.mul_def, SemiProd.mul_def, SemiProd.inv_def]
+    simp only [hs, hφ, one_smul, one_mul, mul_one, inv_one, neg_neg]
     show ((-v + c.c γ + rho0 DD ρ γ • v, rho0 DD ρ γ) : DD.Vmod × DD.C0)
       = (c.c γ + (rho0 DD ρ γ • v - v), rho0 DD ρ γ)
     rw [Prod.mk.injEq]
@@ -115,7 +115,8 @@ theorem graphPullback_shift_mem_B2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m
   -- graph multiplicativity `φ(γδ) = φ γ · φ δ`
   have hmul : ∀ γ δ : Γ, φ (γ * δ) = φ γ * φ δ := by
     intro γ δ
-    simp only [hφ, SemiProd.mul_def]
+    simp only [SemiProd.mul_def]
+    simp only [hφ]
     rw [c.crossed γ δ, map_mul (rho0 DD ρ) γ δ]
   -- pointwise: the shift-difference is the graph coboundary of `u`
   have hpt : graphPullback DD.dat (fun γ => rho0 DD ρ γ) (c + vCob DD ρ v).c

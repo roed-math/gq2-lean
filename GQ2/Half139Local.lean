@@ -521,9 +521,9 @@ theorem hMcountM_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDiscon
       apply Subtype.ext; funext γ
       show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
           : ↥(En.radData l h).M) = c.1 γ
-      rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥(En.radData l h).M)
-          = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
-      rfl
+      apply Additive.toMul.injective; apply Subtype.ext
+      show (Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹ = (Additive.toMul (c.1 γ)).1
+      group
   rw [htorsor, key, hfix, mul_one]
   rfl
 
