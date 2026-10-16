@@ -323,7 +323,7 @@ private theorem rStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMap
     -- the chief-factor structure of the enrichment module (the §9 induction's `blockHsimple`)
     have hSimp := SectionNine.blockHsimple T Blk
     have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod,
-        (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
       hSimp.2
     have hVne : ∃ v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod, v ≠ 0 := by
       haveI : Nontrivial (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod := hSimp.1
@@ -333,7 +333,7 @@ private theorem rStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMap
     -- the weaker hypothesis is sufficient here —
     -- faithfulness is NOT block-derivable (a central 2-part of `Y` outside `K`
     -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks).
-    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
+    have hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
         (v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod), g • v ≠ v :=
       SectionNine.blockHnt T Blk
     -- the Gauss-`Z` residues: the hypothesis-free obtain at the head-inflated enrichment —
