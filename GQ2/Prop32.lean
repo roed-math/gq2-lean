@@ -405,8 +405,7 @@ theorem topGen_tameA :
 theorem psiW_chiW (x : Ttame) : psiW (chiW x) = x := by
   have h := monoidHom_eq_of_topGen
     (f := psiW.toMonoidHom.comp chiW.toMonoidHom) (g := MonoidHom.id Ttame)
-    (by rw [MonoidHom.coe_comp]
-        exact Continuous.comp psiW.continuous_toFun chiW.continuous_toFun) continuous_id
+    (by exact (Continuous.comp psiW.continuous_toFun chiW.continuous_toFun :)) continuous_id
     topGen_ttame ?_
   · exact h x
   · rintro z (rfl | rfl)
