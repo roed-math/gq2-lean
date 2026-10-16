@@ -317,8 +317,8 @@ private theorem drZ1_eq_drEv (v : Fin 3 → ZMod 2) (g : (DR : Type)) :
     refine continuous_ofAdd.comp ?_
     show Continuous fun g => v 0 * (drZ1 (drBasis 0)).1 g + v 1 * (drZ1 (drBasis 1)).1 g
       + v 2 * (drZ1 (drBasis 2)).1 g
-    exact ((continuous_const.mul (hcont 0)).add (continuous_const.mul (hcont 1))).add
-      (continuous_const.mul (hcont 2))
+    exact ((continuous_const.fun_mul (hcont 0)).fun_add
+      (continuous_const.fun_mul (hcont 1))).fun_add (continuous_const.fun_mul (hcont 2))
   have hchar : drCharM v = (⟨ψ, hψcont⟩ :
       ContinuousMonoidHom (DR : Type) (Multiplicative (ZMod 2))) := by
     refine dr_hom_ext _ _ ?_ ?_ ?_
