@@ -190,8 +190,8 @@ private theorem map_pr2_liftMarkFPR (t : Marking L) (c₁ c₂ : TwoCocycle L) :
 
 private theorem map_prSum_liftMarkFPR (t : Marking L) (c₁ c₂ : TwoCocycle L) :
     (liftMarkFP t c₁ c₂).map FiberProd.prSum = liftMark t (c₁ + c₂) := by
-  simp only [liftMarkFP, Marking.map, liftMark, Marking.mk.injEq]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> exact CentExt.ext rfl (add_zero (0 : ZMod 2))
+  simp only [liftMarkFP, Marking.map, liftMark]
+  congr 1
 
 /-- **Additivity of the Roe relator obstruction.**  Same fibre-product argument as
 `WordCoh2.relZPair_add`, now with `Marking.map_wildValueR` on the second component. -/

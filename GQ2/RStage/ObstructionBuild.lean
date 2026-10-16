@@ -271,6 +271,7 @@ theorem obCocOf_obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ
   rw [show ((rDefect RF g γ δ : ↥Blk.frattiniK) : Y)
         = slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹ from rfl]
   simp only [map_mul, map_inv]
+  rfl
 
 omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
   [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]

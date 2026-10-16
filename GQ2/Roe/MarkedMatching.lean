@@ -137,7 +137,7 @@ private lemma isProP_two_wordLiftBase_ker : IsProP 2 wordLiftBase.ker := by
       (⟨(u * v).toAdd, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ)
         = (⟨u.toAdd, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) * ⟨v.toAdd, 1⟩ := by
     intro u v
-    ext
+    ext1
     · show u.toAdd + v.toAdd = u.toAdd + (1 : ℤ_[2]ˣ) • v.toAdd
       rw [one_smul]
     · exact (one_mul _).symm
@@ -177,7 +177,7 @@ theorem isProP_two_wordLift : IsProP 2 (WordLift ℤ_[2] ℤ_[2]ˣ) := by
     { toFun := fun g => ⟨0, g⟩
       map_one' := rfl
       map_mul' := fun g h => by
-        ext
+        ext1
         · show (0 : ℤ_[2]) = 0 + g • 0
           rw [smul_zero, add_zero]
         · rfl

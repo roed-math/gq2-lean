@@ -364,7 +364,7 @@ theorem d0Word_wordLift_target (Da Ds Dy : ℤ_[2]) :
     rw [etaUnit, inv_inv, negThreeUnit_val]
   have hsq : (⟨Da, -1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 2 = ⟨0, 1⟩ := by
     rw [wl_pow]
-    ext
+    refine WordLift.ext ?_ (Units.ext ?_)
     · show (∑ j ∈ Finset.range 2, ((-1 : ℤ_[2]ˣ) : ℤ_[2]) ^ j) * Da = (0 : ℤ_[2])
       rw [Finset.sum_range_succ, Finset.sum_range_one]
       push_cast
@@ -374,7 +374,7 @@ theorem d0Word_wordLift_target (Da Ds Dy : ℤ_[2]) :
       ring
   have hfour : (⟨Ds, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 4 = ⟨4 * Ds, 1⟩ := by
     rw [wl_pow]
-    ext
+    refine WordLift.ext ?_ (Units.ext ?_)
     · show (∑ j ∈ Finset.range 4, ((1 : ℤ_[2]ˣ) : ℤ_[2]) ^ j) * Ds = 4 * Ds
       rw [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ,
         Finset.sum_range_one]
@@ -384,7 +384,7 @@ theorem d0Word_wordLift_target (Da Ds Dy : ℤ_[2]) :
       push_cast
       ring
   rw [d0Word, hsq, hfour, commP_wordLift]
-  ext
+  refine WordLift.ext ?_ (Units.ext ?_)
   · simp only [WordLift.mul_u, WordLift.mul_g, WordLift.one_u, Units.smul_def, smul_eq_mul,
       Units.val_one, Units.val_mul, inv_one]
     rw [hetainv]
@@ -406,22 +406,22 @@ noncomputable def deriv0 (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
     deriv0 N hN v d0A = redWL N ⟨v 0, -1⟩ := by
   show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] theorem deriv0_d0S (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
     deriv0 N hN v d0S = redWL N ⟨v 1, 1⟩ := by
   show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] theorem deriv0_d0Y (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
     deriv0 N hN v d0Y = redWL N ⟨v 2, etaUnit⟩ := by
   show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 /-- The base component of the `D₀`-derivation is the mod-`2^N` shadow of `χ₀`. -/
 theorem deriv0_base (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) (a : (D0 : Type)) :
