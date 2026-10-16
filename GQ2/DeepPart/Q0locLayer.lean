@@ -438,7 +438,7 @@ noncomputable def deepPartSubgroup (ρ : ContinuousMonoidHom AbsGalQ2 C)
         0, fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_lt_one⟩
     · congr 1
       funext n
-      rw [Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])]
+      refine (Kummer.kummerCocycleFun_eq0 ((AlgEquiv.smul_def _ _).trans (map_one _))).trans ?_
       have hv := vanish_on_ker_of_H1mk_eq_zero ρ hρ (H1mk_out (0 : H1 AbsGalQ2 V)) n
       rw [hv, map_zero]
   add_mem' := by
