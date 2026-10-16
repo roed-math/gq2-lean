@@ -199,7 +199,7 @@ private lemma card_fixedPts_eq_card_rCharSubR
       right_inv := fun chi => rfl }
   obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
   refine GQ2.FoxH.ElemDual.ext fun a => ?_
-  rw [GQ2.FoxH.ElemDual.smul_apply]
+  refine (GQ2.FoxH.ElemDual.smul_apply _ (chi.1 : GQ2.FoxH.ElemDual _) a).trans ?_
   have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
       = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
           RStageLocal.conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
@@ -380,7 +380,7 @@ theorem wTrace_R_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRelR) (
       = Fintype.card (H2wR (A := A) t →+ ZMod 2) := by
     rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card,
       LocalLiftingDuality.card_addHom_zmod2 (H2w_two_torsion_R t hA₂), hsd_card]
-    exact Nat.card_congr (Equiv.setCongr (H0w_eq_fixedPts t hgen))
+    exact Nat.card_congr (Set.equivOfEq (H0w_eq_fixedPts t hgen))
   obtain ⟨x, hx⟩ := ((Fintype.bijective_iff_injective_and_card Θ).mpr ⟨hinj, hcard⟩).2 Ψ
   exact ⟨x.1, AddMonoidHom.mem_ker.mp x.2, hx⟩
 

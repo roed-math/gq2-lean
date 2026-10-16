@@ -344,7 +344,8 @@ theorem charCoverMap_coe_eq_zpow (χ : ↥(TCharC D)) (hχ : χ ≠ 0) (t : ↥D
   haveI : (charKer χ).Normal := charKer_normal χ
   rcases ZMod.eq_zero_or_eq_one (χ.1 t) with h0 | h1
   · rw [h0]
-    show QuotientGroup.mk' (charKer χ) (t : Bg) = _ ^ (0 : ZMod 2).val
+    show QuotientGroup.mk' (charKer χ) (t : Bg)
+      = QuotientGroup.mk' (charKer χ) ((charWitness χ hχ : ↥D.T) : Bg) ^ (0 : ZMod 2).val
     rw [ZMod.val_zero, pow_zero, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
     exact (mem_charKer_iff χ t).mpr h0
   · rw [h1]
