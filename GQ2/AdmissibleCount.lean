@@ -191,8 +191,7 @@ is `conjModule`-invariant (`conjAct_deepClasses`), so the conjugation action res
     apply Subtype.ext
     show conjAct ρ (Function.surjInv hρsurj (c * d)) ξ.1
       = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) ξ.1)
-    rw [← conjAct_comp]
-    refine conjAct_ker ρ _ _ ?_ ξ.1
+    refine (conjAct_ker ρ _ _ ?_ ξ.1).trans (conjAct_comp ρ _ _ ξ.1)
     rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
       Function.surjInv_eq hρsurj]
   smul_zero c := Subtype.ext (conjAct_zero ρ (Function.surjInv hρsurj c))
@@ -214,7 +213,7 @@ omit [DiscreteTopology C] [Finite C] in
 theorem conjActQuotHom_mk (g : AbsGalQ2)
     (a : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
     conjActQuotHom ρ g (QuotientAddGroup.mk a) = QuotientAddGroup.mk (conjAct ρ g a) :=
-  QuotientAddGroup.map_mk _ _ (conjActHom ρ g) _ a
+  rfl
 
 /-- **The induced `conjModule` action on the quotient** (f5's `W''`): since `deepClassesSubgroup`
 is `conjModule`-invariant, the conjugation action descends to `H¹(N) ⧸ deepClassesSubgroup` via
@@ -331,16 +330,14 @@ noncomputable def deepFamEquiv
       ⟨{ fam := fun φ => (f.1 φ).1
          add' := fun φ ψ => by rw [map_add]; rfl
          equiv' := fun g φ => by
-           calc conjAct ρ g ((f.1 φ).1)
-               = conjAct ρ (Function.surjInv hρsurj (ρ g)) (f.1 φ).1 :=
-                 conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
-                   (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ).1
-             _ = ((dualModule.toSMul.smul (ρ g) φ |> f.1) : ↥(deepClassesSubgroup _)).1 :=
-                 (congrArg Subtype.val (f.2 (ρ g) φ)).symm
-             _ = (f.1 (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹))).1 :=
-                 congrArg (fun ψ => (f.1 ψ).1) (AddMonoidHom.ext fun v => by
-                   show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
-                   rw [hρ g⁻¹ v, map_inv]) },
+           -- (a `calc` here fails to synthesize `Trans Eq Eq`: its steps live in `H¹` over
+           -- `ker ρ` seen as a subgroup of `AbsGalQ2` vs. of `Kummer.GaloisGroup ℚ_[2]`)
+           refine (conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
+             (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ).1).trans
+             ((congrArg Subtype.val (f.2 (ρ g) φ)).symm.trans ?_)
+           exact congrArg (fun ψ => (f.1 ψ).1) (AddMonoidHom.ext fun v => by
+             show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
+             rw [hρ g⁻¹ v, map_inv]) },
        fun φ => (f.1 φ).2⟩
     left_inv := fun ξ => rfl
     right_inv := fun f => Subtype.ext (AddMonoidHom.ext fun φ => Subtype.ext rfl) }
