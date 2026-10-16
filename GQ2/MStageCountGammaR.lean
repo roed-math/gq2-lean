@@ -614,9 +614,9 @@ theorem RecursionFrame.liftsOver_card_gammaR_of_nonempty
       apply Subtype.ext; funext γ
       show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
           : ↥RF.MB) = c.1 γ
-      rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥RF.MB)
-          = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
-      rfl
+      exact congrArg Additive.ofMul
+        (show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥RF.MB)
+          = Additive.toMul (c.1 γ) from Subtype.ext (by group))
   rw [htorsor, key, hfix, mul_one]
   rfl
 

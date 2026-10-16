@@ -503,7 +503,8 @@ theorem hvanish_involution_ker [LiteratureInputs] (R : LocalReciprocity) (B : Bo
   have hαcU : Continuous fun w : ↥((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀) =>
       Kummer.kummerCocycleFun β (w.1.1 : AbsGalQ2) :=
     (Kummer.kummerCocycleFun_continuous β).comp
-      (continuous_subtype_val.comp continuous_subtype_val)
+      ((continuous_subtype_val : Continuous (Subtype.val : ↥U₀ → AbsGalQ2)).comp
+        continuous_subtype_val)
   have hZ2U := evensNormFun_mem_Z2 htrivU hUoU hUiU hsUnot _ hαU hαcU
   have hZ2K := evensNormFun_mem_Z2 htrivK hUoK hindexK hsKnot _ hα hαc
   -- ### transport the vanishing along `e₀`
