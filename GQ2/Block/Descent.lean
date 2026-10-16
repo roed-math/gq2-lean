@@ -200,7 +200,8 @@ theorem blockDescend_kappa (k : ↥B.K) :
       = QuotientGroup.quotientKerEquivOfSurjective (blockKappa B) (blockKappa_surjective B)
         (QuotientGroup.mk k) := rfl
   rw [blockDescend, MonoidHom.comp_apply, hmk, MulEquiv.coe_toMonoidHom,
-    MulEquiv.symm_apply_apply, QuotientGroup.lift_mk]
+    MulEquiv.symm_apply_apply]
+  rfl
 
 omit [B.K.Normal] in
 /-- **`descend` is surjective** onto `P/S`: every `[p]_S` is hit, because `KS = P` (`B.gen`)

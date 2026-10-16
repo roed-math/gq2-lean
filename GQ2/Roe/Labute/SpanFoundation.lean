@@ -348,7 +348,7 @@ theorem topGen_freeProTwo :
         ∈ Subgroup.closure (Set.range freeGen) := by
     intro w
     induction w using FreeGroup.induction_on with
-    | C1 =>
+    | one =>
       show (1 : (freeProTwo : Type)) ∈ _
       exact one_mem _
     | of x => exact Subgroup.subset_closure ⟨x, rfl⟩
