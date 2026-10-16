@@ -121,8 +121,7 @@ theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C 
     have hkerstable : ∀ (c : C) (a : A), a ∈ (lam : A →+ ZMod 2).ker →
         c • a ∈ (lam : A →+ ZMod 2).ker := by
       intro c a ha
-      rw [AddMonoidHom.mem_ker] at ha ⊢
-      exact (hinv c a).trans ha
+      exact AddMonoidHom.mem_ker.mpr ((hinv c a).trans (AddMonoidHom.mem_ker.mp ha))
     rcases hsimple.2 (lam : A →+ ZMod 2).ker hkerstable with hbot | htop
     · exfalso
       obtain ⟨c, a, hca⟩ := hnt
