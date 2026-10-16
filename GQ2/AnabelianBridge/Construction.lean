@@ -276,24 +276,24 @@ noncomputable def d0Lift (hH : IsProP 2 H) (m : Fin 3 → H)
     d0Lift hH m hrel d0A = m 0 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = m 0
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] private lemma d0Lift_S (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0Lift hH m hrel d0S = m 1 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = m 1
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] private lemma d0Lift_Y (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0Lift hH m hrel d0Y = m 2 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = m 2
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 end Lifts
 
