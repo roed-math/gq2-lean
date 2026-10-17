@@ -81,7 +81,7 @@ theorem m0FieldNuCharacter_recip_piUnitK
           (evenModelCharacterClass (m0FieldNuCharacter B)))
         (topAbToTopAbMaxProP (p := 2) (GalK K) (B.recip (piUnitK FF))) =
       Multiplicative.ofAdd (1 : ZMod 2) := by
-  rw [h1GalKMaxProTwoAbCharacter_evenModelCharacterClass]
+  refine (h1GalKMaxProTwoAbCharacter_evenModelCharacterClass _ _).trans ?_
   obtain ⟨g, hg⟩ := SectionThree.abMk_surjective (B.recip (piUnitK FF))
   have hg' : toAbK K g = B.recip (piUnitK FF) := hg
   rw [← hg, SectionThree.abLiftG_abMk]
@@ -105,8 +105,8 @@ theorem m0FieldPivotUnit_of_uniformizerD_of_artin
       kummerClassK K (piUnitK FF))
     (H : ModTwoTateKummerArtinCompatibility B) :
     M0FieldPivotUnit B alpha h := by
-  rw [m0FieldPivotUnit_iff_cup B halpha e, m0PivotCupValue, hD,
-    (FieldData.isCupFormFp2_cupFormK K).symm]
+  rw [m0FieldPivotUnit_iff_cup B halpha e, m0PivotCupValue, hD]
+  refine ((FieldData.isCupFormFp2_cupFormK K).symm _ _).trans ?_
   let x := h1MaxProTwoEquivGalK (K := K)
     (evenModelCharacterClass (m0FieldNuCharacter B))
   have hArt := H x (piUnitK FF)

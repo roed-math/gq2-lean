@@ -107,6 +107,7 @@ local instance : DistribMulAction ((gamma h q : Type)) (ZMod 2) := scalarActionZ
 local instance : ContinuousSMul ((gamma h q : Type)) (ZMod 2) :=
   scalarActionZmodTwo_continuousSMul _
 
+set_option backward.isDefEq.respectTransparency false in
 theorem ramifiedActionH1Equiv_add
     (hwildAct : ∀ (i : Fin (2*h+1+1)) (v : DD.Vmod),
       rho0 DD rho (gammaGen (2*h+1) q (lSqW h) (.wild i))•v=v)

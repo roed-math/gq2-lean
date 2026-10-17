@@ -176,19 +176,21 @@ def wallHeadInverseMatrix (L : V →+ V) : Matrix (Fin 2) (Fin 2) (AddMonoid.End
 
 theorem wallHeadMatrix_mul_inverse (L : V →+ V) :
     wallHeadMatrix L * wallHeadInverseMatrix L = 1 := by
-  ext i j
-  fin_cases i <;> fin_cases j <;>
-    simp [wallHeadMatrix, wallHeadInverseMatrix, Matrix.mul_apply, Fin.sum_univ_two]
-  change L _ + -(L _) = 0
-  exact add_neg_cancel _
+  have key : ∀ M : AddMonoid.End V,
+      (!![M, 1; 1, 0] * !![0, 1; 1, -M] : Matrix (Fin 2) (Fin 2) (AddMonoid.End V)) = 1 := by
+    intro M
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
+  exact key L
 
 theorem wallHeadInverseMatrix_mul_head (L : V →+ V) :
     wallHeadInverseMatrix L * wallHeadMatrix L = 1 := by
-  ext i j
-  fin_cases i <;> fin_cases j <;>
-    simp [wallHeadMatrix, wallHeadInverseMatrix, Matrix.mul_apply, Fin.sum_univ_two]
-  change L _ + -(L _) = 0
-  exact add_neg_cancel _
+  have key : ∀ M : AddMonoid.End V,
+      (!![0, 1; 1, -M] * !![M, 1; 1, 0] : Matrix (Fin 2) (Fin 2) (AddMonoid.End V)) = 1 := by
+    intro M
+    ext i j
+    fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
+  exact key L
 
 /-- The old compact head is the special case in which the diagonal is `q` itself. -/
 theorem diagonalPolarAdjoint_self [Finite V] (q : V → ZMod 2)

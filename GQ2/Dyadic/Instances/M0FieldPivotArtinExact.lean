@@ -53,7 +53,8 @@ theorem m0FieldPivotUnit_iff_uniformizerArtinValue
   rw [m0FieldPivotUnit_iff_cup B halpha e,
     m0UniformizerArtinCompatibility_iff_cup_one]
   unfold m0PivotCupValue
-  rw [hD, (FieldData.isCupFormFp2_cupFormK K).symm]
+  rw [hD]
+  exact Iff.of_eq (congrArg (· = 1) ((FieldData.isCupFormFp2_cupFormK K).symm _ _))
 
 #print axioms m0FieldPivotUnit_iff_uniformizerArtinValue
 

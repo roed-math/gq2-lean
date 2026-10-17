@@ -92,8 +92,8 @@ theorem m0FieldPivotUnit_of_uniformizerD_of_artinValue
       kummerClassK K (piUnitK FF))
     (H : M0UniformizerArtinCompatibility B FF) :
     M0FieldPivotUnit B alpha h := by
-  rw [m0FieldPivotUnit_iff_cup B halpha e, m0PivotCupValue, hD,
-    (FieldData.isCupFormFp2_cupFormK K).symm]
+  rw [m0FieldPivotUnit_iff_cup B halpha e, m0PivotCupValue, hD]
+  refine ((FieldData.isCupFormFp2_cupFormK K).symm _ _).trans ?_
   exact (m0UniformizerArtinCompatibility_iff_cup_one B FF).mp H
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
