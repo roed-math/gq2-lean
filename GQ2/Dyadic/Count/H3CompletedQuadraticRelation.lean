@@ -218,14 +218,14 @@ theorem modTwoGroupAlgebraFunctionMoment_smul {Q : Type} [Group Q]
     modTwoGroupAlgebraFunctionMoment f (a • x) =
       a * modTwoGroupAlgebraFunctionMoment f x := by
   induction x using MonoidAlgebra.induction_on generalizing a with
-  | hM q =>
+  | of q =>
       rw [MonoidAlgebra.smul_of]
       change modTwoGroupAlgebraFunctionMoment f (MonoidAlgebra.single q a) = _
       simp
-  | hadd x y hx hy =>
+  | add x y hx hy =>
       rw [smul_add, map_add, map_add, hx, hy]
       ring
-  | hsmul b x ih =>
+  | smul b x ih =>
       rw [smul_smul, ih, ih]
       ring
 
@@ -438,15 +438,15 @@ theorem modTwoGroupAlgebraFunctionMoment_eq_zero_of_mem_augmentation_cube
     simp [finiteGeneratorWordProduct, g]
   rw [hprod]
   induction d (((PUnit.unit, q₁), q₂), q₃) using MonoidAlgebra.induction_on with
-  | hM t =>
+  | of t =>
       rw [show MonoidAlgebra.of (ZMod 2) Q t =
         MonoidAlgebra.single t 1 by rfl]
       simpa only [mul_assoc] using
         modTwoGroupAlgebraFunctionMoment_single_mul_three_differences
         hc φ t q₁ q₂ q₃
-  | hadd a b ha hb =>
+  | add a b ha hb =>
       rw [add_mul, map_add, ha, hb, add_zero]
-  | hsmul a y hy =>
+  | smul a y hy =>
       rw [smul_mul_assoc, modTwoGroupAlgebraFunctionMoment_smul, hy, mul_zero]
 
 /-! ## Detector evaluation on completed quadratic monomials -/
@@ -886,8 +886,8 @@ def sqQuadraticToCompletedTruncationHom (h : ℕ) :
         (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a) =
       sqQuadraticToCompletedTruncationFreeHom h a := by
   rw [sqQuadraticToCompletedTruncationHom, Ideal.Quotient.liftₐ_apply,
-    Ideal.Quotient.mkₐ_eq_mk, Ideal.Quotient.lift_mk]
-  rfl
+    Ideal.Quotient.mkₐ_eq_mk]
+  exact Ideal.Quotient.lift_mk _ _ _
 
 @[simp] theorem sqQuadraticToCompletedTruncationHom_letter
     (h : ℕ) (i : Fin (sqRank h)) :

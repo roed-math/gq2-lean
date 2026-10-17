@@ -1767,7 +1767,6 @@ theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofi
           (sec ⟨U⟩).output c := by
       change (sqUniversalCocycleOutputFiberTransitionOfRange hkernel
         fXU.1 fXU.2 (sec ⟨X⟩)).output c = (sec ⟨U⟩).output c at hsUraw
-      rw [sqUniversalCocycleOutputFiberTransitionOfRange_output] at hsUraw
       exact hsUraw
     have hsU' :
         sqUniversalRelationModuleTransition h hXU'
@@ -1775,7 +1774,6 @@ theorem nonempty_sqCompatibleUniversalCocycleCancellingSyzygyAt_of_rangeGoodCofi
           (sec ⟨U'⟩).output c := by
       change (sqUniversalCocycleOutputFiberTransitionOfRange hkernel
         fXU'.1 fXU'.2 (sec ⟨X⟩)).output c = (sec ⟨U'⟩).output c at hsU'raw
-      rw [sqUniversalCocycleOutputFiberTransitionOfRange_output] at hsU'raw
       exact hsU'raw
     calc
       sqUniversalRelationModuleTransition h hUU' ((sec ⟨U⟩).output c) =
@@ -1926,6 +1924,8 @@ noncomputable def SqCompatibleUniversalCocycleCancellingSyzygyAt.syzygyBoundary
   let d := (finiteModTwoBarDThree
     ((DSq h : Type) ⧸ V.toSubgroup)).toZModLinearMap 2
   let T := S.universalSyzygy.toCompletedFox.toZModLinearMap 2
+    (M := SqAdjointInputThree h V)
+    (M₁ := ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)))
   have hker : LinearMap.ker d ≤ LinearMap.ker T := by
     intro c hc
     rw [LinearMap.mem_ker] at hc ⊢
@@ -1933,9 +1933,10 @@ noncomputable def SqCompatibleUniversalCocycleCancellingSyzygyAt.syzygyBoundary
     simpa [d] using hc
   let onRange : LinearMap.range d →ₗ[ZMod 2]
       ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h)) :=
-    ((LinearMap.ker d).liftQ T hker).comp
+    ((LinearMap.ker d).liftQ T (by exact hker)).comp
       d.quotKerEquivRange.symm.toLinearMap
-  let hExtend := LinearMap.exists_extend onRange
+  let hExtend := LinearMap.exists_extend
+    (V' := ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))) onRange
   let D := Classical.choose hExtend
   have hD := Classical.choose_spec hExtend
   refine {
@@ -1944,7 +1945,7 @@ noncomputable def SqCompatibleUniversalCocycleCancellingSyzygyAt.syzygyBoundary
     boundary_universalSyzygy := fun c => ?_
   }
   change T c = D (d c)
-  let dc : LinearMap.range d := ⟨d c, ⟨c, rfl⟩⟩
+  let dc : LinearMap.range d := ⟨d c, LinearMap.mem_range_self d c⟩
   symm
   calc
     D (d c) = D ((LinearMap.range d).subtype dc) := rfl
@@ -2146,7 +2147,7 @@ noncomputable def
     factor := fun c => ?_
   }
   change D (d c) = E c
-  let dc : LinearMap.range d := ⟨d c, ⟨c, rfl⟩⟩
+  let dc : LinearMap.range d := ⟨d c, LinearMap.mem_range_self d c⟩
   calc
     D (d c) = D ((LinearMap.range d).subtype dc) := rfl
     _ = onRange dc := LinearMap.congr_fun hD dc
