@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.SqCore.PivotSeedTransport
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLOddDegreeBridgePivot
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The two pivot subgroups, transported from `D₀`

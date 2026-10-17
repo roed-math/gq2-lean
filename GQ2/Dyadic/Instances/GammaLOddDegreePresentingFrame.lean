@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.GammaLOddDegreeSingleResidual
+import GQ2.Foundations.Axioms
 
 /-!
 # A presenting Frattini frame exists unconditionally, and the square shift cannot see it

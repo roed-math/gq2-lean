@@ -613,6 +613,7 @@ private theorem stageFunctional_rawDepthCorrection_eq_prod {h k : ℕ}
     { toFun := fun W ↦ W.correction j
       map_one' := rfl
       map_mul' := fun _ _ ↦ rfl }
+  have hev : ∀ W, ev W = W.correction j := fun _ ↦ rfl
   change ev V = ev (((List.finRange (SqCore.sqRank h)).map fun i ↦
     rawDepthCoordinateCorrection i
       (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))).prod)
@@ -623,8 +624,8 @@ private theorem stageFunctional_rawDepthCorrection_eq_prod {h k : ℕ}
       (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))))
     (by simp) (List.nodup_finRange _) (by
       intro i _ hij
-      simp [ev, rawDepthCoordinateCorrection_apply, Ne.symm hij])
-  simpa [List.map_map, Function.comp_def, ev, rawDepthCoordinateCorrection_apply] using
+      simp [hev, rawDepthCoordinateCorrection_apply, Ne.symm hij])
+  simpa [List.map_map, Function.comp_def, hev, rawDepthCoordinateCorrection_apply] using
     hsingle.symm
 
 variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
