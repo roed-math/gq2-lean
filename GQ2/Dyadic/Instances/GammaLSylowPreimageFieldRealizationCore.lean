@@ -89,7 +89,7 @@ theorem gammaLOddIndexOpenSubgroupFieldIdentificationSupply_of_fieldRealization
   have hdegree : Module.finrank ℚ_[2] K = U'.index * (2 * h + 1) := by
     calc
       Module.finrank ℚ_[2] K = K.fixingSubgroup.index :=
-        IntermediateField.finrank_eq_fixingSubgroup_index K
+        IntermediateField.finrank_eq_fixingSubgroup_index _ K
       _ = H.index := congrArg Subgroup.index hKfix
       _ = N.index * R.subgroup.index := Subgroup.index_map_subtype N
       _ = U'.index * (2 * h + 1) := by rw [hNindex, R.index_eq]

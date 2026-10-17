@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
 import GQ2.Dyadic.SqCore.Rank3
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The oriented degree-one square classification

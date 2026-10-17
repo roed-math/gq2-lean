@@ -52,7 +52,7 @@ def semiProdProjHom {C C' V : Type} [Group C] [Group C'] [AddCommGroup V]
     SectionSix.SemiProd C' V →* SectionSix.SemiProd C V where
   toFun p := (p.1, π p.2)
   map_one' := Prod.ext rfl (map_one π)
-  map_mul' p r := Prod.ext (by simpa using hpi p.2 r.1) (map_mul π p.2 r.2)
+  map_mul' p r := Prod.ext (by exact congrArg (p.1 + ·) (hpi p.2 r.1)) (map_mul π p.2 r.2)
 
 @[simp] theorem semiProdProjHom_apply {C C' V : Type} [Group C] [Group C'] [AddCommGroup V]
     [DistribMulAction C V] [DistribMulAction C' V] (π : C' →* C)
@@ -271,13 +271,14 @@ noncomputable def sourceWordPhaseComparison_of_lSqHeadNormalForm
     have hsv := congrArg Subtype.val hs
     change (fun i ↦ (normalZ1 p).1
       (gammaGen (2 * h + 1) q (lSqW h) i)) = normal p
-    simpa [normalZ1, normal, theta] using hsv
+    exact (lSourceZ1Map_coe theta hcompat hres (normalZ1 p)).symm.trans hsv
   have hnormalClass (p : DD.Vmod × (Fin h → DD.Vmod × DD.Vmod)) :
       phaseEquiv (QuotientAddGroup.mk (normalSource p)) = p := by
     change wordEquiv
       (lSourceH1Equiv theta hcompat hA2 hres
         (H1mk (gamma h q : Type) DD.Vmod (normalZ1 p))) = p
-    rw [lSourceH1Equiv_mk]
+    refine (congrArg wordEquiv
+      (lSourceH1Equiv_mk theta hcompat hA2 hres (normalZ1 p))).trans ?_
     have hs := Function.surjInv_eq hZ1surj
       ⟨normal p, AddMonoidHom.mem_ker.mpr (hmem p)⟩
     rw [show lSourceZ1Map theta hcompat hres (normalZ1 p) =

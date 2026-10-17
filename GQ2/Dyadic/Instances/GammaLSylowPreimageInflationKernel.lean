@@ -229,14 +229,14 @@ theorem normalCore_subgroupOf_isOpen_of_continuous_discrete
   letI : Finite (G ⧸ J) := Subgroup.quotient_finite_of_isOpen J hJopen
   let rep : (G ⧸ J) → G := fun i => Quotient.out i
   let conjN : (G ⧸ J) → N →* N := fun i =>
-    (((MulAut.conj (rep i)⁻¹).toMonoidHom.restrict N).codRestrict N (fun n => by
+    (((MulAut.conj (rep i)⁻¹).toMonoidHom.domRestrict N).codRestrict N (fun n => by
       simpa only [MulEquiv.coe_toMonoidHom, MulAut.conj_apply, inv_inv,
-        MonoidHom.restrict_apply] using
+        MonoidHom.domRestrict_apply] using
           (inferInstance : N.Normal).conj_mem n.1 n.2 (rep i)⁻¹))
   have hconjN_val (i : G ⧸ J) (n : N) :
       (conjN i n).1 = (rep i)⁻¹ * n.1 * rep i := by
     simp only [conjN, MonoidHom.codRestrict_apply, MulEquiv.coe_toMonoidHom,
-      MulAut.conj_apply, MonoidHom.restrict_apply, inv_inv]
+      MulAut.conj_apply, MonoidHom.domRestrict_apply, inv_inv]
   let KcoreN : Subgroup N := ⨅ i : G ⧸ J, K.comap (conjN i)
   have hKcoreNopen : IsOpen (KcoreN : Set N) := by
     dsimp only [KcoreN]
