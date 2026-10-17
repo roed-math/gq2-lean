@@ -61,7 +61,7 @@ until the orchestrator re-plans Wave 2.
 | G1 | owner gate: census flip 9 → 0 | owner | — | C1 | approved 2026-10-17 |
 | C2 | delete the axiom file; same-name wrappers | fable | `GQ2/Foundations/Axioms.lean` (delete), `GQ2/Foundations/AxiomInstance.lean` (delete), `GQ2/Foundations/Interfaces.lean`, `GQ2/AxiomLedger.lean`, `scripts/check_axioms.sh`, `comparator-config*.json` | G1 | done `e4208ff1` (census 0) |
 | C3 | docs sweep | opus | `formalization.yaml`, `README.md`, `docs/literature-axioms.md`, `docs/literature-axioms-onepage.md`, `docs/README.md`, `docs/orchestration/README.md` | C2 | done `a5474022`, `7662bfd2`, `adb6d2a1` |
-| G2 | owner gate: keep or retire the legacy `Challenge`/`Solution` pair | owner | — | C3 | awaiting owner |
+| G2 | owner gate: keep or retire the legacy `Challenge`/`Solution` pair | owner | — | C3 | decided 2026-10-17: keep the pair (docstrings updated to census 0); campaign closed |
 
 ## Ticket briefs
 

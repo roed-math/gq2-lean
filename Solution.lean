@@ -17,10 +17,12 @@ challenge statements verbatim and attaches the library proof: `GQ2.main_presenta
 
 The second proof term is the campaign's terminal corollary
 `main_presentation_literal_roe bLab` — the hypothesis-parametrized Replacement theorem with
-its one input discharged by `GQ2.Roe.Labute.bLab`.  Both theorems print the same axioms
-(std-3 plus the nine literature axioms of `comparator-config.json`), which
-`scripts/check_axioms.sh` check 5 and `GQ2/AxiomLedger.lean`'s terminal certificate both
-enforce against the library declarations cited here.
+its one input discharged by `GQ2.Roe.Labute.bLab`.  Both theorems print exactly the standard
+three axioms (`propext`, `Classical.choice`, `Quot.sound`), the permitted list of
+`comparator-config.json`: since 2026-10-17 the nine literature inputs are theorems proved from
+the Tau Ceti library (`GQ2/Foundations/TauCetiInstance.lean`, `GQ2/TauCeti/`), not axioms.
+`scripts/check_axioms.sh` check 5 and `GQ2/AxiomLedger.lean`'s terminal certificate both enforce
+this against the library declarations cited here.
 -/
 
 open GQ2 in
