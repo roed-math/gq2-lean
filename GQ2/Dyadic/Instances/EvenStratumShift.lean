@@ -317,7 +317,8 @@ theorem evenStratum_not_dbarShiftSupply_one :
     (fun i ↦ if i = 0 then evenStratumShiftWitnessP else 1) hdepth
     (hall (fun _ ↦ 1) (fun i ↦ if i = 0 then evenStratumShiftWitnessP else 1) hdepth)
   refine evenStratumShiftWitnessP_sq_ne_one ?_
-  simpa [commP] using hatom
+  have h2 : evenStratumShiftWitnessP ^ 2 * commP evenStratumShiftWitnessP 1 = 1 := hatom
+  simpa [commP] using h2
 
 /-- **The prose is correct: `evenRawStageShift_n`'s conclusion is false at `α = 1`.**  There is
 no way to weaken its `2 ≤ α` to `1 ≤ α`: at `α = 1` the literal shift of the `N` relator is

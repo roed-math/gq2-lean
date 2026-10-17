@@ -269,14 +269,20 @@ theorem sqNuClear_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sqNuClear h nu' j (sqGen h (sqHandleIdxU j')) = nu' (sqGen h (sqHandleIdxU j')) := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   rw [sqNuClear, sqNuRows_handleU]
-  simp only [sqClearRows, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqClearRows]
   rw [if_neg (by omega), if_neg (by omega), ofAdd_toAdd]
 
 theorem sqNuClear_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sqNuClear h nu' j (sqGen h (sqHandleIdxV j')) = nu' (sqGen h (sqHandleIdxV j')) := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   rw [sqNuClear, sqNuRows_handleV]
-  simp only [sqClearRows, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqClearRows]
   rw [if_neg (by omega), if_neg (by omega), ofAdd_toAdd]
 
 /-- ⭐ **The converse of `sqLamMarkTransitivity_of_clearingStep`, at every `h`.**  Correct `ν'`
@@ -428,18 +434,26 @@ noncomputable def sqCommFrame : Fin (sqRank h) → (DSq h : Type) :=
 theorem sqCommFrame_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sqCommFrame h j p q (sqHandleIdxU j') = sqGen h (sqHandleIdxU j') := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [sqCommFrame, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqCommFrame]
   rw [if_neg (by omega), if_neg (by omega)]
 
 theorem sqCommFrame_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sqCommFrame h j p q (sqHandleIdxV j') = sqGen h (sqHandleIdxV j') := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [sqCommFrame, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqCommFrame]
   rw [if_neg (by omega), if_neg (by omega)]
 
 theorem sqCommFrame_core {i : Fin (sqRank h)} (hi : (i : ℕ) < 3) :
     sqCommFrame h j p q i = sqGen h i := by
-  simp only [sqCommFrame, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j
+  have h2 := sqHandleIdxV_val j
+  simp only [sqCommFrame]
   rw [if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem sqCommFrame_zero : sqCommFrame h j p q 0 = dsqSigma h :=
