@@ -434,7 +434,9 @@ theorem hessSlice_inv (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) :
   · exact inv_one
   · show z + (kappa0Cocycle dat hdat).κ (v, (1 : C)) (-((1 : C)⁻¹ • v), (1 : C)⁻¹)
       = z + q v
-    rw [inv_one, one_smul, hneg, kappa0Cocycle_κ, one_smul, hdat.m_one, add_zero, hdat.f_diag]
+    rw [inv_one, one_smul, hneg]
+    show z + (dat.f v ((1 : C) • v) + dat.m 1 v) = z + q v
+    rw [one_smul, hdat.m_one, add_zero, hdat.f_diag]
 
 open GQ2.QuadraticFp2 in
 /-- **The slice commutator law** — the cross-term mechanism, charge-independent:

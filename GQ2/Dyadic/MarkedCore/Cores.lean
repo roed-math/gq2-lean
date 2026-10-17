@@ -339,7 +339,7 @@ theorem normSum_two (X : ℤ_[2]) : normSum X 2 = 1 + X := by
 (`WordLift.pow_u`, the norm projector). -/
 theorem pow_wordLift (X : ℤ_[2]ˣ) (D : ℤ_[2]) (n : ℕ) :
     (⟨D, X⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ n = ⟨normSum (X : ℤ_[2]) n * D, X ^ n⟩ := by
-  ext
+  ext1
   · rw [WordLift.pow_u, normSum, Finset.sum_mul]
     refine Finset.sum_congr rfl fun i _ => ?_
     simp only [Units.smul_def, smul_eq_mul, Units.val_pow_eq_pow_val]
@@ -837,8 +837,8 @@ noncomputable def presLiftHom (r : FreeProfiniteGroup (Fin n)) (hH : IsProP 2 H)
     presLiftHom r hH m hrel (presGen r i) = m i := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 (profinitePresentation {r})
     (quotientMk (relatorSubgroup {r}) (FreeProfiniteGroup.of i))) = m i
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (freeHomFin_of m i)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (freeHomFin_of m i))
 
 end Generic
 
@@ -910,15 +910,15 @@ private theorem nFull_relation (α h : ℕ) :
 theorem dm_relation (α h : ℕ) : mRelWord α (dmGen α h) = 1 := by
   have key := map_mRelWord (maxProPMk 2 (profinitePresentation {mRelator α h})) α
     (fun i => quotientMk (relatorSubgroup {mRelator α h}) (FreeProfiniteGroup.of i))
-  rw [mFull_relation, map_one] at key
-  exact key.symm
+  rw [mFull_relation] at key
+  exact key.symm.trans (map_one _)
 
 /-- **The `N_α` relation holds in `D_N`**. -/
 theorem dn_relation (α h : ℕ) : nRelWord α (dnGen α h) = 1 := by
   have key := map_nRelWord (maxProPMk 2 (profinitePresentation {nRelator α h})) α
     (fun i => quotientMk (relatorSubgroup {nRelator α h}) (FreeProfiniteGroup.of i))
-  rw [nFull_relation, map_one] at key
-  exact key.symm
+  rw [nFull_relation] at key
+  exact key.symm.trans (map_one _)
 
 /-- **Topological generation of `D_M`** (memo §6.1 `dm_topGen`; the `dr_topGen` pattern). -/
 theorem dm_topGen (α h : ℕ) :
@@ -1046,11 +1046,13 @@ variable {G : Type*} [Group G] {h : ℕ} (a b c d : G)
   norm_num
 
 @[simp] theorem coreMark_handleU (j : Fin h) : coreMark a b c d (handleIdxU j) = 1 := by
-  simp only [coreMark, handleIdxU_val]
+  have hj := handleIdxU_val j
+  simp only [coreMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem coreMark_handleV (j : Fin h) : coreMark a b c d (handleIdxV j) = 1 := by
-  simp only [coreMark, handleIdxV_val]
+  have hj := handleIdxV_val j
+  simp only [coreMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- The full relator on a standard marking is the core word: the handles are all trivial. -/

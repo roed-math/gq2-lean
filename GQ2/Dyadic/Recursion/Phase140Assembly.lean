@@ -77,15 +77,14 @@ This is what aligns the master count's `ι_Γ(ρ'^*Δ)`-signs with `phaseSignK`'
 theorem rho0_descData_rhoPrimeK (ρ : BoundaryLiftsK b F RF.TC) (γ : Γ) :
     rho0 (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ) γ = ρ.1.1 γ := by
   show liftC0 (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ γ) = ρ.1.1 γ
-  rw [rhoPrimeK_apply]
   obtain ⟨bb, hbb⟩ :=
     QuotientGroup.mk_surjective ((RF.piBCiso (En.radData l h) rfl).symm (ρ.1.1 γ))
-  rw [← hbb, liftC0_mk]
-  show RF.piBC bb = ρ.1.1 γ
+  have h1 : rhoPrimeK RF b F (En.radData l h) rfl ρ γ = QuotientGroup.mk bb :=
+    (rhoPrimeK_apply RF b F (En.radData l h) rfl ρ γ).trans hbb.symm
   have h2 : RF.piBCiso (En.radData l h) rfl (QuotientGroup.mk bb) = ρ.1.1 γ := by
     rw [hbb, MulEquiv.apply_symm_apply]
-  rw [← RF.piBCiso_mk (En.radData l h) rfl bb]
-  exact h2
+  exact (congrArg (liftC0 (En.descData l h)) h1).trans
+    ((liftC0_mk (En.descData l h) bb).trans ((RF.piBCiso_mk (En.radData l h) rfl bb).symm.trans h2))
 
 end Transport
 

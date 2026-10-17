@@ -104,9 +104,9 @@ theorem continuous_proPCompletionMk_of_finitePQuotientsAreOpen
   let N : FiniteIndexNormalSubgroup A := FiniteIndexNormalSubgroup.ofSubgroup φ.ker
   have hNp : IsPGroup p (A ⧸ N.toSubgroup) := by
     change IsPGroup p (A ⧸ φ.ker)
-    exact ((isProP_maxProPQuotient
-      (p := p) (G := ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A)) V).to_subgroup
-        φ.range).of_equiv (QuotientGroup.quotientKerEquivRange φ).symm
+    have hP : IsProP p (proPCompletion p A) := isProP_maxProPQuotient
+      (p := p) (G := ProfiniteGrp.ProfiniteCompletion.completion (GrpCat.of A))
+    exact ((hP V).to_subgroup φ.range).of_equiv (QuotientGroup.quotientKerEquivRange φ).symm
   have hNopen : IsOpen (N.toSubgroup : Set A) := hopen N hNp
   have hker : (N.toSubgroup : Set A) = f ⁻¹' (V.toSubgroup : Set (proPCompletion p A)) := by
     ext a
@@ -141,13 +141,14 @@ theorem isMulTorsionFree_proPCompletion_of_finitePQuotientsAreOpen
   have hcont := continuous_proPCompletionMk_of_finitePQuotientsAreOpen hopen
   have hsurj := proPCompletionMk_surjective_of_continuous hcont
   constructor
-  intro n hn x y hxy
+  intro n hn x y hxy hpow
   obtain ⟨a, rfl⟩ := hsurj x
   obtain ⟨b, rfl⟩ := hsurj y
   congr 1
-  apply IsMulTorsionFree.pow_left_injective hn
+  have hab : Commute a b := hinj (by simpa only [map_mul] using hxy.eq)
+  apply eq_of_pow_eq_pow_of_commute hn hab
   apply hinj
-  simpa only [map_pow] using hxy
+  simpa only [map_pow] using hpow
 
 namespace Dyadic
 

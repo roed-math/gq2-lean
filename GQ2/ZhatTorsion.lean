@@ -61,7 +61,7 @@ theorem Zhat.eq_one_of_pow_eq_one (x : Zhat) {n : ℕ} (hn : n ≠ 0)
   have hcompat := x.property (show M ⟶ H from hMH.hom)
   change QuotientGroup.map M.toSubgroup H.toSubgroup (MonoidHom.id _) hMH
     (x.val M) = x.val H at hcompat
-  rw [← hcompat, ← ha, QuotientGroup.map_mk, MonoidHom.id_apply]
+  rw [← hcompat, ← ha]
   exact (QuotientGroup.eq_one_iff a).mpr haH
 
 /-- The integer generator acts as the identity on the full profinite exponents. -/
