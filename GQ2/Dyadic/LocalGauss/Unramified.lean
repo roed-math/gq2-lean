@@ -1098,7 +1098,9 @@ theorem prop_6_18_unramified_K_q2 (D : TateDuality 2) (B : BoundaryMaps)
 (`GQ2.Dyadic.Q0loc` at `Γ = G_ℚ₂` is `GQ2.SectionSix.Q0loc` on the nose — LG2's
 `Q0loc_absGalQ2`).  If the general route ever drifted from the model statement, this line would
 stop typechecking. -/
-example : @prop_6_18_unramified_K_q2 = @GQ2.UnramifiedModel.prop_6_18_unramified := rfl
+example [LiteratureInputs] :
+    @prop_6_18_unramified_K_q2 C _ _ _ _ V _ _ _ _ _ _ _ =
+      @GQ2.UnramifiedModel.prop_6_18_unramified C _ _ _ _ V _ _ _ _ _ _ _ _ := rfl
 
 end Q2Regression
 

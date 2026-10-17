@@ -577,12 +577,20 @@ theorem local_gauss_q2 {V : Type} [AddCommGroup V] [TopologicalSpace V] [Discret
 
 /-- **Branch pin, `n = 1` ramified**: the term discharging `local_gauss_q2`'s `if_pos` branch has
 *definitionally* the type of `GQ2.DetRamified.prop_6_18_ramified` (`GQ2/DetRamified.lean` :53). -/
-example : @prop_6_18_ramified_K_q2 = @GQ2.DetRamified.prop_6_18_ramified := rfl
+example {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+    [LiteratureInputs] :
+    @prop_6_18_ramified_K_q2 C _ _ _ _ V _ _ _ _ _ _ _ =
+      @GQ2.DetRamified.prop_6_18_ramified C _ _ _ _ V _ _ _ _ _ _ _ _ := rfl
 
 /-- **Branch pin, `n = 1` unramified**: the term discharging `local_gauss_q2`'s `if_neg` branch has
 *definitionally* the type of `GQ2.UnramifiedModel.prop_6_18_unramified`
 (`GQ2/UnramifiedModel.lean` :585). -/
-example : @prop_6_18_unramified_K_q2 = @GQ2.UnramifiedModel.prop_6_18_unramified := rfl
+example {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+    [LiteratureInputs] :
+    @prop_6_18_unramified_K_q2 C _ _ _ _ V _ _ _ _ _ _ _ =
+      @GQ2.UnramifiedModel.prop_6_18_unramified C _ _ _ _ V _ _ _ _ _ _ _ _ := rfl
 
 /-- **The `n = 2` unramified regression**: at a quadratic extension the Gauss sign is
 `(−1)² = +1`, i.e. `#(Q⁰)⁻¹(0) = 2^{4m−1} + 2^{2m−1}` — the *opposite* sign to `n = 1`, which is

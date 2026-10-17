@@ -1684,7 +1684,9 @@ theorem prop_6_18_ramified_K_q2 (D : TateDuality 2) (R : LocalReciprocity) (B : 
 /-- **Statement pin**: the regression theorem's type is *definitionally* the `ℚ₂` model's
 (`GQ2.Dyadic.Q0loc` at `Γ = G_ℚ₂` is `GQ2.SectionSix.Q0loc` on the nose — LG2's
 `Q0loc_absGalQ2`). -/
-example : @prop_6_18_ramified_K_q2 = @GQ2.DetRamified.prop_6_18_ramified := rfl
+example [LiteratureInputs] :
+    @prop_6_18_ramified_K_q2 C _ _ _ _ V _ _ _ _ _ _ _ =
+      @GQ2.DetRamified.prop_6_18_ramified C _ _ _ _ V _ _ _ _ _ _ _ _ := rfl
 
 end Q2Regression
 

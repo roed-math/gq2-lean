@@ -86,7 +86,7 @@ private noncomputable def mkQK : ContinuousMonoidHom Γ (Γ ⧸ N) :=
   ⟨QuotientGroup.mk' N, continuous_quotient_mk'⟩
 
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
-  [Finite (Γ ⧸ N)] [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+  [Finite (Γ ⧸ N)] [ContinuousSMul Γ (RegRep N)] in
 include hmk in
 /-- The block coordinate of a `Z¹`-representative is an `mk'`-cocycle (raw form). -/
 theorem block_cocycleK {K : ℕ} (b : ↥(Z1 Γ (Fin K → RegRep N))) (j : Fin K) :
@@ -97,7 +97,7 @@ theorem block_cocycleK {K : ℕ} (b : ↥(Z1 Γ (Fin K → RegRep N))) (j : Fin 
   rw [Pi.smul_apply, hmk]
 
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
-  [Finite (Γ ⧸ N)] [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+  [Finite (Γ ⧸ N)] [ContinuousSMul Γ (RegRep N)] in
 /-- The base-coset evaluation of a block coordinate is continuous (`RegRep N` is discrete). -/
 theorem block_continuousK {K : ℕ} (b : ↥(Z1 Γ (Fin K → RegRep N))) (j : Fin K) :
     Continuous fun g => b.1 g j (1 : Γ ⧸ N) :=
@@ -105,7 +105,7 @@ theorem block_continuousK {K : ℕ} (b : ↥(Z1 Γ (Fin K → RegRep N))) (j : F
     (f := fun F : Fin K → RegRep N => F j (1 : Γ ⧸ N))).comp (mem_Z1_iff.mp b.2).1
 
 include hmk in
-omit [Finite (Γ ⧸ N)] [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+omit [Finite (Γ ⧸ N)] [ContinuousSMul Γ (RegRep N)] in
 /-- The shared `B²`-shift engine: replacing the `Z¹`-representative by its `δ⁰W₀`-shift does not
 change the `H²ofFun` class of any equivariant graph pullback (LG2's
 `GQ2.Dyadic.graphPullback_sub_mem_B2`). -/
@@ -123,7 +123,7 @@ private theorem H2ofFun_graphPullback_shiftK {K : ℕ} {qW : (Fin K → RegRep N
     (graphPullback_sub_mem_B2 dat hdat (mkQK N) hρW b W₀)
 
 include hmk in
-omit [Finite (Γ ⧸ N)] [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+omit [Finite (Γ ⧸ N)] [ContinuousSMul Γ (RegRep N)] in
 /-- **The shared `hcoh` spine**: the `δ⁰W₀`-shift is invisible in `H²`, the block datum is the
 definitional `comap` of the orbit datum along the equivariant projection `i`
 (`ShapiroRead.graphPullback_comap`, ambient-free), and the projected shift is the Shapiro
@@ -151,7 +151,7 @@ private theorem H2ofFun_graphPullback_comap_shiftK {K : ℕ} {W : Type*} [AddCom
 /-! ## §2 The three per-orbit `hcoh` cohomologies -/
 
 include hmk in
-omit [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+omit [ContinuousSMul Γ (RegRep N)] in
 /-- **Square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate) at a general local
 source: the graph pullback of the square block datum at any `Z¹`-representative is, in `H²`, the
 corestriction of the cup square of the block's scalar Shapiro coordinate. -/
@@ -179,7 +179,7 @@ theorem hcoh_square_K {K : ℕ} (j : Fin K) (hNo : IsOpen (N : Set Γ))
       shapiroCoord_mem_Z1 hβ (block_continuousK N b j) htriv⟩
 
 include hmk in
-omit [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+omit [ContinuousSMul Γ (RegRep N)] in
 /-- **Free-orbit `hcoh`** (Lemma 6.15 eq. (104) at a block pair) at a general local source: the
 graph pullback of the free block datum with shift `mk' ĝ` at any `Z¹`-representative is, in `H²`,
 the corestriction of `α_j ⌣ ĝα_k` (conjugated second coordinate). -/
@@ -229,7 +229,7 @@ theorem hcoh_free_K {K : ℕ} (j k : Fin K) (ghat : Γ) (hNo : IsOpen (N : Set �
       shapiroCoord_mem_Z1 hβk (block_continuousK N b k) htriv⟩ ghat
 
 include hmk in
-omit [Finite (RegRep N)] [ContinuousSMul Γ (RegRep N)] in
+omit [ContinuousSMul Γ (RegRep N)] in
 /-- **Involution-orbit `hcoh`** (Lemma 6.15 eq. (105) at a block coordinate) at a general local
 source: the graph pullback of the involution block datum at any `Z¹`-representative is, in `H²`,
 the `U₀`-corestriction of the Evens norm of the block's scalar Shapiro coordinate. -/
@@ -301,7 +301,6 @@ variable {K : ℕ}
   [DistribMulAction C (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))]
 
 omit [DiscreteTopology C] [Finite C]
-  [Finite (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))]
   [ContinuousSMul Γ (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))]
   [DistribMulAction C (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))] in
 /-- **The deep-coordinate identification** at a general local source: LG4a's scalar restriction
@@ -314,7 +313,6 @@ theorem phiResK_evalWK (j : Fin K)
           (shapiroCoord _ (fun g => (Quotient.out x).1 g j)) := rfl
 
 omit [DiscreteTopology C] [Finite C]
-  [Finite (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))]
   [ContinuousSMul Γ (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))]
   [DistribMulAction C (RegRep (ρ.toMonoidHom.ker : Subgroup Γ))] in
 /-- **The block coordinates of a deep class are deep** (the `hvanish` feed) at a general local
