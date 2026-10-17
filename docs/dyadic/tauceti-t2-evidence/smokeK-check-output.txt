@@ -1,0 +1,404 @@
+TauCeti.finiteIntermediateFieldValuativeRel : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [IsNonarchimedeanLocalField K] →
+          (Ω : Type u_2) →
+            [inst_4 : Field Ω] →
+              [inst_5 : Algebra K Ω] → (M : IntermediateField K Ω) → [Module.Finite K ↥M] → ValuativeRel ↥M
+TauCeti.finiteIntermediateFieldTopology : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [IsNonarchimedeanLocalField K] →
+          (Ω : Type u_2) →
+            [inst_4 : Field Ω] →
+              [inst_5 : Algebra K Ω] → (M : IntermediateField K Ω) → [Module.Finite K ↥M] → TopologicalSpace ↥M
+TauCeti.finiteIntermediateField_valuativeExtension : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (Ω : Type u_2) [inst_4 : Field Ω]
+  [inst_5 : Algebra K Ω] (M : IntermediateField K Ω) [inst_6 : Module.Finite K ↥M], ValuativeExtension K ↥M
+TauCeti.finiteIntermediateField_isValuativeTopology : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (Ω : Type u_2) [inst_4 : Field Ω]
+  [inst_5 : Algebra K Ω] (M : IntermediateField K Ω) [inst_6 : Module.Finite K ↥M], IsValuativeTopology ↥M
+TauCeti.finiteIntermediateField_isNonarchimedeanLocalField : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (Ω : Type u_2) [inst_4 : Field Ω]
+  [inst_5 : Algebra K Ω] (M : IntermediateField K Ω) [inst_6 : Module.Finite K ↥M], IsNonarchimedeanLocalField ↥M
+TauCeti.vle_iff_algebraicExtensionNormedField_norm_le : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {M : Type u_2} [inst_4 : Field M]
+  [inst_5 : Algebra K M] [inst_6 : Algebra.IsAlgebraic K M] [inst_7 : ValuativeRel M] [ValuativeExtension K M]
+  (x y : M), x ≤ᵥ y ↔ ‖x‖ ≤ ‖y‖
+@TauCeti.algebraicExtensionNormedField_norm_le_norm_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {M : Type u_2} [inst_4 : Field M]
+  [inst_5 : Algebra K M] [inst_6 : Algebra.IsAlgebraic K M] {Γ : Type u_3} [inst_7 : LinearOrderedCommGroupWithZero Γ]
+  {w : Valuation M Γ}, (Valuation.comap (algebraMap K M) w).IsEquiv (valuation K) → ∀ (x y : M), ‖x‖ ≤ ‖y‖ ↔ w x ≤ w y
+@TauCeti.algebraicExtensionValuativeRel_vle_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {M : Type u_2} [inst_4 : Field M]
+  [inst_5 : Algebra K M] [inst_6 : Algebra.IsAlgebraic K M] (x y : M), x ≤ᵥ y ↔ ‖x‖ ≤ ‖y‖
+Padic.normalizedAbsoluteValue_eq_nnnorm : ∀ (p : ℕ) [inst : Fact (Nat.Prime p)] (x : ℚ_[p]),
+  ↑((TauCeti.normalizedAbsoluteValue ℚ_[p]) x) = ‖x‖₊
+@TauCeti.normalizedAbsoluteValue_le_normalizedAbsoluteValue_iff : ∀ {K : Type u_1} [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (x y : K),
+  (TauCeti.normalizedAbsoluteValue K) x ≤ (TauCeti.normalizedAbsoluteValue K) y ↔ (valuation K) x ≤ (valuation K) y
+TauCeti.normalizedValuation : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] → [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Kˣ →* Multiplicative ℤ
+@TauCeti.normalizedValuation_eq_one_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (x : Kˣ),
+  (TauCeti.normalizedValuation K) x = 1 ↔ (valuation K) ↑x = 1
+@TauCeti.toAdd_normalizedValuation_le_iff_valuation_le : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (x y : Kˣ),
+  Multiplicative.toAdd ((TauCeti.normalizedValuation K) x) ≤ Multiplicative.toAdd ((TauCeti.normalizedValuation K) y) ↔
+    (valuation K) ↑y ≤ (valuation K) ↑x
+@TauCeti.normalizedValuation_surjective : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  Function.Surjective ⇑(TauCeti.normalizedValuation K)
+@TauCeti.normalizedValuation_irreducible : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {π : ↥𝒪[K]} (hπ : Irreducible π),
+  (TauCeti.normalizedValuation K) (Units.mk0 ↑π ⋯) = Multiplicative.ofAdd 1
+@IsValuativeTopology.of_mem_nhds_zero_iff_vle : ∀ {R : Type u_1} [inst : Ring R] [inst_1 : ValuativeRel R]
+  {Γ₀ : Type u_2} [inst_2 : LinearOrderedCommGroupWithZero Γ₀] [inst_3 : TopologicalSpace R] (v : Valuation R Γ₀)
+  [v.Compatible] [IsTopologicalAddGroup R],
+  (∀ {s : Set R}, s ∈ nhds 0 ↔ ∃ γ, {z | v.restrict z < ↑γ} ⊆ s) → IsValuativeTopology R
+@IsValuativeTopology.mem_nhds_iff : ∀ {R : Type u_1} {inst : Ring R} {inst_1 : ValuativeRel R}
+  {inst_2 : TopologicalSpace R} [self : IsValuativeTopology R] {s : Set R} {x : R},
+  s ∈ nhds x ↔ ∃ γ, (fun x_1 ↦ x + x_1) '' {z | (valuation R) z < ↑γ} ⊆ s
+@ContinuousMulEquiv.topologicalAbelianizationCongr : {G : Type u_1} →
+  {H : Type u_2} →
+    [inst : Group G] →
+      [inst_1 : TopologicalSpace G] →
+        [inst_2 : IsTopologicalGroup G] →
+          [inst_3 : Group H] →
+            [inst_4 : TopologicalSpace H] →
+              [inst_5 : IsTopologicalGroup H] → G ≃ₜ* H → TopologicalAbelianization G ≃ₜ* TopologicalAbelianization H
+@ContinuousMulEquiv.topologicalAbelianizationCongr_mk : ∀ {G : Type u_1} {H : Type u_2} [inst : Group G]
+  [inst_1 : TopologicalSpace G] [inst_2 : IsTopologicalGroup G] [inst_3 : Group H] [inst_4 : TopologicalSpace H]
+  [inst_5 : IsTopologicalGroup H] (e : G ≃ₜ* H) (x : G), e.topologicalAbelianizationCongr ↑x = ↑(e x)
+@Valuation.Integer.not_isUnit_iff_valuation_lt_one : ∀ {F : Type u_1} {Γ₀ : Type u_2} [inst : Field F]
+  [inst_1 : LinearOrderedCommGroupWithZero Γ₀] {v : Valuation F Γ₀} {x : ↥v.integer}, ¬IsUnit x ↔ v ↑x < 1
+UnitFiltrationCounts.residueField_card_eq_pow_f : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) (FF : DyadicUnitFiltration k),
+  Nat.card (UnitFiltrationCounts.ResidueField k) = 2 ^ FF.f
+UnitFiltrationCounts.card_gradeZero : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) {π : ↥k},
+  ‖π‖ < 1 →
+    (∀ (y : ↥k), ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) →
+      Nat.card (↥(normUnits k) ⧸ (depthUnits k (↑π) 1).subgroupOf (normUnits k)) =
+        Nat.card (UnitFiltrationCounts.ResidueField k)ˣ
+absGalEquivFixing : (k : IntermediateField ℚ_[2] ℚ̄₂) →
+  [FiniteDimensional ℚ_[2] ↥k] → Field.absoluteGaloisGroup ↥k ≃ₜ* ↥k.fixingSubgroup
+coe_absGalEquivFixing_apply : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) [inst : FiniteDimensional ℚ_[2] ↥k]
+  (g : Field.absoluteGaloisGroup ↥k),
+  ↑((absGalEquivFixing k) g) = (TauCeti.absoluteGaloisGroupExtend ℚ_[2] (↥k) (sepEmb k)) g
+fixingEquivAbsGal_apply : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) [inst : FiniteDimensional ℚ_[2] ↥k]
+  (g : ↥k.fixingSubgroup),
+  (fixingEquivAbsGal k) g = (TauCeti.absoluteGaloisGroupRestrictEquiv ↥k) ((absGalEquivFixing k).symm g)
+fixingEquivAbsGal_mem_galoisSubgroup_quadExt_iff : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) (δ : ℚ̄₂)
+  [inst : FiniteDimensional ℚ_[2] ↥k] [inst_1 : FiniteDimensional ↥k ↥(quadExt k δ)] (g : ↥k.fixingSubgroup),
+  (fixingEquivAbsGal k) g ∈ TauCeti.galoisSubgroup (↥k) (↥(quadExt k δ)) (layerEmb k (quadExt k δ)) ↔ ↑g • δ = δ
+sepClosureEquiv_algebraMap : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) (x : ↥k),
+  (sepClosureEquiv k) ((algebraMap (↥k) (SeparableClosure ↥k)) x) = ↑x
+sepClosureEquiv_layerEmb : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂) (L : IntermediateField ↥k ℚ̄₂) (x : ↥L),
+  (sepClosureEquiv k) ((layerEmb k L) x) = ↑x
+compactSpace_fixingSubgroup : ∀ (k : IntermediateField ℚ_[2] ℚ̄₂), CompactSpace ↥k.fixingSubgroup
+TauCeti.ClassFieldTheory.artinMap : (K : Type) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Kˣ →* Field.absoluteGaloisGroupAbelianization K
+TauCeti.ClassFieldTheory.continuous_artinMap : ∀ (K : Type) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  Continuous ⇑(TauCeti.ClassFieldTheory.artinMap K)
+TauCeti.ClassFieldTheory.denseRange_artinMap : ∀ (K : Type) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  DenseRange ⇑(TauCeti.ClassFieldTheory.artinMap K)
+@TauCeti.ClassFieldTheory.artinMap_norm : ∀ {K : Type} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (L : Type) [inst_4 : Field L]
+  [inst_5 : Algebra K L] [inst_6 : FiniteDimensional K L] (iota : L →ₐ[K] SeparableClosure K) [inst_7 : ValuativeRel L]
+  [inst_8 : TopologicalSpace L] [inst_9 : IsNonarchimedeanLocalField L] [ValuativeExtension K L] (x : Lˣ)
+  (τ : Field.absoluteGaloisGroup L),
+  ↑τ = (TauCeti.ClassFieldTheory.artinMap L) x →
+    ↑((TauCeti.absoluteGaloisGroupExtend K L iota) τ) =
+      (TauCeti.ClassFieldTheory.artinMap K) ((TauCeti.Algebra.normUnits K) x)
+TauCeti.Algebra.normUnits : (R : Type u_1) →
+  [inst : CommRing R] → {S : Type u_2} → [inst_1 : Ring S] → [Algebra R S] → Sˣ →* Rˣ
+TauCeti.Algebra.coe_normUnits : ∀ (R : Type u_1) [inst : CommRing R] {S : Type u_2} [inst_1 : Ring S]
+  [inst_2 : Algebra R S] (x : Sˣ), ↑((TauCeti.Algebra.normUnits R) x) = (Algebra.norm R) ↑x
+TauCeti.unramifiedCoordinate : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [IsNonarchimedeanLocalField K] → Field.absoluteGaloisGroupAbelianization K →ₜ* ↑TauCeti.zHat.toProfinite.toTop
+@TauCeti.unramifiedCoordinate_mk : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (σ : Field.absoluteGaloisGroup K),
+  (TauCeti.unramifiedCoordinate K) ↑σ =
+    (TauCeti.maximalUnramifiedGaloisGroupEquivZHat K (AlgebraicClosure K)) ((TauCeti.restrictMaximalUnramifiedHom K) σ)
+@TauCeti.unramifiedCoordinate_mk_eq_one_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (σ : Field.absoluteGaloisGroup K),
+  (TauCeti.unramifiedCoordinate K) ↑σ = 1 ↔ σ ∈ TauCeti.inertiaSubgroup K
+TauCeti.ker_unramifiedCoordinate : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  (TauCeti.unramifiedCoordinate K).ker =
+    Subgroup.map (QuotientGroup.mk' (commutator (Field.absoluteGaloisGroup K)).topologicalClosure)
+      (TauCeti.inertiaSubgroup K)
+TauCeti.unramifiedCoordinate_surjective : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  Function.Surjective ⇑(TauCeti.unramifiedCoordinate K)
+TauCeti.ClassFieldTheory.unramifiedCoordinate_artinMap : ∀ (K : Type) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (x : Kˣ),
+  (TauCeti.unramifiedCoordinate K) ((TauCeti.ClassFieldTheory.artinMap K) x) =
+    TauCeti.zHat.ofInt ((TauCeti.normalizedValuation K) x)
+@TauCeti.zHat.lift : {P : Type u_2} →
+  [inst : Group P] →
+    [inst_1 : TopologicalSpace P] →
+      [IsTopologicalGroup P] →
+        [CompactSpace P] → [TotallyDisconnectedSpace P] → P → ↑TauCeti.zHat.toProfinite.toTop →ₜ* P
+@TauCeti.zHat.lift_ofInt : ∀ {P : Type u_2} [inst : Group P] [inst_1 : TopologicalSpace P]
+  [inst_2 : IsTopologicalGroup P] [inst_3 : CompactSpace P] [inst_4 : TotallyDisconnectedSpace P] (a : P)
+  (z : Multiplicative ℤ), (TauCeti.zHat.lift a) (TauCeti.zHat.ofInt z) = a ^ Multiplicative.toAdd z
+@TauCeti.zHat.lift_gen : ∀ {P : Type u_2} [inst : Group P] [inst_1 : TopologicalSpace P] [inst_2 : IsTopologicalGroup P]
+  [inst_3 : CompactSpace P] [inst_4 : TotallyDisconnectedSpace P] (a : P), (TauCeti.zHat.lift a) TauCeti.zHat.gen = a
+localReciprocity_tauceti_recip : localReciprocity_tauceti.recip = TauCeti.ClassFieldTheory.artinMap ℚ_[2]
+chiCycAb_artinMap_uniformizer : chiCycAb ((TauCeti.ClassFieldTheory.artinMap ℚ_[2]) uniformizer) = 1
+@PadicInt.ideal_eq_span_pow_p : ∀ {p : ℕ} [hp : Fact (Nat.Prime p)] {s : Ideal ℤ_[p]},
+  s ≠ ⊥ → ∃ n, s = Ideal.span {↑p ^ n}
+@PadicInt.denseRange_intCast : ∀ {p : ℕ} [hp_prime : Fact (Nat.Prime p)], DenseRange Int.cast
+TauCeti.abelianizedLocalCyclotomicCharacter : (p : ℕ) →
+  [inst : Fact (Nat.Prime p)] →
+    (K : Type u_1) → [inst_1 : Field K] → Field.absoluteGaloisGroupAbelianization K →ₜ* ℤ_[p]ˣ
+TauCeti.abelianizedLocalCyclotomicCharacter_mk : ∀ (p : ℕ) [inst : Fact (Nat.Prime p)] (K : Type u_1) [inst_1 : Field K]
+  (σ : Field.absoluteGaloisGroup K),
+  (TauCeti.abelianizedLocalCyclotomicCharacter p K) ↑σ = (TauCeti.localCyclotomicCharacter p K) σ
+TauCeti.localCyclotomicCharacter_absoluteGaloisGroupExtend : ∀ (p : ℕ) [inst : Fact (Nat.Prime p)] (K : Type u_1)
+  [inst_1 : Field K] (L : Type u_2) [inst_2 : Field L] [inst_3 : Algebra K L] (σ : L →ₐ[K] SeparableClosure K)
+  [inst_4 : FiniteDimensional K L] (τ : Field.absoluteGaloisGroup L),
+  (TauCeti.localCyclotomicCharacter p K) ((TauCeti.absoluteGaloisGroupExtend K L σ) τ) =
+    (TauCeti.localCyclotomicCharacter p L) τ
+TauCeti.ClassFieldTheory.abelianizedLocalCyclotomicCharacter_artinMap : ∀ (K : Type) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {p : ℕ}
+  [inst_4 : Fact (Nat.Prime p)] {u : ℤ_[p]ˣ},
+  ↑u = ↑(Nat.card 𝓀[K]) →
+    ∀ (x : Kˣ),
+      (TauCeti.abelianizedLocalCyclotomicCharacter p K) ((TauCeti.ClassFieldTheory.artinMap K) x) =
+        u ^ Multiplicative.toAdd ((TauCeti.normalizedValuation K) x)
+TauCeti.ClassFieldTheory.abelianizedLocalCyclotomicCharacter_artinMap_norm : ∀ (K : Type) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (p : ℕ)
+  [inst_4 : Fact (Nat.Prime p)] {L : Type} [inst_5 : Field L] [inst_6 : Algebra K L] [FiniteDimensional K L]
+  [Algebra.IsSeparable K L] [inst_9 : ValuativeRel L] [inst_10 : TopologicalSpace L]
+  [inst_11 : IsNonarchimedeanLocalField L] [ValuativeExtension K L] (x : Lˣ),
+  (TauCeti.abelianizedLocalCyclotomicCharacter p L) ((TauCeti.ClassFieldTheory.artinMap L) x) =
+    (TauCeti.abelianizedLocalCyclotomicCharacter p K)
+      ((TauCeti.ClassFieldTheory.artinMap K) ((TauCeti.Algebra.normUnits K) x))
+@TauCeti.localCyclotomicCharacter_eq_one_of_mem_inertiaSubgroup : ∀ {K : Type u_1} [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (p : ℕ)
+  [inst_4 : Fact (Nat.Prime p)],
+  p.Coprime (ringChar 𝓀[K]) →
+    ∀ {σ : Field.absoluteGaloisGroup K}, σ ∈ TauCeti.inertiaSubgroup K → (TauCeti.localCyclotomicCharacter p K) σ = 1
+TauCeti.DyadicCyclotomicEight.isTotallyRamified : TauCeti.IsTotallyRamified ℚ_[2] TauCeti.DyadicCyclotomicEight
+TauCeti.DyadicCyclotomicEight.ramificationIndex_eq_four : TauCeti.ramificationIndex ℚ_[2]
+    TauCeti.DyadicCyclotomicEight =
+  4
+TauCeti.DyadicSqrtNegOne.ramificationIndex_eq_two : TauCeti.ramificationIndex ℚ_[2] TauCeti.DyadicSqrtNegOne = 2
+TauCeti.localRootOfUnityOrder_two_of_isUnramified : ∀ (L : Type u_1) [inst : Field L] [inst_1 : ValuativeRel L]
+  [inst_2 : TopologicalSpace L] [inst_3 : IsNonarchimedeanLocalField L] [inst_4 : Algebra ℚ_[2] L]
+  [inst_5 : ValuativeExtension ℚ_[2] L] [TauCeti.IsUnramified ℚ_[2] L] (h2 : 2 ≠ 0),
+  TauCeti.localRootOfUnityOrder 2 L ⋯ = 2
+TauCeti.inertiaSubgroup : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Subgroup (Field.absoluteGaloisGroup K)
+@TauCeti.mem_inertiaSubgroup_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {σ : Field.absoluteGaloisGroup K},
+  σ ∈ TauCeti.inertiaSubgroup K ↔ ∀ x ∈ TauCeti.maximalUnramifiedExtension K (AlgebraicClosure K), σ x = x
+@TauCeti.inertiaSubgroup_le_fixingSubgroup_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (E : IntermediateField K (AlgebraicClosure K))
+  [inst_4 : ValuativeRel ↥E] [inst_5 : TopologicalSpace ↥E] [inst_6 : IsNonarchimedeanLocalField ↥E]
+  [inst_7 : ValuativeExtension K ↥E] [Algebra.IsSeparable K ↥E],
+  TauCeti.inertiaSubgroup K ≤ E.fixingSubgroup ↔ TauCeti.IsUnramified K ↥E
+TauCeti.map_inertiaSubgroup_absoluteGaloisGroupRestrictEquiv : ∀ (K : Type u_1) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  Subgroup.map (TauCeti.absoluteGaloisGroupRestrictEquiv K).toMonoidHom (TauCeti.inertiaSubgroup K) =
+    (TauCeti.maximalUnramifiedExtension K (SeparableClosure K)).fixingSubgroup
+@TauCeti.map_inertiaSubgroup_le_fixingSubgroup_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (E : IntermediateField K (SeparableClosure K))
+  [inst_4 : ValuativeRel ↥E] [inst_5 : TopologicalSpace ↥E] [inst_6 : IsNonarchimedeanLocalField ↥E]
+  [inst_7 : ValuativeExtension K ↥E],
+  Subgroup.map (TauCeti.absoluteGaloisGroupRestrictEquiv K).toMonoidHom (TauCeti.inertiaSubgroup K) ≤ E.fixingSubgroup ↔
+    TauCeti.IsUnramified K ↥E
+TauCeti.IsUnramified : (K : Type u_1) →
+  (L : Type u_2) →
+    [inst : Field K] →
+      [inst_1 : ValuativeRel K] →
+        [inst_2 : TopologicalSpace K] →
+          [IsNonarchimedeanLocalField K] →
+            [inst_4 : Field L] →
+              [inst_5 : ValuativeRel L] →
+                [inst_6 : TopologicalSpace L] →
+                  [IsNonarchimedeanLocalField L] → [inst_8 : Algebra K L] → [ValuativeExtension K L] → Prop
+TauCeti.isUnramified_iff_ramificationIndex_eq_one : ∀ (K : Type u_1) (L : Type u_2) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] [inst_4 : Field L]
+  [inst_5 : ValuativeRel L] [inst_6 : TopologicalSpace L] [inst_7 : IsNonarchimedeanLocalField L] [inst_8 : Algebra K L]
+  [inst_9 : ValuativeExtension K L], TauCeti.IsUnramified K L ↔ TauCeti.ramificationIndex K L = 1
+TauCeti.isUnramified_iff_normalizedValuation_comp_unitsMap_surjective : ∀ (K : Type u_1) (L : Type u_2) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] [inst_4 : Field L]
+  [inst_5 : ValuativeRel L] [inst_6 : TopologicalSpace L] [inst_7 : IsNonarchimedeanLocalField L] [inst_8 : Algebra K L]
+  [inst_9 : ValuativeExtension K L],
+  TauCeti.IsUnramified K L ↔ Function.Surjective ⇑((TauCeti.normalizedValuation L).comp (Units.map ↑(algebraMap K L)))
+TauCeti.isUnramified_iff_normalizedValuation_algebraMap : ∀ (K : Type u_1) (L : Type u_2) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] [inst_4 : Field L]
+  [inst_5 : ValuativeRel L] [inst_6 : TopologicalSpace L] [inst_7 : IsNonarchimedeanLocalField L] [inst_8 : Algebra K L]
+  [inst_9 : ValuativeExtension K L],
+  TauCeti.IsUnramified K L ↔
+    ∀ (x : Kˣ), (TauCeti.normalizedValuation L) ((Units.map ↑(algebraMap K L)) x) = (TauCeti.normalizedValuation K) x
+TauCeti.galoisSubgroup_toSubgroup : ∀ (K : Type u_1) [inst : Field K] (L : Type u_2) [inst_1 : Field L]
+  [inst_2 : Algebra K L] (σ : L →ₐ[K] SeparableClosure K) [inst_3 : FiniteDimensional K L],
+  ↑(TauCeti.galoisSubgroup K L σ) = σ.fieldRange.fixingSubgroup
+TauCeti.maximalUnramifiedExtension : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [IsNonarchimedeanLocalField K] →
+          (Ω : Type u_2) → [inst_4 : Field Ω] → [inst_5 : Algebra K Ω] → IntermediateField K Ω
+@IntermediateField.le_maximalUnramifiedExtension_iff : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] {Ω : Type u_2} [inst_4 : Field Ω]
+  [inst_5 : Algebra K Ω] [IsSepClosed Ω] (E : IntermediateField K Ω) [inst_7 : ValuativeRel ↥E]
+  [inst_8 : TopologicalSpace ↥E] [inst_9 : IsNonarchimedeanLocalField ↥E] [inst_10 : ValuativeExtension K ↥E],
+  E ≤ TauCeti.maximalUnramifiedExtension K Ω ↔ TauCeti.IsUnramified K ↥E
+@cyclotomicCharacter.spec : ∀ {L : Type u_1} [inst : CommRing L] [inst_1 : IsDomain L] (p : ℕ)
+  [inst_2 : Fact (Nat.Prime p)] {n : ℕ} [∀ (i : ℕ), HasEnoughRootsOfUnity L (p ^ i)] (g : L ≃+* L) (t : L),
+  t ^ p ^ n = 1 → g t = t ^ ((PadicInt.toZModPow n) ↑((cyclotomicCharacter L p) g)).val
+TauCeti.wildInertiaSubgroup : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Subgroup (Field.absoluteGaloisGroup K)
+TauCeti.isClosed_wildInertiaSubgroup : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K], IsClosed ↑(TauCeti.wildInertiaSubgroup K)
+TauCeti.wildInertiaSubgroup_normal : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K], (TauCeti.wildInertiaSubgroup K).Normal
+TauCeti.isProP_wildInertiaSubgroup : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (p : ℕ) [CharP 𝓀[K] p],
+  TauCeti.IsProP p ↥(TauCeti.wildInertiaSubgroup K)
+TauCeti.FinitePadicExtension : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → (p : ℕ) → [Fact (Nat.Prime p)] → Type u_1
+TauCeti.FinitePadicExtension.ofInstances : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [inst_3 : IsNonarchimedeanLocalField K] →
+          (p : ℕ) →
+            [inst_4 : Fact (Nat.Prime p)] →
+              [inst_5 : Algebra ℚ_[p] K] →
+                [Module.Finite ℚ_[p] K] → [ValuativeExtension ℚ_[p] K] → TauCeti.FinitePadicExtension K p
+TauCeti.charP_residueField : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K]
+  [inst_3 : IsNonarchimedeanLocalField K] (p : ℕ) [inst_4 : Fact (Nat.Prime p)] [TauCeti.FinitePadicExtension K p],
+  CharP 𝓀[K] p
+@TauCeti.isProP_iff : ∀ {p : ℕ} {G : Type u_1} [inst : Group G] [inst_1 : TopologicalSpace G],
+  TauCeti.IsProP p G ↔ ∀ (U : OpenNormalSubgroup G), IsPGroup p (G ⧸ ↑U.toOpenSubgroup)
+@TauCeti.IsProP.of_surjective : ∀ {p : ℕ} {G : Type u_1} [inst : Group G] [inst_1 : TopologicalSpace G] {H : Type u_2}
+  [inst_2 : Group H] [inst_3 : TopologicalSpace H],
+  TauCeti.IsProP p G → ∀ (f : G →* H), Continuous ⇑f → Function.Surjective ⇑f → TauCeti.IsProP p H
+isProP_iff_tauCeti : ∀ (p : ℕ) (G : Type u_1) [inst : Group G] [inst_1 : TopologicalSpace G],
+  IsProP p G ↔ TauCeti.IsProP p G
+@ContinuousMulEquiv.quotientCongr : {G : Type u_1} →
+  {H : Type u_2} →
+    [inst : Group G] →
+      [inst_1 : Group H] →
+        [inst_2 : TopologicalSpace G] →
+          [inst_3 : TopologicalSpace H] →
+            (e : G ≃ₜ* H) →
+              (N : Subgroup G) →
+                (M : Subgroup H) →
+                  [inst_4 : N.Normal] → [inst_5 : M.Normal] → Subgroup.map e.toMonoidHom N = M → G ⧸ N ≃ₜ* H ⧸ M
+@ContinuousMulEquiv.quotientCongr_symm_mk : ∀ {G : Type u_1} {H : Type u_2} [inst : Group G] [inst_1 : Group H]
+  [inst_2 : TopologicalSpace G] [inst_3 : TopologicalSpace H] (e : G ≃ₜ* H) (N : Subgroup G) (M : Subgroup H)
+  [inst_4 : N.Normal] [inst_5 : M.Normal] (he : Subgroup.map e.toMonoidHom N = M) (h : H),
+  (e.quotientCongr N M he).symm ↑h = ↑(e.symm h)
+TauCeti.tameQuotient : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] → [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Type u_1
+@TauCeti.toTameQuotient_apply : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (σ : Field.absoluteGaloisGroup K),
+  (TauCeti.toTameQuotient K) σ = ↑σ
+@TauCeti.tameQuotientToZHat_toTameQuotient : ∀ {K : Type u_1} [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K] (σ : Field.absoluteGaloisGroup K),
+  (TauCeti.tameQuotientToZHat K) ((TauCeti.toTameQuotient K) σ) =
+    (TauCeti.maximalUnramifiedGaloisGroupEquivZHat K (AlgebraicClosure K)) ((TauCeti.restrictMaximalUnramifiedHom K) σ)
+TauCeti.exists_isArithFrobeniusLift : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K], ∃ σ, TauCeti.IsArithFrobeniusLift K σ
+TauCeti.exists_topologicalClosure_zpowers_inertiaTameCharacter_eq_top : ∀ (K : Type u_1) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  ∃ τ, (Subgroup.zpowers ((TauCeti.inertiaTameCharacter K) τ)).topologicalClosure = ⊤
+TauCeti.IwasawaGroupGeometric : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] → [inst_2 : TopologicalSpace K] → [IsNonarchimedeanLocalField K] → Type u_1
+TauCeti.iwasawaRelatorGeometric_def : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  TauCeti.iwasawaRelatorGeometric K =
+    (TauCeti.freeProfiniteGroup.of { down := 0 })⁻¹ * TauCeti.freeProfiniteGroup.of { down := 1 } *
+        TauCeti.freeProfiniteGroup.of { down := 0 } *
+      (TauCeti.freeProfiniteGroup.of { down := 1 } ^ Nat.card 𝓀[K])⁻¹
+TauCeti.inv_iwasawaSigmaGeometric_mul_iwasawaTauGeometric_mul : ∀ (K : Type u_1) [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  (TauCeti.iwasawaSigmaGeometric K)⁻¹ * TauCeti.iwasawaTauGeometric K * TauCeti.iwasawaSigmaGeometric K =
+    TauCeti.iwasawaTauGeometric K ^ Nat.card 𝓀[K]
+TauCeti.iwasawaCoordinateGeometric : (K : Type u_1) →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [inst_3 : IsNonarchimedeanLocalField K] → TauCeti.IwasawaGroupGeometric K →ₜ* ↑TauCeti.zHat.toProfinite.toTop
+TauCeti.iwasawaCoordinateGeometric_iwasawaSigmaGeometric : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  (TauCeti.iwasawaCoordinateGeometric K) (TauCeti.iwasawaSigmaGeometric K) = TauCeti.zHat.gen⁻¹
+TauCeti.iwasawaCoordinateGeometric_iwasawaTauGeometric : ∀ (K : Type u_1) [inst : Field K] [inst_1 : ValuativeRel K]
+  [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K],
+  (TauCeti.iwasawaCoordinateGeometric K) (TauCeti.iwasawaTauGeometric K) = 1
+@TauCeti.tameQuotientGeometricEquiv : {K : Type u_1} →
+  [inst : Field K] →
+    [inst_1 : ValuativeRel K] →
+      [inst_2 : TopologicalSpace K] →
+        [inst_3 : IsNonarchimedeanLocalField K] →
+          {σ : Field.absoluteGaloisGroup K} →
+            TauCeti.IsArithFrobeniusLift K σ →
+              (τ : ↥(TauCeti.inertiaSubgroup K)) →
+                (Subgroup.zpowers ((TauCeti.inertiaTameCharacter K) τ)).topologicalClosure = ⊤ →
+                  TauCeti.tameQuotient K ≃ₜ* TauCeti.IwasawaGroupGeometric K
+@TauCeti.iwasawaCoordinateGeometric_tameQuotientGeometricEquiv : ∀ {K : Type u_1} [inst : Field K]
+  [inst_1 : ValuativeRel K] [inst_2 : TopologicalSpace K] [inst_3 : IsNonarchimedeanLocalField K]
+  {σ : Field.absoluteGaloisGroup K} (hσ : TauCeti.IsArithFrobeniusLift K σ) (τ : ↥(TauCeti.inertiaSubgroup K))
+  (hτ : (Subgroup.zpowers ((TauCeti.inertiaTameCharacter K) τ)).topologicalClosure = ⊤) (x : TauCeti.tameQuotient K),
+  (TauCeti.iwasawaCoordinateGeometric K) ((TauCeti.tameQuotientGeometricEquiv hσ τ hτ) x) =
+    (TauCeti.tameQuotientToZHat K) x
+@TauCeti.presentedProfiniteGroup.lift : {X : Type u_1} →
+  {rels : Set ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop} →
+    {G : Type u_2} →
+      [inst : Monoid G] →
+        [inst_1 : TopologicalSpace G] →
+          [T1Space G] →
+            (ψ : ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop →ₜ* G) →
+              (∀ r ∈ rels, ψ r = 1) → TauCeti.presentedProfiniteGroup X rels →ₜ* G
+@TauCeti.presentedProfiniteGroup.lift_of : ∀ {X : Type u_1}
+  {rels : Set ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop} {G : Type u_2} [inst : Monoid G]
+  [inst_1 : TopologicalSpace G] [inst_2 : T1Space G] (ψ : ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop →ₜ* G)
+  (hψ : ∀ r ∈ rels, ψ r = 1) (x : X),
+  (TauCeti.presentedProfiniteGroup.lift ψ hψ) (TauCeti.presentedProfiniteGroup.of rels x) =
+    ψ (TauCeti.freeProfiniteGroup.of x)
+@TauCeti.presentedProfiniteGroup.hom_ext_of : ∀ {X : Type u_1}
+  {rels : Set ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop} {G : Type u_2} [inst : Group G]
+  [inst_1 : TopologicalSpace G] [T2Space G] {φ ψ : TauCeti.presentedProfiniteGroup X rels →ₜ* G},
+  (∀ (x : X), φ (TauCeti.presentedProfiniteGroup.of rels x) = ψ (TauCeti.presentedProfiniteGroup.of rels x)) → φ = ψ
+@TauCeti.freeProfiniteGroup.lift : {X P : Type u_1} →
+  [inst : Group P] →
+    [inst_1 : TopologicalSpace P] →
+      [IsTopologicalGroup P] →
+        [CompactSpace P] →
+          [TotallyDisconnectedSpace P] → (X → P) → ↑(TauCeti.freeProfiniteGroup X).toProfinite.toTop →ₜ* P
+@TauCeti.freeProfiniteGroup.lift_of : ∀ {X P : Type u_1} [inst : Group P] [inst_1 : TopologicalSpace P]
+  [inst_2 : IsTopologicalGroup P] [inst_3 : CompactSpace P] [inst_4 : TotallyDisconnectedSpace P] (f : X → P) (x : X),
+  (TauCeti.freeProfiniteGroup.lift f) (TauCeti.freeProfiniteGroup.of x) = f x
+iwasawaGeometricEquivTtame : TauCeti.IwasawaGroupGeometric ℚ_[2] ≃ₜ* ↑Ttame.toProfinite.toTop
+nuT_iwasawaGeometricToTtame : ∀ (x : TauCeti.IwasawaGroupGeometric ℚ_[2]),
+  nuT (iwasawaGeometricToTtame x) = (TauCeti.zHat.lift ztwoOne⁻¹) ((TauCeti.iwasawaCoordinateGeometric ℚ_[2]) x)
+Dyadic.Tq : ℕ → ProfiniteGrp.{0}
+Dyadic.nuTq : (q : ℕ) → ↑(Dyadic.Tq q).toProfinite.toTop →ₜ* ↑Ztwo.toProfinite.toTop
+Dyadic.tame_relation_q : ∀ (q : ℕ), ((Dyadic.tqTau q) ^c Dyadic.tqSigma q) = Dyadic.tqTau q ^ q
+Dyadic.qOf : (K : IntermediateField ℚ_[2] ℚ̄₂) → DyadicUnitFiltration K → ℕ
+Dyadic.uniformizerK_max : ∀ (K : IntermediateField ℚ_[2] ℚ̄₂) (FF : DyadicUnitFiltration K) (z : ↥K),
+  z ≠ 0 → ‖↑z‖ < 1 → ‖↑z‖ ≤ ‖↑↑(Dyadic.uniformizerK K FF)‖

@@ -20,20 +20,20 @@ Acceptance for every adapter: builds with zero sorries, imports nothing reaching
 | D0 | worktree `/scratch/claudeM/gq2-dyadic`, branch `dyadic-tauceti` off `origin/dyadic` | orchestrator | — | — | done 2026-10-17 |
 | T0 | merge `tauceti` into `dyadic-tauceti`; census 11 → 2 (TauCetiInstance for the nine, `Axioms.lean` reduced to B5-K/B10-K); cache toml; pins | orchestrator | the 11 conflicted files (plan §1) | G0' | done ffb225d8 (tag `dyadic-tauceti-T0`); D2 a90262d2 |
 | T1 | Mathlib bump `ec410d23d` → `cfc55fc58` of the dyadic tree, statements byte-identical | fable workers | `GQ2/Dyadic/**`, every dyadic-only file; ℚ₂ files already bumped on `tauceti` | T0 | done 2026-10-17: full build green (7627 jobs), `check_axioms.sh` (census 2, 17 `AUDIT_DYADIC` rows at std-3, Tau Ceti audit), `check_dyadic.sh` D-checks, `AxiomLedger`, `PalomarAxiomAudit`, `TauCetiAxiomAudit` all pass; 53 commits dyadic-tauceti-T0..98057ce0, 186 files, +783/−474 |
-| T2 | recon memo for B5-K and B10-K: `docs/dyadic/tauceti-discharge-recon.md`, smoke additions | opus | the memo, `GQ2/TauCeti/SmokeK.lean` | T1 | open |
+| T2 | recon memo for B5-K and B10-K: `docs/dyadic/tauceti-discharge-recon.md`, smoke additions | opus | the memo, `GQ2/TauCeti/SmokeK.lean` | T1 | done 2026-10-17: memo, `SmokeK.lean` (108 `#check`s, 32 `example`s, chk OK), and complete sorry-free prototypes of both inputs at the standard three (`docs/dyadic/tauceti-t2-evidence/full/b5k_b10k.lean`, re-elaborated by the orchestrator) |
 
 ## Wave 1: dictionary
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| A1-K | `abEquivK`, the norm ↔ valuation bridge on `↥K`, the residue-degree bridge `Nat.card 𝓀[↥K] = 2 ^ FF.f`, `chiCycKAb` vs `abelianizedLocalCyclotomicCharacter` | fable | `GQ2/TauCeti/GaloisDictK.lean` | T2, D2 | open |
+| A1-K | `abEquivK`, the norm ↔ valuation bridge on `↥K`, `localTopology_eq`, the residue-degree bridge `Nat.card 𝓀[↥K] = 2 ^ FF.f` (the `chiCycKAb` item is not needed by any clause; D2 is moot — `residueField_card_eq_pow_f` was public) | opus | `GQ2/TauCeti/GaloisDictK.lean` | T2 | landing from the T2 prototype `tauceti-t2-evidence/bridge/` |
 
 ## Wave 2: the two inputs
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| B5-K | `markedRecipAt_tauceti K : Dyadic.MarkedRecip localReciprocity_tauceti K` | fable | `GQ2/TauCeti/B5K.lean` | A1-K | open |
-| B10-K | `orientedTameQuotientAt_tauceti K FF : Dyadic.OrientedTameQuotientK (markedRecipAt_tauceti K) FF` | fable | `GQ2/TauCeti/B10K.lean` | B5-K, A1-K | open |
+| B5-K | `markedRecipAt_tauceti K : Dyadic.MarkedRecip localReciprocity_tauceti K` | opus | `GQ2/TauCeti/B5K.lean` | A1-K | landing from `tauceti-t2-evidence/{recipK,kiunram}/` |
+| B10-K | `orientedTameQuotientAt_tauceti K FF : Dyadic.OrientedTameQuotientK (markedRecipAt_tauceti K) FF` | opus | `GQ2/TauCeti/B10K.lean` | B5-K, A1-K (not P1) | landing from `tauceti-t2-evidence/tameK/` |
 
 ## Wave 3: flip and docs
 
@@ -94,6 +94,18 @@ else in T1 is proof/import-only; the dyadic files that call ℚ₂ declarations 
 subagent per failing file with the pattern brief, the statement checker on every changed file
 (dyadic files against `origin/dyadic`, ℚ₂ files against `master`), commit per green batch,
 path-limited, `dyadic-tauceti T1: <files>`. Report the renames met beyond T1's list.
+
+**T2 findings that change the plan (memo §"Corrections", 2026-10-17).** No Tau Ceti lemma is
+missing; the gaps are six gq2-side lemma groups, all proved in the prototypes. Q1 is easy:
+`rec_K(2) ∈ ker χ_K` with unramified coordinate `−v_K(2) ≠ 0` (no ramification of `ℚ₂(μ_{2^∞})`
+needed). Q2: "`ker ν_ur` = image of inertia" is false (the odd part of `ℤ̂` is also in the kernel);
+only inertia ⊆ `ker ν_ur` is needed, via `map_inertiaSubgroup_le_fixingSubgroup_iff` and A1's
+`layerEmb`. A1's three-`letI` package must be extended with `haveI := valuativeExtension K` before
+`FinitePadicExtension ↥K 2`, `artinMap_norm`, `charP_residueField` work; `CharP 𝓀[↥K] 2`,
+`CompactSpace (GalKab K)`, `FiniteDimensional ↥K (quadExt K δi)` are supplied by hand. The C1'
+same-name defs must live inside `GQ2/Foundations/TauCetiInstance.lean` (`localReciprocity` is
+opaque elsewhere since the environment containment), and `B5K` must export
+`(markedRecipAt_tauceti K).recip = recipK K` for B10-K.
 
 **T2 (opus, read-only except the two owned files).** For B5-K and B10-K: the exact Tau Ceti
 signatures at `↥K` (after A1's `letI` package), which instances synthesize and which must be
