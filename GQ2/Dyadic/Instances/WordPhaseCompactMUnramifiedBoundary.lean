@@ -285,7 +285,9 @@ theorem wPcMComparison_boundary_unramifiedP1
         SectionNine.blockProjF T Blk (powOmega2 (rho0 DD rhoM
           (gammaGen 2 q (MCompact.mCompactW alpha 0) .sigma))) • v :=
       SectionNine.blockProjF_compat T Blk _ v
-    rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), hsigmaHead]
+    refine hstep.trans ?_
+    refine (congrArg (· • v) ((powOmega2_map (SectionNine.blockProjF T Blk) _).trans
+      (congrArg powOmega2 hsigmaHead))).trans ?_
     exact hsigma2HV v
   have hsigma2Head : ∀ v : DD.Vmod,
       (SectionNine.blockProjF T Blk (rho0 DD rhoM

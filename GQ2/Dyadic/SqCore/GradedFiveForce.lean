@@ -497,7 +497,8 @@ private theorem six_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHand
 @[simp] theorem fiveLift_handleU {j' : Fin h} :
     fiveLift j m z₀ w₁ w₂ z₃ z₄ (sqHandleIdxU j')
       = if j' = j then m (sqHandleIdxU j') * z₃ else m (sqHandleIdxU j') := by
-  simp only [fiveLift, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [fiveLift]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (six_handleU_ne_handleV j')]
   by_cases hj : j' = j
@@ -511,7 +512,8 @@ private theorem six_handleV_ne_handleU (j' : Fin h) : sqHandleIdxV j' ≠ sqHand
 @[simp] theorem fiveLift_handleV {j' : Fin h} :
     fiveLift j m z₀ w₁ w₂ z₃ z₄ (sqHandleIdxV j')
       = if j' = j then m (sqHandleIdxV j') * z₄ else m (sqHandleIdxV j') := by
-  simp only [fiveLift, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [fiveLift]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (six_handleV_ne_handleU j')]
   by_cases hj : j' = j

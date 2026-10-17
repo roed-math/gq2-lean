@@ -151,8 +151,9 @@ theorem compactNBoundaryHessian
           SectionNine.blockProjF T Blk (powOmega2 (rho0 DD rhoM
             (gammaGen (2+2*h) q (nCompactW alpha h) .tau)))•v :=
         SectionNine.blockProjF_compat T Blk _ v
-      rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), htauHead,
-        hprof.2.1, one_smul]
+      rw [hstep]
+      refine (congrArg (· • v) (powOmega2_map (SectionNine.blockProjF T Blk) _)).trans ?_
+      rw [htauHead, hprof.2.1, one_smul]
     exact ⟨compactNRamifiedHessian rhoM
       (blockDatHVK T Blk hq0 hqe F l hl') (blockDatHV_specK T Blk hq0 hqe F l hl')
       (SectionNine.blockProjF T Blk) hpi (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)

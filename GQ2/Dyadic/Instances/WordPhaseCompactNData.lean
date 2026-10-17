@@ -446,7 +446,8 @@ theorem wPcNComparison_boundary
           SectionNine.blockProjF T Blk (powOmega2 (rho0 DD rhoM
             (gammaGen (2 + 2 * h) q (nCompactW alpha h) .tau))) • v :=
         SectionNine.blockProjF_compat T Blk _ v
-      rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), htauHead,
+      rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk) (rho0 DD rhoM
+          (gammaGen (2 + 2 * h) q (nCompactW alpha h) .tau)), htauHead,
         powOmega2_eq_one_of_odd hoddHV, one_smul]
     refine ⟨?_⟩
     simpa only [rhoM, b, En] using

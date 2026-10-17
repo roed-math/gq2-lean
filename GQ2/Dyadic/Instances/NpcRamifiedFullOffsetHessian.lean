@@ -83,8 +83,9 @@ theorem evalZ_omega2Block_fib_eq_charge (h : ℕ) (s u : C)
         (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau]))).fib
       = npcRamifiedOmegaCharge dat hdat u (vv (xIdx h i)) e := by
   rw [PWord.omega2Pow, PWord.evalZ_profPow,
-    evalZ_deltaInner_eq_zeroFib dat hdat h s u vv E E₂ i, hE, zpow_natCast]
-  exact centExt_pow_fib_of_fib_zero _ _ rfl e
+    evalZ_deltaInner_eq_zeroFib dat hdat h s u vv E E₂ i, hE]
+  exact (congrArg WordCoh.CentExt.fib (zpow_natCast _ e)).trans
+    (centExt_pow_fib_of_fib_zero _ _ rfl e)
 
 theorem evalZ_omega2Block_eq_powData (h : ℕ) (s u : C)
     (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
@@ -95,8 +96,8 @@ theorem evalZ_omega2Block_eq_powData (h : ℕ) (s u : C)
           (NpcJet.normSum u e (vv (xIdx h i))) (u ^ e)
           (NpcJet.powCharge dat u (vv (xIdx h i)) e) := by
   rw [PWord.omega2Pow, PWord.evalZ_profPow,
-    evalZ_deltaInner_eq_zeroFib dat hdat h s u vv E E₂ i, hE, zpow_natCast]
-  exact NpcBridge.hessElt_pow dat hdat _ _ _
+    evalZ_deltaInner_eq_zeroFib dat hdat h s u vv E E₂ i, hE]
+  exact (zpow_natCast _ e).trans (NpcBridge.hessElt_pow dat hdat _ _ _)
 
 theorem evalFin_omega2Block_eq_charge [Finite C] [Finite V]
     (h : ℕ) (s u : C) (hu : Odd (orderOf u))

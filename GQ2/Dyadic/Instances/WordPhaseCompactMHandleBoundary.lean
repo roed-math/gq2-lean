@@ -245,7 +245,9 @@ theorem wPcMComparison_boundary_unramified_handles
         SectionNine.blockProjF T Blk (powOmega2 (rho0 DD rhoM
           (gammaGen (2 + 2 * h) q (MCompact.mCompactW alpha h) .sigma))) • v :=
       SectionNine.blockProjF_compat T Blk _ v
-    rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), hsigmaHead]
+    rw [hstep]
+    refine (congrArg (· • v) (powOmega2_map (SectionNine.blockProjF T Blk) _)).trans ?_
+    rw [hsigmaHead]
     exact hsigma2HV v
   letI : Fintype DD.Vmod := Fintype.ofFinite _
   letI : Fintype ((DD.Vmod × DD.Vmod) × (Fin h → DD.Vmod × DD.Vmod)) :=
@@ -401,8 +403,9 @@ theorem wPcMComparison_boundary_handles
           SectionNine.blockProjF T Blk (powOmega2 (rho0 DD rhoM
             (gammaGen (2 + 2 * h) q (MCompact.mCompactW alpha h) .tau))) • v :=
         SectionNine.blockProjF_compat T Blk _ v
-      rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), htauHead,
-        powOmega2_eq_one_of_odd hoddHV, one_smul]
+      rw [hstep]
+      refine (congrArg (· • v) (powOmega2_map (SectionNine.blockProjF T Blk) _)).trans ?_
+      rw [htauHead, powOmega2_eq_one_of_odd hoddHV, one_smul]
     have hblockPiCH : Function.Surjective (SectionNine.blockPiCH T Blk) := by
       intro c
       obtain ⟨y, hy⟩ := T.piY_surjective c
