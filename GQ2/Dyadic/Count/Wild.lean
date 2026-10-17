@@ -503,7 +503,7 @@ section GenericCore
 variable {n q : ℕ} {R : PWord (Generator n)}
 
 /-- The wild letters of `Γ_R`, as a set. -/
-def wildLetters (n q : ℕ) (R : PWord (Generator n)) : Set ((GammaR n q R) : Type) :=
+noncomputable def wildLetters (n q : ℕ) (R : PWord (Generator n)) : Set ((GammaR n q R) : Type) :=
   Set.range fun i : Fin (n + 1) => gammaGen n q R (.wild i)
 
 /-- **Steps C and D of `isProP_wildCore`, in the presented setting.**  In a finite *discrete*
