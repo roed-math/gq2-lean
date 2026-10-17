@@ -46,8 +46,9 @@ variable {Q I : Type} [Group Q]
 On a basis element `[q]` it has value `chi(q)`. -/
 def modTwoGroupAlgebraLinearMoment (chi : Q →* Multiplicative (ZMod 2)) :
     MonoidAlgebra (ZMod 2) Q →ₗ[ZMod 2] ZMod 2 :=
-  Finsupp.lsum (ZMod 2) fun q =>
-    LinearMap.toSpanSingleton (ZMod 2) (ZMod 2) (toAdd (chi q))
+  (Finsupp.lsum (ZMod 2) fun q =>
+    LinearMap.toSpanSingleton (ZMod 2) (ZMod 2) (toAdd (chi q))) ∘ₗ
+      (MonoidAlgebra.coeffLinearEquiv (ZMod 2)).toLinearMap
 
 @[simp] theorem modTwoGroupAlgebraLinearMoment_single
     (chi : Q →* Multiplicative (ZMod 2)) (q : Q) (a : ZMod 2) :
@@ -74,23 +75,23 @@ theorem modTwoGroupAlgebraLinearMoment_mul
       modTwoGroupAlgebraLinearMoment chi x * modTwoFiniteAugmentation Q y +
         modTwoFiniteAugmentation Q x * modTwoGroupAlgebraLinearMoment chi y := by
   induction x using MonoidAlgebra.induction_on with
-  | hM q =>
+  | of q =>
       induction y using MonoidAlgebra.induction_on with
-      | hM r =>
+      | of r =>
           simp only [modTwoGroupAlgebraLinearMoment_of,
             modTwoFiniteAugmentation]
           simp [MonoidAlgebra.lift_single, toAdd_mul]
-      | hadd y z hy hz =>
+      | add y z hy hz =>
           simp only [mul_add, map_add, hy, hz]
           ring
-      | hsmul a y hy =>
+      | smul a y hy =>
           rw [mul_smul_comm, map_smul, map_smul, map_smul, hy]
           simp only [smul_eq_mul]
           ring
-  | hadd x z hx hz =>
+  | add x z hx hz =>
       simp only [add_mul, map_add, hx, hz]
       ring
-  | hsmul a x hx =>
+  | smul a x hx =>
       rw [smul_mul_assoc, map_smul, map_smul, map_smul, hx]
       simp only [smul_eq_mul]
       ring
@@ -264,9 +265,9 @@ theorem modTwoGroupAlgebraLinearMoment_mapDomain
         (MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2) phi x) =
       modTwoGroupAlgebraLinearMoment (chi.comp phi) x := by
   induction x using MonoidAlgebra.induction_on with
-  | hM q => simp
-  | hadd x y hx hy => simp only [map_add, hx, hy]
-  | hsmul a x hx => simp only [map_smul, hx]
+  | of q => simp
+  | add x y hx hy => simp only [map_add, hx, hy]
+  | smul a x hx => simp only [map_smul, hx]
 
 /-- **Actual completed first jet.**  Evaluate the completed Fox row at the canonical open
 elementary-abelian quotient, then apply any coordinate character.  The result is exactly the
@@ -354,15 +355,15 @@ theorem modTwoGroupAlgebraToCompleted_coordinate
       MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2)
         (QuotientGroup.mk' U.toSubgroup) x := by
   induction x using MonoidAlgebra.induction_on with
-  | hM g =>
+  | of g =>
       rw [modTwoGroupAlgebraToCompleted_of,
         ModTwoCompletedGroupAlgebra.coordinate_of]
       change MonoidAlgebra.single (QuotientGroup.mk' U.toSubgroup g) 1 =
         MonoidAlgebra.mapDomainAlgHom (ZMod 2) (ZMod 2)
           (QuotientGroup.mk' U.toSubgroup) (MonoidAlgebra.single g 1)
       rw [MonoidAlgebra.mapDomainAlgHom_apply, MonoidAlgebra.mapDomain_single]
-  | hadd x y hx hy => simp only [map_add, hx, hy]
-  | hsmul a x hx => simp only [map_smul, hx]
+  | add x y hx hy => simp only [map_add, hx, hy]
+  | smul a x hx => simp only [map_smul, hx]
 
 /-- A literal completed Fox derivative is the image of the same finite-support Fox derivative
 computed directly in `F₂[G]`. -/
@@ -389,7 +390,7 @@ theorem modTwoGroupAlgebraToCompleted_sub_augmentation_mem
           (modTwoFiniteAugmentation G x) ∈
       modTwoCompletedAugmentationIdeal G := by
   induction x using MonoidAlgebra.induction_on with
-  | hM g =>
+  | of g =>
       have haug : modTwoFiniteAugmentation G
           (MonoidAlgebra.of (ZMod 2) G g) = 1 := by
         simp [modTwoFiniteAugmentation]
@@ -397,11 +398,11 @@ theorem modTwoGroupAlgebraToCompleted_sub_augmentation_mem
       rw [modTwoCompletedAugmentationIdeal]
       apply Submodule.subset_span
       exact ⟨g, rfl⟩
-  | hadd x y hx hy =>
+  | add x y hx hy =>
       simp only [map_add]
       convert (modTwoCompletedAugmentationIdeal G).add_mem hx hy using 1
       abel
-  | hsmul a x hx =>
+  | smul a x hx =>
       simp only [map_smul]
       have hm := (modTwoCompletedAugmentationIdeal G).mul_mem_left
         (algebraMap (ZMod 2) (ModTwoCompletedGroupAlgebra G) a) hx
@@ -524,7 +525,7 @@ def sqCompletedFirstMomentOnAugmentationIdeal (h : ℕ) :
       (Fin (sqRank h) → ZMod 2) where
   toFun x := sqCompletedFirstMomentMap h x.1
   map_add' x y := by simp
-  map_smul' r x := by simp
+  map_smul' r x := by exact map_smul (sqCompletedFirstMomentMap h) r x.1
 
 /-- Because every literal completed Fox row lies in `J`, their permuted-basis calculation makes
 the degree-one map onto even after restricting its domain to the augmentation ideal. -/
@@ -753,9 +754,11 @@ def sqQuadraticHomogeneousEmpty (h : ℕ) :
 @[simp] theorem sqQuadraticHomogeneousEval_empty (h : ℕ) :
     sqQuadraticHomogeneousEval h 0
         (Finsupp.single (sqQuadraticHomogeneousEmpty h) 1) = 1 := by
-  simp [sqQuadraticHomogeneousEval, sqQuadraticHomogeneousInclude,
-    sqQuadraticHomogeneousEmpty, sqQuadraticNormalEmpty,
-    sqQuadraticNormalEval, quadraticWordEval]
+  change sqQuadraticNormalEval h
+      (Finsupp.mapDomain (fun w : SqQuadraticHomogeneousNormalWord h 0 => w.1)
+        (Finsupp.single (sqQuadraticHomogeneousEmpty h) 1)) = 1
+  rw [Finsupp.mapDomain_single]
+  exact (sqQuadraticNormalEval_single h _ 1).trans (one_smul _ _)
 
 /-- The exact tensor/normal-word coefficient theorem whose construction supplies the missing
 completed associated graded.
