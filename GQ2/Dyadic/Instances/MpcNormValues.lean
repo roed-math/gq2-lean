@@ -433,11 +433,10 @@ theorem mpcNorm_recip_approx (B : MarkedRecip Rec K) (g : GalKab K) :
           = PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))
         ∧ PadicInt.toZModPow 1 (toAdd (B.nu_ur h))
             = PadicInt.toZModPow 1 (toAdd (B.nu_ur g))} := by
-    refine IsOpen.inter ?_ ?_
-    · exact (GQ2.isOpen_preimage_toZModPow 3
-        {PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))}).preimage hchi
-    · exact (GQ2.isOpen_preimage_toZModPow 1
-        {PadicInt.toZModPow 1 (toAdd (B.nu_ur g))}).preimage hnu
+    exact ((GQ2.isOpen_preimage_toZModPow 3
+        {PadicInt.toZModPow 3 ((chiCycKAb K g : ℤ_[2]))}).preimage hchi).inter
+      ((GQ2.isOpen_preimage_toZModPow 1
+        {PadicInt.toZModPow 1 (toAdd (B.nu_ur g))}).preimage hnu)
   exact B.denseRange_recip.exists_mem_open hopen ⟨g, rfl, rfl⟩
 
 /-- `MpcLambdaOne` from the residue form: `ν ≡ c (mod 2)` in `ℤ/2` is the same congruence. -/

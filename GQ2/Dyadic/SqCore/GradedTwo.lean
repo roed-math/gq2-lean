@@ -528,13 +528,19 @@ variable {t : ℤ_[2]}
 private theorem gr2Mark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     gr2Mark h j t (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [gr2Mark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 private theorem gr2Mark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     gr2Mark h j t (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [gr2Mark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [gr2Mark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- The gate marking kills the relator: the handle pairing `2` is balanced by the `x₁`-slot's
@@ -698,13 +704,19 @@ variable {A B : gr2R}
 private theorem fMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     fMark h nu' j A B (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [fMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 private theorem fMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     fMark h nu' j A B (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [fMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [fMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- ⭐ **The forcing marking kills the relator** — and the `x₁`-slot's central coordinate is

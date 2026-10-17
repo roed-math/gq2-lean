@@ -837,7 +837,8 @@ theorem evenStratumRow_not_dbarShiftSupply_m_one :
     (fun i ↦ if i = 2 then evenStratumShiftWitnessP else 1) hdepth
     (hall (fun _ ↦ 1) (fun i ↦ if i = 2 then evenStratumShiftWitnessP else 1) hdepth)
   refine evenStratumShiftWitnessP_sq_ne_one ?_
-  simpa [commP] using hatom
+  have h2 : evenStratumShiftWitnessP ^ 2 * commP evenStratumShiftWitnessP 1 = 1 := hatom
+  simpa [commP] using h2
 
 /-- **`evenRawStageShift_m`'s conclusion is false at `α = 1`**, in its own shape.  The `M` twin
 of `evenStratum_no_rawStageShift_one`.
