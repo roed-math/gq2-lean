@@ -6,7 +6,6 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Foundations.LiteratureInputs
-public import GQ2.Foundations.Axioms
 public import GQ2.HilbertSymbol
 public import GQ2.HilbertSymbolDyadicClose
 public import GQ2.KummerSurjectivity

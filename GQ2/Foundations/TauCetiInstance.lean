@@ -16,9 +16,9 @@ public import GQ2.TameQuotient
 public import GQ2.TraceForm
 public import GQ2.CupSymmetry
 public import GQ2.Foundations.LiteratureInputs
-public import GQ2.TauCeti.Instance
+import GQ2.TauCeti.Instance
 
-@[expose] public section
+public section
 
 /-!
 # The nine literature inputs, proved from Tau Ceti
@@ -455,8 +455,23 @@ theorem hilbertSymbol_normCriterion_finiteDyadic
 
 /-- Importing this module selects the literature inputs proved from Tau Ceti
 (`GQ2/TauCeti/Instance.lean`).  It replaces the axiom-backed `axiomaticLiteratureInputs` of the
-deleted `GQ2/Foundations/AxiomInstance.lean`. -/
-noncomputable instance tauCetiLiteratureInputs : LiteratureInputs := TauCetiBridge.tauCetiInputs
+deleted `GQ2/Foundations/AxiomInstance.lean`.
+
+The fields are the nine legacy names above (each definitionally `TauCetiBridge.*_tauceti`), not
+`TauCetiBridge.tauCetiInputs` itself: this module imports the adapters **privately** (`import
+GQ2.TauCeti.Instance`, not `public import`), so that importing it does not put the Tau Ceti
+library and its Mathlib closure (instances, `simp` lemmas) into the environment of every GQ2 file
+that reaches it through `GQ2.Foundations`; an exposed instance body may only mention public names. -/
+noncomputable instance tauCetiLiteratureInputs : LiteratureInputs where
+  absGalQ2_isTopologicallyFinitelyGenerated := Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+  absGalQ2_localEulerCharacteristic := @Foundations.absGalQ2_localEulerCharacteristic
+  dyadicOrientation := @dyadicOrientation
+  localReciprocity := localReciprocity
+  tateDualityAt := @tateDualityAt
+  peripheralCyclotomicAction := peripheralCyclotomicAction
+  relativeStiefelWhitney_dyadic := @relativeStiefelWhitney_dyadic
+  tameQuotient := tameQuotient
+  hilbertSymbol_normCriterion_finiteDyadic := @hilbertSymbol_normCriterion_finiteDyadic
 
 end GQ2
 
