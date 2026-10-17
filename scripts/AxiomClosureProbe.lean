@@ -15,11 +15,12 @@ Output: one JSON document on stdout, rendered to `docs/axiom-closure.md` by
 `scripts/axiom_closure.py`.  Driver: `scripts/axiom_closure.sh` (run that; it needs a built
 `GQ2.Foundations.Axioms`).
 -/
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 open Lean
 
-/-- The eleven census axioms, in `GQ2/Foundations/Axioms.lean` order. -/
+/-- The eleven former census axioms (now theorems/definitions in `GQ2/Foundations/TauCetiInstance.lean`
+since the Tau Ceti discharge; this probe is kept for the historical closure report). -/
 def censusAxioms : List Name := [
   `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated,
   `GQ2.Foundations.absGalQ2_localEulerCharacteristic,

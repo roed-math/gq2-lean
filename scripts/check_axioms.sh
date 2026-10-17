@@ -3,16 +3,16 @@
 #
 # Checks 1-4 are textual and comment-aware; checks 5-6 walk elaborated environments
 # (run from anywhere):
-#   1. `axiom` declarations appear ONLY in GQ2/Foundations/Axioms.lean (census 2: the dyadic
-#      campaign's K-level inputs B5-K, B10-K; the nine Q2 inputs are proved from Tau Ceti since
-#      2026-10-17).
+#   1. No `axiom` declarations anywhere (census 0 since the Tau Ceti discharge, ticket C2,
+#      2026-10-17; until then they were confined to GQ2/Foundations/Axioms.lean; on the dyadic
+#      branch the K-level inputs B5-K/B10-K followed at ticket C1', census 11 → 2 → 0).
 #   2. `sorry` appears nowhere (the allowlist is empty — the library is fully proved;
 #      re-add a file to SORRY_ALLOWLIST only for a deliberate, ticketed gap).
-#   3. The axiom census in Axioms.lean matches EXPECTED_AXIOMS (now 2).
+#   3. The library-wide axiom census matches EXPECTED_AXIOMS (now 0).
 #   4. No `native_decide` anywhere (it would add `Lean.ofReduceBool` beyond the standard
 #      three axioms; the project convention is kernel-checked `decide` only).
 #   5. Terminal-theorem axiom audit: the legacy campaign capstones print EXACTLY the standard
-#      three (the Q2 literature census is empty; K-side axioms never appear), and each Γ_R capstone prints identically
+#      three (the literature census is now empty), and each Γ_R capstone prints identically
 #      to its Γ_A twin.  Needs a built library; skips with a notice otherwise.
 #   6. Explicit-hypothesis audit: the Palomar import closure contains none of the nine legacy
 #      axiom declarations, and both solutions use only the standard three axioms.
@@ -30,8 +30,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=2  # B5-K markedRecipAt, B10-K orientedTameQuotientAt (the dyadic campaign's K-level inputs, gate G-AX 2026-07-29). Census 11→2 on 2026-10-17: the nine Q2 inputs (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) are proved from Tau Ceti (GQ2/TauCeti/, legacy names kept as theorems/defs in GQ2/Foundations/TauCetiInstance.lean; tauceti campaign, docs/orchestration/tauceti-tickets.md); the remaining two are the subject of docs/dyadic/tauceti-discharge-plan.md.  Earlier history: B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24; B5-K markedRecipAt added — AX3 marked local reciprocity over finite K/Q2, census 9→10: gate G-AX, owner-approved 2026-07-29, docs/dyadic/ax3-proposal.md; B10-K orientedTameQuotientAt added — AX4 oriented tame quotient of G_K at q_K, census 10→11: gate G-AX, owner-approved 2026-07-29, docs/dyadic/ax4-proposal.md)
+EXPECTED_AXIOMS=0  # census 9→0: the nine literature inputs are proved from Tau Ceti (GQ2/TauCeti/, legacy names kept as theorems/defs in GQ2/Foundations/TauCetiInstance.lean) and GQ2/Foundations/Axioms.lean is deleted: Tau Ceti discharge campaign ticket C2, owner gate G1 approved 2026-10-17, docs/orchestration/tauceti-tickets.md.  Earlier history: B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24)
 # Emptied 2026-07-08 (library fully sorry-free; last leaves GammaA/FoxHeisenberg/SectionSeven
 # discharged); held the four GQ2/Roe/Labute/ skeletons while the L-campaign was in flight
 # (R40, 2026-07-25) and RE-EMPTIED at L6 (2026-07-26) when the Labute classification instance
@@ -40,11 +39,10 @@ EXPECTED_AXIOMS=2  # B5-K markedRecipAt, B10-K orientedTameQuotientAt (the dyadi
 SORRY_ALLOWLIST=''
 
 # -- check 5 configuration ---------------------------------------------------
-# The exact axiom set every audited capstone must print.  Until 2026-10-17 this was the standard
-# three plus the nine Q2 literature axioms; since the Tau Ceti discharge it is the standard three
-# alone.  The K-side axioms (B5-K, B10-K) must NEVER appear here: the audited Q2 capstones may not
-# cite them (AX3 checklist gate).  Order is irrelevant — both sides are sorted before comparison —
-# but membership is exact, so a `sorryAx` or a stray axiom shows up as a diff.
+# The exact axiom set every audited capstone must print.  Until ticket C2 this was the standard
+# three plus the nine literature axioms of GQ2/Foundations/Axioms.lean; since the census flip it is
+# the standard three alone.  Order is irrelevant — both sides are sorted before comparison — but
+# membership is exact, so a `sorryAx` or a stray axiom shows up as a diff.
 AUDIT_EXPECTED_AXIOMS='propext Classical.choice Quot.sound'
 
 # Declarations whose axiom set must equal AUDIT_EXPECTED_AXIOMS exactly, one per line.
@@ -69,8 +67,9 @@ GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 # -- check 5b configuration: the dyadic capstones (ticket AS5) ----------------
 # Unlike the frozen Q2 block above — which is UNTOUCHED and byte-identical — the dyadic
 # capstones print PER-DECLARATION sets, so each row carries its own frozen expected list
-# (since 2026-10-17, census 2, every row is the standard three: the nine Q2 inputs are proved
-# from Tau Ceti; the sets measured 2026-08-02 are in docs/dyadic/literature-axioms-dyadic.md §A)
+# (since 2026-10-17 every row is the standard three: the nine Q2 inputs are proved from Tau Ceti
+# at the merge, census 11 → 2, and the K-level inputs B5-K/B10-K at ticket C1', census 2 → 0; the
+# sets measured 2026-08-02 are in docs/dyadic/literature-axioms-dyadic.md §A)
 # ("name :: axioms", space-separated, order-irrelevant; comparison is exact set equality, so
 # both growth AND shrinkage fail — an intentional shrink must edit the row in the same
 # commit).  Sets measured 2026-08-02 (AS5) at the tree with all AS-wave landings; the
@@ -80,9 +79,11 @@ GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 # three n = 1 routes and the lRow re-export print the frozen Q2 capstone census (their
 # byte-identity to the Q2 capstone is additionally pinned in AUDIT_DYADIC_PAIRS); the two
 # WordCertificate stocks sit at std-3 (pilot) and std-3 + {B3c, B5, B8} (n = 1); and the
-# K-side census axioms B5-K (GQ2.markedRecipAt) / B10-K (GQ2.orientedTameQuotientAt) appear
-# in NO row — they enter only through bundle binders, so their names occurring in any actual
-# print is a growth failure by exactness.
+# former K-side census axioms B5-K (GQ2.markedRecipAt) / B10-K (GQ2.orientedTameQuotientAt)
+# appear in NO row's expected set — since ticket C1' they are definitions proved from Tau Ceti
+# (GQ2/TauCeti/B5K.lean, B10K.lean) and are themselves audited at the standard three by the
+# last three rows together with the W361 endpoint; any axiom name occurring in an actual print
+# is a growth failure by exactness.
 AUDIT_DYADIC='GQ2.Dyadic.ramifiedI_candidate_equiv_galK :: propext Classical.choice Quot.sound
 GQ2.Dyadic.SqrtNeg2.sqrtNegTwo_candidate_equiv_galK :: propext Classical.choice Quot.sound
 GQ2.Dyadic.Fields.sqrtNegTwo_candidate_equiv_galK_literal :: propext Classical.choice Quot.sound
@@ -99,7 +100,10 @@ GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN :: propext Classi
 GQ2.Dyadic.candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate :: propext Classical.choice Quot.sound
 GQ2.Dyadic.lRow_candidate_equiv_absGalQ2 :: propext Classical.choice Quot.sound
 GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate :: propext Classical.choice Quot.sound
-GQ2.Dyadic.wordCertificateLSq :: propext Classical.choice Quot.sound'
+GQ2.Dyadic.wordCertificateLSq :: propext Classical.choice Quot.sound
+GQ2.markedRecipAt :: propext Classical.choice Quot.sound
+GQ2.orientedTameQuotientAt :: propext Classical.choice Quot.sound
+GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI :: propext Classical.choice Quot.sound'
 
 # Dyadic twin pairs: the n = 1 routes (and the lRow re-export) must print byte-identically to
 # the frozen Q2 capstone — the "recovers the Q2 theorem at the same trust base" claim, pinned.
@@ -198,7 +202,6 @@ while IFS= read -r rec; do
   if is_tracked "$f"; then tracked=1; else tracked=0; fi
   case "$tag" in
     AX)
-      if [ "$f" = "$AXIOMS_FILE" ]; then continue; fi
       if [ "$tracked" -eq 1 ]; then stray_axioms+="$hit"$'\n'; else warn_axioms+="$hit"$'\n'; fi
       ;;
     SORRY)
@@ -217,11 +220,11 @@ EOF
 
 # -- 1. axiom placement ------------------------------------------------------
 if [ -n "${stray_axioms//$'\n'/}" ]; then
-  echo "FAIL: axiom declarations outside ${AXIOMS_FILE}:"
+  echo "FAIL: axiom declarations in the library (the census is ${EXPECTED_AXIOMS}; none is allowed):"
   printf '%s' "$stray_axioms"
   fail=1
 else
-  echo "OK:   all axiom declarations live in ${AXIOMS_FILE}"
+  echo "OK:   no axiom declarations in the library"
 fi
 
 # -- 2. sorry allowlist ------------------------------------------------------
@@ -235,11 +238,9 @@ else
 fi
 
 # -- 3. axiom census ---------------------------------------------------------
-count=$(strip_comments "$AXIOMS_FILE" | grep -cE '^[[:space:]]*axiom[[:space:]]' || true)
+count=$(printf '%s' "$stray_axioms" | sed '/^$/d' | wc -l | tr -d ' ')
 if [ "$count" -ne "$EXPECTED_AXIOMS" ]; then
-  echo "FAIL: ${AXIOMS_FILE} declares ${count} axioms, expected ${EXPECTED_AXIOMS}."
-  echo "      If a new B-leaf landed intentionally, bump EXPECTED_AXIOMS in this script"
-  echo "      (same commit) and record the leaf in docs/literature-axioms.md."
+  echo "FAIL: the library declares ${count} axioms, expected ${EXPECTED_AXIOMS}."
   fail=1
 else
   echo "OK:   axiom census: ${count} (= expected)"
@@ -369,8 +370,8 @@ EOF
   # until the orchestrator registers that module in GQ2.lean, a plain `lake build` does not
   # produce its olean, so this block self-skips with a notice rather than failing a cold or
   # pre-registration tree (mirroring check 5's own skip).
-  if [ ! -f .lake/build/lib/lean/GQ2.olean ]; then
-    echo "SKIP: dyadic-capstone axiom audit — GQ2 root not built (run 'lake build')"
+  if [ ! -f .lake/build/lib/lean/GQ2.olean ] || [ ! -f .lake/build/lib/lean/GQ2/Dyadic/GeneralMain.olean ]; then
+    echo "SKIP: dyadic-capstone axiom audit — GQ2 root or GQ2.Dyadic.GeneralMain not built (run 'lake build')"
   else
     dyadic_ok=1
     dyadic_names=$(
@@ -380,6 +381,7 @@ EOF
     )
     cat > "$probe_dir/AxiomProbeDyadic.lean" <<LEAN
 import GQ2
+import GQ2.Dyadic.GeneralMain
 
 open Lean in
 run_cmd do
@@ -440,7 +442,7 @@ EOF
 
     if [ "$dyadic_ok" -eq 1 ]; then
       echo "OK:   dyadic-capstone axiom audit: ${dyadic_n} capstone(s) at their frozen per-declaration"
-      echo "      sets (B5-K/B10-K in none), ${dyadic_paired} n=1 twin pair(s) identical to the Q2 capstone"
+      echo "      sets (all the standard three; B5-K/B10-K and the W361 endpoint included), ${dyadic_paired} n=1 twin pair(s) identical to the Q2 capstone"
     else
       fail=1
     fi
@@ -468,6 +470,20 @@ elif tauceti_out=$(lake env lean GQ2/TauCetiAxiomAudit.lean 2>&1); then
 else
   echo "FAIL: Tau Ceti audit failed:"
   printf '%s\n' "$tauceti_out" | sed 's/^/          /'
+  fail=1
+fi
+
+# -- 8. dyadic Tau Ceti audit (ticket C1') ------------------------------------
+# The two K-level inputs (defs in GQ2/Foundations/TauCetiInstance.lean since ticket C1') and the
+# W361 endpoint print exactly the standard three, and the whole-library environment contains no
+# axiom constant beyond Lean's own.
+if ! command -v lake >/dev/null 2>&1 || [ ! -f .lake/build/lib/lean/GQ2.olean ]; then
+  echo "SKIP: dyadic Tau Ceti audit — GQ2 not built"
+elif dyadic_tc_out=$(lake env lean GQ2/DyadicTauCetiAxiomAudit.lean 2>&1); then
+  echo "OK:   dyadic Tau Ceti audit: K-level inputs and the W361 endpoint at exactly std-3; no stray axiom constant"
+else
+  echo "FAIL: dyadic Tau Ceti audit failed:"
+  printf '%s\n' "$dyadic_tc_out" | sed 's/^/          /'
   fail=1
 fi
 

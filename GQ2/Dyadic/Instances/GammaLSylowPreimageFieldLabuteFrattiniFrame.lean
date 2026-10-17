@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeSeed
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The odd-degree cup-adapted Frattini-frame supply

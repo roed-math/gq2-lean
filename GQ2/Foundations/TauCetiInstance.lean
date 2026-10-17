@@ -16,12 +16,16 @@ public import GQ2.TameQuotient
 public import GQ2.TraceForm
 public import GQ2.CupSymmetry
 public import GQ2.Foundations.LiteratureInputs
+public import GQ2.Dyadic.MarkedRecipBundle
+public import GQ2.UnitFiltration
+public import GQ2.Dyadic.OrientedTameBundle
 import GQ2.TauCeti.Instance
+import GQ2.TauCeti.B10K
 
 public section
 
 /-!
-# The nine literature inputs, proved from Tau Ceti
+# The literature inputs, proved from Tau Ceti
 
 Until 2026-10-17 the nine cited classical inputs of Theorem 1.2 were `axiom` declarations in
 `GQ2/Foundations/Axioms.lean` (census 9).  Ticket C2 of the Tau Ceti discharge campaign
@@ -44,6 +48,15 @@ deleted axiom, now as a theorem or definition whose body is the adapter:
   `GQ2/TauCeti/StiefelWhitneyDict.lean`.
 * **B10** `tameQuotient` — `GQ2/TauCeti/B10.lean`.
 * **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — `GQ2/TauCeti/B11a.lean`.
+
+On this branch (`dyadic`) the two `K`-level inputs of the general-2-adic campaign were the last
+`axiom`s (census 2 after the merge of the ℚ₂ discharge); ticket C1' of
+`docs/dyadic/tauceti-discharge-plan.md` (owner gate G1', 2026-10-17) made them definitions here,
+likewise byte-identical to the deleted axioms:
+
+* **B5-K** `markedRecipAt` — `GQ2/TauCeti/B5K.lean`, on the `K`-level dictionary
+  `GQ2/TauCeti/GaloisDictK.lean`.
+* **B10-K** `orientedTameQuotientAt` — `GQ2/TauCeti/B10K.lean`.
 
 It also provides the `LiteratureInputs` instance `tauCetiLiteratureInputs :=
 TauCetiBridge.tauCetiInputs`, replacing the axiom-backed instance of the deleted
@@ -450,6 +463,73 @@ theorem hilbertSymbol_normCriterion_finiteDyadic
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
   TauCetiBridge.hilbertSymbol_normCriterion_finiteDyadic_tauceti k htriv
+
+/-! ## B5-K — marked local reciprocity over finite `K/ℚ₂` (AX3)
+
+The twelve-field bundle structure `Dyadic.MarkedRecip R K` (reciprocity map into `GalKab K`,
+the unramified quotient `ν_ur^K` with its normalization clauses, the level datum `r`, and the
+`K(i)`-unramifiedness clause) is defined in `GQ2/Dyadic/MarkedRecipBundle.lean`, together with
+its axiom-free derived layer (`χ_K`, `C`, `λ`/`I`/`γ`, the `(r, ε, η)` extraction API and the
+field-language bridge), the `K = ⊥` reduction regression `markedRecip_bot_reduces`
+(merge-gate-8 evidence: the bottom instance reproduces B5's data), and the synthetic `r = 2`
+mock pair mandated by the proposal's §7 R2.  That file quantifies over an arbitrary
+`LocalReciprocity`; this definition instantiates it at B5.  Until 2026-10-17 it was an `axiom`
+(census 2 on this branch after the merge of the ℚ₂ discharge); ticket C1' of
+`docs/dyadic/tauceti-discharge-plan.md` (owner gate G1') made it the adapter `GQ2/TauCeti/B5K.lean`
+(`TauCetiBridge.markedRecipAt_tauceti`, on the `K`-level dictionary `GQ2/TauCeti/GaloisDictK.lean`),
+proved from Tau Ceti's local class field theory at `↥K`; the statement is byte-identical to the
+former axiom. -/
+
+/-- **B5-K (AX3), proved via Tau Ceti.** Marked local reciprocity for every finite extension `K/ℚ₂`:
+local class field theory provides the marked reciprocity bundle over `K`, normalized
+compatibly with B5 (`localReciprocity`) through norm functoriality.
+
+Proposal and sign-off: `docs/dyadic/ax3-proposal.md` (statement §2.3); owner-approved at gate
+G-AX 2026-07-29 — one axiom, the finite-layer norm-residue clause omitted, extend-not-replace
+for B5.  Consumers bind the statement through the derived layer of
+`GQ2/Dyadic/MarkedRecipBundle.lean` (F4's branch corollary, MC5, the boundary lane).
+
+Citation (targets owner-approved 2026-07-29; **not yet verified against the cited PDFs**):
+NSW [1] Ch. I §5 and Ch. VII §7.1 (functoriality); Serre *Local Fields* [7] Ch. XI §3 (norm
+functoriality of the reciprocity map).  Paper: the general-`K` analogue of Lemma 3.5;
+`docs/literature-axioms.md` B5-K. -/
+noncomputable def markedRecipAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K] : Dyadic.MarkedRecip localReciprocity K :=
+  TauCetiBridge.markedRecipAt_tauceti K
+
+/-! ## B10-K — the oriented tame quotient of `G_K` at `q_K` (AX4)
+
+The five-clause structure `Dyadic.OrientedTameQuotientK B FF` (normal closed pro-2 wild
+subgroup `W`, the quotient identification with `T_{q_K}`, and the two reciprocity
+normalization clauses), its derived layer (`tameFK`, maximality via `o2_Tq_eq_bot`,
+`W`-uniqueness, `tameCharK` descent, `compatF_K`, the §5 interim binder spellings), and the
+`K = ⊥` reduction regression `tameQuotientK_bot_reduces` (with the residue degree `f`
+genuinely computed from the filtration — the R2 soundness guard) are defined in
+`GQ2/Dyadic/OrientedTameBundle.lean`, quantified over an arbitrary bundle.  This definition
+instantiates it at B5-K's `markedRecipAt` and the unit filtration — the parametrization that
+pins the residue degree (a free `f` is inconsistent: `T₂ᵃᵇ = Ẑ` vs `T₄ᵃᵇ = Ẑ × ℤ/3`).  Until
+2026-10-17 it was an `axiom`; ticket C1' (owner gate G1') made it the adapter
+`GQ2/TauCeti/B10K.lean` (`TauCetiBridge.orientedTameQuotientAt_tauceti`: Tau Ceti's wild inertia
+and geometric Iwasawa presentation at `↥K`); the statement is byte-identical to the former axiom. -/
+
+/-- **B10-K (AX4), proved via Tau Ceti.** The oriented tame quotient of `G_K` at `q_K = 2^{f_K}` for
+every finite extension `K/ℚ₂`, marked compatibly with B5-K's reciprocity bundle and
+parametrized by the canonical unit filtration (which supplies the residue degree and a
+uniformizer).
+
+Proposal and sign-off: `docs/dyadic/ax4-proposal.md` (statement §2.3); owner-approved at gate
+G-AX 2026-07-29 — one separate axiom, `DyadicUnitFiltration` parametrization, self-contained
+`W` with the compatibility clause omitted, no `Ẑ`-valued tame character.  Note: this definition's
+type mentions `markedRecipAt` (inherent to the parametrization).
+
+Citation (targets owner-approved 2026-07-29; **not yet verified against the cited PDFs**):
+NSW [1] Ch. VII §7.5, (7.5.3) (Iwasawa) with (7.5.2); Serre *Local Fields* [7] Ch. IV (wild
+inertia pro-`p`); Ch. XIII §4 Prop. 13 + corollary.  Paper: the general-`K` analogue of the
+B10 interface; `docs/literature-axioms.md` B10-K. -/
+noncomputable def orientedTameQuotientAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K) :
+    Dyadic.OrientedTameQuotientK (markedRecipAt K) FF :=
+  TauCetiBridge.orientedTameQuotientAt_tauceti K FF
 
 /-! ## The `LiteratureInputs` instance -/
 

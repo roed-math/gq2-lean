@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 import GQ2.Dyadic.Instances.FieldFamilySpliceFinal
 import GQ2.Dyadic.Instances.FieldCanonicalParameters
 import GQ2.Dyadic.OddDegreeRamifiedI
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Canonical field-facing ramified-i presentation endpoint

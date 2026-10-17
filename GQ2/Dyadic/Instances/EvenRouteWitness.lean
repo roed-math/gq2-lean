@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Instances.StageAbstractionEvenEndpoint
 import GQ2.Dyadic.Instances.EvenDeepIsotropy
 import GQ2.Dyadic.Instances.Fields
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # W55-AUDIT: non-vacuity and composition witnesses for the even route's endpoint chain

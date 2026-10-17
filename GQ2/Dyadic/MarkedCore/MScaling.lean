@@ -6,7 +6,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 module
 
 public import GQ2.Dyadic.MarkedCore.CoreMixM
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.TauCetiInstance
 
 @[expose] public section
 

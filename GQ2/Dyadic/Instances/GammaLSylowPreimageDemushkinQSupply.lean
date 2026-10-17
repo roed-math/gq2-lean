@@ -8,7 +8,7 @@ import GQ2.Dyadic.FiniteTwoLocalReciprocityHigherKummer
 import GQ2.Dyadic.OddDegreeRamifiedI
 import GQ2.Dyadic.ProTwoCompletionDecomposition
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCore
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Supplying the odd-degree field `q = 2` input

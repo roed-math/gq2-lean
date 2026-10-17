@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.FieldFamilySpliceSelectedWord
 import GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Fully marked field equivalence with the exact selected source constructor

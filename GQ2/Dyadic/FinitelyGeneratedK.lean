@@ -8,7 +8,7 @@ module
 public import Mathlib.GroupTheory.Schreier
 public import Mathlib.FieldTheory.KrullTopology
 public import Mathlib.FieldTheory.Galois.Profinite
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.TauCetiInstance
 
 @[expose] public section
 

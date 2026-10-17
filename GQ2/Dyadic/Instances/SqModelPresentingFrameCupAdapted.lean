@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.SqModelCupForm
 import GQ2.Dyadic.Instances.GammaLOddDegreePresentingFrame
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The presenting frame is cup-adapted, unconditionally

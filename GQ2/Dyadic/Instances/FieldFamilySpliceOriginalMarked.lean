@@ -4,7 +4,7 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.Instances.FieldFamilySpliceSelectedWordFinal
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Exact selected word with its original core-character witness retained

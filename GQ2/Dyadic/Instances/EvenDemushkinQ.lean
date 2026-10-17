@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.ProTwoCompletionDecomposition
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Parity-free ramified-`i` Demushkin `q = 2`

@@ -46,11 +46,11 @@ status:
 
     The capstones GQ2.main_presentation_literal and GQ2.SectionTen.main_surjection_count'
     are sorry-free, take no hypothesis, and use only Lean's standard three axioms:
-    propext, Classical.choice, and Quot.sound. On this branch (`dyadic`) the library still contains two axiom declarations, the
-    dyadic campaign's K-level inputs B5-K markedRecipAt and B10-K orientedTameQuotientAt
-    (census 2, GQ2/Foundations/Axioms.lean); they are consumed only by the dyadic general
-    endpoint, never by the Q_2 capstones, and docs/dyadic/tauceti-discharge-plan.md
-    proves them from Tau Ceti too. Every other declaration under GQ2 uses only the standard
+    propext, Classical.choice, and Quot.sound. On this branch (`dyadic`) the two K-level inputs of the
+    dyadic campaign, B5-K markedRecipAt and B10-K orientedTameQuotientAt, were the last axiom
+    declarations (census 2 after the merge of the Q_2 discharge); ticket C1' of
+    docs/dyadic/tauceti-discharge-plan.md proved them from Tau Ceti too
+    (GQ2/TauCeti/{GaloisDictK,B5K,B10K}.lean, 2026-10-17), so the census is 0 here as well. Every other declaration under GQ2 uses only the standard
     three (GQ2/AxiomLedger.lean). The nine cited local-arithmetic inputs of the paper's
     Appendix B (B1, B3c, B5, B6, B7, B8, B9, B10, B11a), which Mathlib does not
     provide, were stated in this repository as axioms until 2026-10-17. They are now
@@ -83,8 +83,6 @@ status:
     - "propext"
     - "Classical.choice"
     - "Quot.sound"
-    - "GQ2.markedRecipAt"                                           # B5-K (AX3)
-    - "GQ2.orientedTameQuotientAt"                                  # B10-K (AX4)
   main_results:
     # The two unconditional capstones, as certified by the Comparator pair Challenge.lean /
     # Solution.lean. Their Tau Ceti-route twins with identical statements are

@@ -18,11 +18,12 @@ treating displayed theorem numbers as stable; see [`docs/paper-api.md`](docs/pap
 
 
 > **Branch note (`dyadic`, 2026-10-17).** This branch carries the general-2-adic campaign
-> (`docs/dyadic/`). The statements below about the ℚ₂ theorem and its trust base hold here too,
-> but the library on this branch still contains **two** axiom declarations, the dyadic campaign's
-> `K`-level inputs B5-K `markedRecipAt` and B10-K `orientedTameQuotientAt` (census 2,
-> `GQ2/Foundations/Axioms.lean`), consumed only by the dyadic general endpoint. Their discharge
-> from Tau Ceti is planned in [`docs/dyadic/tauceti-discharge-plan.md`](docs/dyadic/tauceti-discharge-plan.md).
+> (`docs/dyadic/`). The statements below about the ℚ₂ theorem and its trust base hold here too. The
+> campaign's two `K`-level inputs, B5-K `markedRecipAt` and B10-K `orientedTameQuotientAt`, were the
+> last `axiom` declarations on this branch (census 2 after the merge of the ℚ₂ discharge); they are
+> proved from Tau Ceti as well since ticket C1' of
+> [`docs/dyadic/tauceti-discharge-plan.md`](docs/dyadic/tauceti-discharge-plan.md)
+> (`GQ2/TauCeti/{GaloisDictK,B5K,B10K}.lean`), so the library on this branch also contains no axiom.
 
 ## Result
 

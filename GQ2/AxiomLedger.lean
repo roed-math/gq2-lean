@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2
-import GQ2.Foundations.Axioms
 
 /-!
 # Repo-wide axiom ledger
@@ -12,10 +11,10 @@ import GQ2.Foundations.Axioms
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the literature axioms (`bAxioms`: **the two `K`-level inputs B5-K and B10-K**
-since the Tau Ceti discharge of the nine ℚ₂ inputs, which became theorems proved from Tau Ceti in
-`GQ2/Foundations/TauCetiInstance.lean`; see `docs/dyadic/tauceti-discharge-plan.md` for the
-remaining two) to their B-labels, and reports:
+`Quot.sound`), maps the literature axioms (`bAxioms`; **empty since the Tau Ceti discharge, ticket
+C2, 2026-10-17**, when the nine former axioms became theorems proved from Tau Ceti and
+`GQ2/Foundations/Axioms.lean` was deleted; on the dyadic branch the two `K`-level inputs B5-K and
+B10-K followed at ticket C1', 2026-10-17) to their B-labels, and reports:
 
 * **legacy certificate** — which declarations consume each B-axiom.  With the compatibility
   instance, these uses are intentionally concentrated in the provider and legacy wrappers; field
@@ -45,7 +44,7 @@ so it reports transitive dependencies and covers the whole library, including `p
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently two) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently zero) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -53,16 +52,13 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The literature axioms and their B-labels.  **Two since 2026-10-17:** the nine ℚ₂ inputs (B1,
-B3c, B5, B6, B7, B8, B9, B10, B11a) are theorems/definitions proved from Tau Ceti under their legacy
-names in `GQ2/Foundations/TauCetiInstance.lean`, so their former consumers now report at the standard
-three; the two `K`-level inputs of the dyadic campaign remain axioms in
-`GQ2/Foundations/Axioms.lean` until the campaign of `docs/dyadic/tauceti-discharge-plan.md`
-discharges them.  The quoted names make this file fail to compile if an axiom is renamed or removed,
-keeping the ledger synchronized with the declarations it audits. -/
-def bAxioms : List (Name × String) :=
-  [ (``GQ2.markedRecipAt,                                         "B5-K")
-  , (``GQ2.orientedTameQuotientAt,                                "B10-K") ]
+/-- The literature axioms and their B-labels.  **Empty since ticket C2 (2026-10-17):** the nine
+former axioms (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) are theorems/definitions proved from Tau Ceti
+under their legacy names in `GQ2/Foundations/TauCetiInstance.lean` (on the dyadic branch so are the
+`K`-level inputs B5-K `markedRecipAt` and B10-K `orientedTameQuotientAt`, ticket C1'), so every
+consumer now reports at the standard three, and any reappearing non-standard axiom lands in the ALARM
+section below. -/
+def bAxioms : List (Name × String) := []
 
 /-- The three axioms every classical theorem is allowed to use. -/
 def stdAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]
