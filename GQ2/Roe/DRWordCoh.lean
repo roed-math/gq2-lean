@@ -417,7 +417,7 @@ def drRelZ (m : Fin 3 → L) (c : TwoCocycle L) : ZMod 2 :=
 theorem drRelZ_base (m : Fin 3 → L) (c : TwoCocycle L) :
     (drWord (drLift m c 0) (drLift m c 1) (drLift m c 2)).base = drWord (m 0) (m 1) (m 2) := by
   have h := map_drWord (CentExt.proj c) (drLift m c 0) (drLift m c 1) (drLift m c 2)
-  simpa only [CentExt.proj, MonoidHom.coe_mk, OneHom.coe_mk, drLift_base] using h
+  exact h
 
 end RelZ
 

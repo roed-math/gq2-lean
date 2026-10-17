@@ -532,7 +532,6 @@ theorem hsep_gammaR
   obtain ⟨f₀, hf₀⟩ := mlift_of_relatorFree_markingR gq0.1 tHat hprojHat htameHat hwildHat
   refine ⟨⟨f₀, fun γ => hfield (f₀ γ) γ (hf₀ γ)⟩, ?_⟩
   refine Subtype.ext (DFunLike.ext _ _ fun γ => ?_)
-  rw [redTLift_apply]
   exact hf₀ γ
 
 /-! ## `hpartial` for `Γ_R`: nondegeneracy of the obstruction pairing in the character -/

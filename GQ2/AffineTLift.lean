@@ -81,7 +81,7 @@ private theorem pN_injective : Function.Injective (pN Dsc) := by
   rw [injective_iff_map_eq_one]
   intro n hn
   have hker : n.1 ∈ D.C.p.ker := by
-    rw [MonoidHom.mem_ker]; simpa [pN] using congrArg Subtype.val hn
+    rw [MonoidHom.mem_ker]; simpa using congrArg Subtype.val hn
   rcases ker_cases D hker with h1 | hz
   · exact Subtype.ext h1
   · exact absurd (hz ▸ n.2) Dsc.hNz
@@ -105,7 +105,7 @@ private theorem sectN_mem (t : ↥D.T) : sectN Dsc t ∈ Dsc.N :=
 
 @[simp] private theorem sectN_sect (t : ↥D.T) : D.C.p (sectN Dsc t) = t.1 := by
   have h : pN Dsc ((eN Dsc).symm t) = t := (eN Dsc).apply_symm_apply t
-  simpa [sectN, pN] using congrArg Subtype.val h
+  simpa [sectN] using congrArg Subtype.val h
 
 /-- The `N`-section, packaged as a `TComplement`. -/
 noncomputable def SN : TComplement D :=

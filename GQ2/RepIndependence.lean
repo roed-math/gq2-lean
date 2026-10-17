@@ -60,8 +60,8 @@ theorem kappa0_cocycle {q : W → ZMod 2} {dat : FactorSet C W}
     (hdat : IsEquivariantFactorSet q dat) (a b c : SemiProd C W) :
     kappa0 dat a b + kappa0 dat (a * b) c = kappa0 dat a (b * c) + kappa0 dat b c := by
   obtain ⟨fcoc, _, _, _, _, mquad, mmul, _⟩ := hdat
-  obtain ⟨v, cc⟩ := a; obtain ⟨w, d⟩ := b; obtain ⟨x, e⟩ := c
   simp only [kappa0, SemiProd.mul_def, smul_add, mul_smul]
+  obtain ⟨v, cc⟩ := a; obtain ⟨w, d⟩ := b; obtain ⟨x, e⟩ := c
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
     mmul cc d x + mquad cc w (d • x) + fcoc v (cc • w) (cc • (d • x))
 
@@ -105,14 +105,15 @@ theorem graphPullback_sub_mem_B2 {q : W → ZMod 2} (dat : FactorSet C W)
       s * φb g' * s⁻¹ = ((b.1 g' + (g' • w₀ - w₀), ρ g') : SemiProd C W) := by
     intro g'
     rw [hρ g' w₀]
-    simp only [hφ, hs, SemiProd.mul_def, SemiProd.inv_def, one_smul, one_mul, mul_one,
-      inv_one, neg_neg]
+    rw [SemiProd.mul_def, SemiProd.mul_def, SemiProd.inv_def]
+    simp only [hφ, hs, one_smul, one_mul, mul_one, inv_one, neg_neg]
     show ((-w₀ + b.1 g' + ρ g' • w₀, ρ g') : W × C) = (b.1 g' + (ρ g' • w₀ - w₀), ρ g')
     rw [Prod.mk.injEq]
     exact ⟨by abel, rfl⟩
   have hmul : ∀ g' h' : AbsGalQ2, φb (g' * h') = φb g' * φb h' := by
     intro g' h'
-    simp only [hφ, SemiProd.mul_def]
+    simp only [SemiProd.mul_def]
+    simp only [hφ]
     rw [hb g' h', map_mul ρ g' h', hρ g' (b.1 h')]
   refine (AddSubgroup.mem_map).mpr ⟨fun g => etaS dat s (φb g), ?_, ?_⟩
   · -- continuity: `η_s ∘ (g ↦ (b g, ρ g))`, factoring through the finite discrete `W × C`

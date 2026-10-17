@@ -174,7 +174,6 @@ noncomputable def cup11 : H1 G M →+ H1 G N →+ H2 G P := by
     ext bq
     induction bq using QuotientAddGroup.induction_on with
     | H b =>
-      simp only [AddMonoidHom.mk'_apply, AddMonoidHom.zero_apply]
       exact (QuotientAddGroup.eq_zero_iff _).mpr
         ((AddSubgroup.mem_addSubgroupOf).mpr (cup11_acobound μ hμ ha b))
 

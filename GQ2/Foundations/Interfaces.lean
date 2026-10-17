@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.LiteratureInputs
 public import GQ2.HilbertSymbol
 public import GQ2.HilbertSymbolDyadicClose
 public import GQ2.KummerSurjectivity
@@ -18,27 +18,26 @@ public import GQ2.Dyadic.MarkedRecipBundle
 @[expose] public section
 
 /-!
-# Discharged and derived interfaces over the literature axioms
+# Discharged and derived interfaces over the literature inputs
 
-Companion to `GQ2/Foundations/Axioms.lean` — the census file, which since 2026-07-27 contains
-the nine `axiom` declarations and nothing else.  This file hosts the *derived* layer that
-shares the axioms' public interface:
+Companion to `GQ2/Foundations/TauCetiInstance.lean`, which holds the nine literature inputs under
+their legacy names — `axiom` declarations in `GQ2/Foundations/Axioms.lean` until the Tau Ceti
+discharge (ticket C2, 2026-10-17), theorems/definitions proved from Tau Ceti since.  This file hosts
+the *derived* layer that shares their public interface, over the generic `LiteratureInputs`:
 
 * the formerly-axiom interfaces discharged by in-repository proofs, under their original
   names — `HilbertSymbol.hilbertSymbol_dyadic` (B7′), `unramifiedQuadratic_units_are_norms`
   (B11b), `kummerClassK_surjective` (B12), `dyadicUnitFiltration` (B13);
 * `evensKahn_dyadic` — the pre-2026-07-24 B9 axiom, re-derived byte-identically from the
-  current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a;
-* `tateDuality` — the `k = ℚ₂` member of the B6 axiom `tateDualityAt`;
+  current B9 leaf `lit.relativeStiefelWhitney_dyadic` together with B11a;
+* `tateDuality` — the `k = ℚ₂` member of the B6 axiom `lit.tateDualityAt`;
 * the `HasEqualNormValueGroups` convention `def`, its negative stress test, and the combined
   `dyadicNormCriterion`.
 
-Every name is unchanged from when these declarations lived in `Axioms.lean`, so consumers
-needed no migration; importers of the old combined file now import this one (a strict API
-superset, since `GQ2.Foundations.Axioms` is a `public import` above).  The split exists for
-auditability: the *proofs* collected here are what pulled the proof layer into the axiom
-file's transitive imports, and after the split the axiom file's import closure is its
-statement vocabulary only.  Census history and citations remain with the axioms and in
+Every name is unchanged from when these declarations lived in the former `Axioms.lean`, so
+consumers needed no migration.  The 2026-07-27 split from that file existed for auditability (it
+kept the axiom file's import closure to its statement vocabulary); since ticket C2 there is no axiom
+file.  Census history and citations are in `GQ2/Foundations/TauCetiInstance.lean` and
 `docs/literature-axioms.md`.
 -/
 
@@ -83,17 +82,18 @@ end GQ2.HilbertSymbol
 
 namespace GQ2
 
-/-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `tateDualityAt` -/
+/-! ## B6 at the base field — the `G = G_ℚ₂` member of the axiom `lit.tateDualityAt` -/
 
-/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `tateDualityAt`, using
+/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `lit.tateDualityAt`, using
 `isLocalDualizingGroup_absGalQ2`. -/
-noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
-  tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
+noncomputable def tateDuality [lit : LiteratureInputs] (n : ℕ) [NeZero n] : TateDuality n :=
+  lit.tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
 
 /-! ## The B11 convention layer and the discharged B11b
 
-The full B11 conventions and citations are with the B11a axiom in
-`GQ2/Foundations/Axioms.lean`; this section holds the pieces that are not axioms. -/
+The full B11 conventions and citations are with B11a in
+`GQ2/Foundations/TauCetiInstance.lean` (an axiom until ticket C2); this section holds the derived
+pieces. -/
 
 /- The convention `def GQ2.HasEqualNormValueGroups` itself now lives in
 `GQ2/Dyadic/MarkedRecipBundle.lean` (moved 2026-07-29, AX3 memo §7 R7 / owner answer Q3: the AX3
@@ -152,12 +152,13 @@ Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u,
 * degree 2: `[2u] ⌣ [2dn/u] = [2] ⌣ [2d] + ([2] + [2d]) ⌣ cor[a] + N^{Ev}[a]`.
 
 Proof: `evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`) applied to the B9 axiom
-`relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
+`lit.relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
 layer); the T2 trace-form diagonalizations and the proved `swOne`/`swTwo` invariance do the
-rewriting.  `#print axioms`: `relativeStiefelWhitney_dyadic` and
-`hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
+rewriting.  Its explicit literature-input dependencies are
+`lit.relativeStiefelWhitney_dyadic` and `lit.hilbertSymbol_normCriterion_finiteDyadic`; its
+`#print axioms` output is the standard three.  Full setting and citations:
 the B9 axiom's docstring in `GQ2/Foundations/Axioms.lean` and `docs/literature-axioms.md` §B9. -/
-theorem evensKahn_dyadic
+theorem evensKahn_dyadic [lit : LiteratureInputs]
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (u n d : (↥k)ˣ) (v : ↥k)
     (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
@@ -186,8 +187,8 @@ theorem evensKahn_dyadic
         + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
             corH1 htriv hUo hidx hs α hα hαc
         + evensNormH2 htriv hUo hidx hs α hα hαc) :=
-  evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
-    htriv hUo α hαdef hα hαc (hilbertSymbol_normCriterion_finiteDyadic k htriv)
+  evensKahn_dyadic_of_rsw lit.relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
+    htriv hUo α hαdef hα hαc (lit.hilbertSymbol_normCriterion_finiteDyadic k htriv)
 
 /-- **Unramified unit-norm surjectivity, formerly interface B11b.**  If
 `k(√a)/k` is unramified (the `HasEqualNormValueGroups` convention on a chosen root `δa`,
@@ -215,7 +216,7 @@ theorem unramifiedQuadratic_units_are_norms
 proved unramified-unit theorem.  The equal-norm-value-groups convention remains isolated in
 `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24), which is a
 definition rather than an axiom. -/
-theorem dyadicNormCriterion
+theorem dyadicNormCriterion [lit : LiteratureInputs]
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     (∀ a b : (↥k)ˣ,
@@ -228,7 +229,7 @@ theorem dyadicNormCriterion
           ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖) →
         ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
           ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
-  ⟨hilbertSymbol_normCriterion_finiteDyadic k htriv,
+  ⟨lit.hilbertSymbol_normCriterion_finiteDyadic k htriv,
    fun a δa hδa hunram u hu =>
      unramifiedQuadratic_units_are_norms k a δa hδa hunram u hu⟩
 

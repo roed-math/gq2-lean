@@ -81,6 +81,7 @@ theorem isPGroup_prod {p : ℕ} {M N : Type*} [Group M] [Group N]
   · simpa using ha
   · simpa using hb
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If the quotients of `G` by two normal subgroups `A`, `B` are `p`-groups, then so is the
 quotient by `A ⊓ B` (it embeds in `(G ⧸ A) × (G ⧸ B)`). -/
 theorem isPGroup_quotient_inf {p : ℕ} {G : Type*} [Group G] {A B : Subgroup G}

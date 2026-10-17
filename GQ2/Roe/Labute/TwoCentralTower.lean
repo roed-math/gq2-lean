@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 import Mathlib.Algebra.Group.Commutator
 import Mathlib.GroupTheory.Commutator.Basic
 import Mathlib.NumberTheory.Padics.RingHoms
+import Mathlib.Topology.Algebra.Group.Units
 import GQ2.MaxProP
 import GQ2.Words
 

@@ -69,7 +69,7 @@ theorem isSelfDual_iff_W {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Fi
     [Finite C] (t : Marking C) (hgen : t.Generates) :
     IsSelfDual t A ↔ IsSelfDualW t A := by
   have hcard : Nat.card (fixedPts C (ElemDual A)) = Nat.card (H0w (A := ElemDual A) t) :=
-    Nat.card_congr (Equiv.setCongr (H0w_eq_fixedPts t hgen)).symm
+    Nat.card_congr (Set.equivOfEq (H0w_eq_fixedPts t hgen)).symm
   unfold IsSelfDual IsSelfDualW
   rw [hcard]
 

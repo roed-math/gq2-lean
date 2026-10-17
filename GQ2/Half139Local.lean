@@ -231,7 +231,7 @@ theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hlem86M` for `G_ℚ₂`** — the source's Lemma 8.6 half-torsor count over every boundary lift,
 for the radical datum `En.radData l h`, threading the `NoDescent` field hypothesis. -/
-theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hlem86M_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (En : RF.Enrichment)
@@ -285,7 +285,7 @@ by the concurrent the Prop. 8.9 assembly (`PhaseMuIndep.tcocycle_mu_indep`'s `hM
 
 The expected axioms are `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via
 `card_Z1_eq`). -/
-theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hMcountM_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (En : RF.Enrichment)
@@ -521,15 +521,15 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
       apply Subtype.ext; funext γ
       show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
           : ↥(En.radData l h).M) = c.1 γ
-      rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥(En.radData l h).M)
-          = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
-      rfl
+      apply Additive.toMul.injective; apply Subtype.ext
+      show (Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹ = (Additive.toMul (c.1 γ)).1
+      group
   rw [htorsor, key, hfix, mul_one]
   rfl
 
 /-- **the Prop. 8.9 assembly result**: the (139) half count for `G_ℚ₂`, in the exact shape of the
 `RecursionInputs.half139` field (consumed at the Prop. 8.9 assembly). -/
-theorem half139_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem half139_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (En : RF.Enrichment)

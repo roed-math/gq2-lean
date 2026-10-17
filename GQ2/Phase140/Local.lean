@@ -15,8 +15,9 @@ the source-generic `phase140_from_residues` in `GQ2/Phase140Assembly.lean`: `hse
 (kept as a hypothesis here); `htriv`/`hH2` are discharged locally (`htriv_local'` /
 `card_H2_zmod2_eq_two`).
 
-`#print axioms phase140_local` is contained in the standard three axioms together with B6
-(`tateDualityAt`) and B7 (`absGalQ2_localEulerCharacteristic`).  The four residues are
+The explicit literature-input dependencies of `phase140_local` are B6
+(`LiteratureInputs.tateDualityAt`) and B7 (`absGalQ2_localEulerCharacteristic`); its
+`#print axioms` output is std-3.  The four residues are
 `htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
 **`tcocycle_card_local`** (the `hμ` supplier) and **`hZcard_local`**; the deep separation residue
 **`hsep_local`** (7 stages: `Additive T` module → `tDef ∈ Z²` → dual/`hpair` → `cup20`-bridge with
@@ -255,7 +256,7 @@ sees only the frame-level datum `En.radData l h`, not `ρ`) — so the capstone 
 `hμ := fun ρ => tcocycle_card_local … ρ`.  Mirrors `hMcountM_local` steps 1–3 at
 `A := Additive (En.radData l h).T`, but with a **direct** `TCocycle ≃ Z¹_cont` bridge (`TCocycle`
 stores continuity into `Bg` directly, and is always nonempty — no torsor/`Nonempty` detour). -/
-theorem tcocycle_card_local (ρ : BoundaryLifts b F RF.TC) :
+theorem tcocycle_card_local [LiteratureInputs] (ρ : BoundaryLifts b F RF.TC) :
     Nat.card (TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = Nat.card (Additive ↥(En.radData l h).T) ^ 2
         * Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
@@ -322,7 +323,7 @@ YC = 1` the ledger is satisfiable (`𝔽₂` is a faithful — vacuously — sim
 `#(V^∨)^{YC} = 2 ≠ 1`, so `hZcard` is FALSE there.  `hnt` (equivalently `Nontrivial RF.YC`, via
 `hfaith`) rules it out and is discharged at the capstone from the block's chief-factor structure
 (the ramified regular summand has a nontrivial `YC`-action). -/
-theorem hZcard_local
+theorem hZcard_local [LiteratureInputs]
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hVne : ∃ v : En.Vmod, v ≠ 0)
@@ -534,7 +535,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpa
    `ψ ∈ T ⊆ M` so `mk_M (f γ) = mk_M (fLift γ) = ρ'γ`), and `mk_T (f γ) = mk_T (fLift γ) =
    (qOfCocycle c) γ` (since `ψ ∈ T`) ⟹ `redTLift f = qOfCocycle c` ⟹ `TLiftable`.
    Bespoke ~40 lines. -/
-theorem hsep_local
+theorem hsep_local [LiteratureInputs]
     (ρ : BoundaryLifts b F RF.TC)
     (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
     (hc : ∀ χ : ↥(TCharC (En.radData l h)),
@@ -775,7 +776,7 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalG
 `bijective_cup11_dualEval`'s internals (`cup11_comm` slot swap + B6 `perfect11` injectivity on
 the `MuDual` side); stated separately because the bijective form detects in the *left* slot
 while `hpartial` needs the *right*. -/
-theorem cup11_dualEval_right_separating
+theorem cup11_dualEval_right_separating [LiteratureInputs]
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction AbsGalQ2 A] [ContinuousSMul AbsGalQ2 A]
     [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
@@ -861,7 +862,7 @@ injectivity half of the perfect pairing, contradicting `hχ`.  The `∂`-surject
 `c ↦ defect-class` map hits enough of `H¹`/`H²` to realize the pairing) is the substantive step,
 dual to `hsep`'s `bijective_cup20` injectivity.  Couples to `hsep_local`'s stage-1–4 infrastructure
 (same module `A`, dual, and `χ ↔ n` bridge). -/
-theorem hpartial_local
+theorem hpartial_local [LiteratureInputs]
     (ρ : BoundaryLifts b F RF.TC)
     (χ : ↥(TCharC (En.radData l h))) (hχ : χ ≠ 0) :
     ∃ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
@@ -1319,7 +1320,7 @@ end LocalResidues
 `phase140_from_residues` with `htriv`/`hH2` discharged locally and the four per-source residues
 supplied by the lemmas above.  `hGaussZ`, `μ₀`, `G0`, and the module hypotheses
 `hsimple`/`hVne`/`hnt` are supplied by the `prop_8_9` assembly in `GQ2/Prop89Close.lean`. -/
-theorem phase140_local
+theorem phase140_local [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)

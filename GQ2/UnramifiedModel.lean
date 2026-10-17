@@ -318,7 +318,7 @@ so bijective by simplicity: `#F = #V`.  `mapCoeff1` transfers `F` multiplicative
 `End(H¹)`, where units of `F` stay pointwise-invertible; the orbit map `F → H¹` at any
 `0 ≠ x₀ ∈ S` for a `C`-stable `S` is injective with range inside `S`, so
 `#S ≥ #F = #V = #H¹` forces `S = ⊤`. -/
-theorem cCoeff_faithful_and_simple (ρ : ContinuousMonoidHom AbsGalQ2 C)
+theorem cCoeff_faithful_and_simple [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hCcomm : ∀ a b : C, a * b = b * a)
     (T : C) (hcyc : ∀ x : C, x ∈ Subgroup.zpowers T)
@@ -582,7 +582,7 @@ transport `Q⁰_loc` to a norm-one-invariant nonsingular form, and count zeros w
 
 **Signature note:** the hypothesis `hc : Function.Surjective ⇑c` (as in
 `prop_6_18_ramified`). -/
-theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
+theorem prop_6_18_unramified [LiteratureInputs] (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C)
     (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))

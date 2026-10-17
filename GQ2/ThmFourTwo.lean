@@ -101,7 +101,7 @@ end RStageHelpers
 strong-induction hypothesis `IH`.  Extracted from `thm_4_2`; source-generic over
 `S : SourceData` since the SourceData refactor (the `Γ_A` supply enters through `S.tfg` and
 `S.liftsOver_card`). -/
-private theorem mStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+private theorem mStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
     (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
@@ -119,7 +119,7 @@ private theorem mStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
       S.tfg
     have hfgF : ∃ s : Finset AbsGalQ2,
         (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤ :=
-      Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+      LiteratureInputs.absGalQ2_isTopologicallyFinitelyGenerated
     have hheadS : Function.Surjective (fun γ : ↥S.Γ => (F.frameMap (S.b γ)).1) :=
       hhead.comp S.b_surjective
     have hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1) :=
@@ -287,7 +287,7 @@ private theorem rStage_phase (S : SourceData) (B : BoundaryMaps) (F : BoundaryFr
 /-- **The `R`-stage lane** (`R ≠ ⊥`) of the §9 master induction: the closed system of
 `prop_8_9` (the Prop. 8.9 assembly) at `blockEnrichment` (the §9 induction), solved by `count_eq_of_closedRecursion`
 (the §9 induction) against the IH at the (145)/(148)/(153) bounds.  Extracted from `thm_4_2`. -/
-private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+private theorem rStage_lane [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
@@ -307,7 +307,7 @@ private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
       S.tfg
     have hfgF : ∃ s : Finset AbsGalQ2,
         (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤ :=
-      Foundations.absGalQ2_isTopologicallyFinitelyGenerated
+      LiteratureInputs.absGalQ2_isTopologicallyFinitelyGenerated
     have hheadS : Function.Surjective (fun γ : ↥S.Γ => (F.frameMap (S.b γ)).1) :=
       hhead.comp S.b_surjective
     have hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1) :=
@@ -323,7 +323,7 @@ private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
     -- the chief-factor structure of the enrichment module (the §9 induction's `blockHsimple`)
     have hSimp := SectionNine.blockHsimple T Blk
     have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod,
-        (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
       hSimp.2
     have hVne : ∃ v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod, v ≠ 0 := by
       haveI : Nontrivial (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod := hSimp.1
@@ -333,7 +333,7 @@ private theorem rStage_lane (S : SourceData) (B : BoundaryMaps) (F : BoundaryFra
     -- the weaker hypothesis is sufficient here —
     -- faithfulness is NOT block-derivable (a central 2-part of `Y` outside `K`
     -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks).
-    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
+    have hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
         (v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod), g • v ≠ v :=
       SectionNine.blockHnt T Blk
     -- the Gauss-`Z` residues: the hypothesis-free obtain at the head-inflated enrichment —
@@ -383,7 +383,7 @@ capstone `thm_4_2` below is this statement at `B.sourceA` (definitionally: `B.so
 **is** `B.bA`); R32 instantiates it at `sourceR` with zero further refactoring.  Same
 strong-induction skeleton as `thm_4_2`, with the terminal lane through
 `terminal_count_eq_of_sources`. -/
-theorem thm_4_2_of_sources (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2_of_sources [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y]
@@ -440,7 +440,7 @@ The proof combines the induction scaffold, terminal lane, `M`-stage lane, and th
 assembled against `prop_8_9` in `GQ2/Prop89Close.lean`.
 Axioms B1/B3c/B6/B7/B8/B9 enter through the ingredients, per App. D (B7′, the dyadic Hilbert
 symbol, is now an in-repo theorem, not an axiom). -/
-theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2 [LiteratureInputs] (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y]
@@ -455,7 +455,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
 /-- Theorem 4.2's second clause: "the same equality holds for every exact-image target `𝒥`"
 — an *instance* of the first (strata are ordinary objects of the same category), recorded to
 fix the consumption shape for §8.  [Relocated with `thm_4_2`; carries the same `hE2`.] -/
-theorem thm_4_2_stratum (B : BoundaryMaps) (F : BoundaryFrame H E)
+theorem thm_4_2_stratum [LiteratureInputs] (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)

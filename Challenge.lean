@@ -29,22 +29,22 @@ longer needed to state it.
 
 The imports provide only what is needed to *state* the two theorems: `GQ2.GammaA` and
 `GQ2.Roe.GammaR` for the two candidate groups (`GQ2.Statement`'s `AbsGalQ2` arrives through
-`GQ2.GammaA`'s public imports).  In particular `GQ2/Foundations/Axioms.lean` is **not**
-imported: the nine literature axioms belong to the permitted *solution* trust base listed
-below, not to the challenge statements, whose import closure is axiom-free vocabulary.  The
-proofs live in the library (`GQ2.main_presentation_literal`, `GQ2/PresentationLiteral.lean`,
+`GQ2.GammaA`'s public imports); the challenge statements' import closure is vocabulary only.
+The proofs live in the library (`GQ2.main_presentation_literal`, `GQ2/PresentationLiteral.lean`,
 and `GQ2.main_presentation_literal_roe_unconditional`, `GQ2/Roe/Main.lean`) and are
-re-attached in `Solution.lean`.  No `GQ2/Roe/Labute/` module is in either challenge statement's import
-closure; the *solution*'s closure now reaches nine of them, since that is where the discharged
+re-attached in `Solution.lean`.  No `GQ2/Roe/Labute/` module is in either challenge statement's
+import closure; the *solution*'s closure reaches nine of them, since that is where the discharged
 hypothesis is proved — sorry-free, like the rest of the library (`scripts/check_axioms.sh`
 checks 2 and 5).
 
-Permitted axioms for the solution: the std-3 (`propext`, `Classical.choice`,
-`Quot.sound`) plus the project's frozen census of 9 literature axioms declared in
-`GQ2/Foundations/Axioms.lean` (enforced by `scripts/check_axioms.sh`).  The list is shared by
-both theorems — `main_presentation_literal_roe_unconditional` prints exactly the axioms of
-`main_presentation_literal`, so *proving* the Labute instance rather than assuming it widened
-the trust base by nothing at all.
+Permitted axioms for the solution: exactly the std-3 (`propext`, `Classical.choice`,
+`Quot.sound`).  Until 2026-10-17 the list also carried the project's census of nine literature
+axioms (`GQ2/Foundations/Axioms.lean`); the Tau Ceti discharge campaign
+(`docs/orchestration/tauceti-tickets.md`) proved all nine from the Tau Ceti library and deleted
+that file, so the library now contains no `axiom` and both solution theorems print the standard
+three alone (`scripts/check_axioms.sh` check 5, `GQ2/AxiomLedger.lean`).  The two theorems still
+print identical axiom sets — *proving* the Labute instance rather than assuming it widened the
+trust base by nothing at all.
 
 Conjugation convention: `Γ_R`'s words follow the paper's `conjP x g = g⁻¹ x g`, as `Γ_A`'s do.
 The q2 archive that independently pins the `Γ_R` marking counts writes `g^h = h g h⁻¹`; the two

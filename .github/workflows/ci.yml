@@ -18,22 +18,121 @@ jobs:
   build:
     name: Build and audit
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # GQ2.lean imports GQ2.TauCeti.Main, so the build also needs Tau Ceti's import closure
+    # (several thousand modules). They are unpacked from the Tau Ceti cache below; a cache miss
+    # compiles them from source and may exceed this limit.
+    timeout-minutes: 120
 
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Build Lean project
+      # Install Lean and materialize the dependency workspace. This restores Mathlib through its
+      # own cache (`lake exe cache get`) but leaves the project build to the step below, so that
+      # the Tau Ceti cache map is in place first.
+      - name: Set up Lean and restore Mathlib
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
         with:
           auto-config: false
-          build: true
-          build-args: GQ2 Challenge Solution
+          build: false
           use-mathlib-cache: true
+
+      # Fetch Tau Ceti's cache map from its public Lake service (modelled on the step of the same
+      # name in TauCetiProject/TauCetiRoadmap's CI). Artifacts stay lazy: the build downloads only
+      # the Tau Ceti modules it imports. A cache outage falls back to building them from source.
+      - name: Fetch Tau Ceti cache map
+        id: tauceti_cache
+        shell: bash
+        env:
+          PUBLIC_ARTIFACT_ENDPOINT: https://cache.taucetiproject.org/artifacts
+          PUBLIC_REVISION_ENDPOINT: https://cache.taucetiproject.org/revisions
+        run: |
+          set -euo pipefail
+          config="$RUNNER_TEMP/tauceti-lake-cache.toml"
+          cache_dir="$GITHUB_WORKSPACE/.lake/cache"
+          cat > "$config" <<TOML
+          cache.defaultService = "tauceti-public"
+          [[cache.service]]
+          name = "tauceti-public"
+          kind = "s3"
+          artifactEndpoint = "$PUBLIC_ARTIFACT_ENDPOINT"
+          revisionEndpoint = "$PUBLIC_REVISION_ENDPOINT"
+          TOML
+
+          discard_cache() {
+            [ -e "$cache_dir" ] || return 0
+            stale="$cache_dir.discard.$$"
+            if mv "$cache_dir" "$stale" 2>/dev/null; then
+              rm -rf "$stale" 2>/dev/null || true
+            else
+              rm -rf "$cache_dir" 2>/dev/null || true
+            fi
+          }
+
+          clean=0
+          attempts=3
+          for attempt in $(seq 1 "$attempts"); do
+            discard_cache
+            log="$RUNNER_TEMP/tauceti-cache-get-$attempt.log"
+            rc=0
+            LAKE_CONFIG="$config" LAKE_CACHE_DIR="$cache_dir" \
+                lake cache get --package=TauCeti --service=tauceti-public \
+                  --repo=TauCetiProject/TauCeti --mappings-only --max-revs=20 \
+                  > "$log" 2>&1 || rc=$?
+            cat "$log"
+
+            if [ "$rc" = 0 ]; then
+              clean=1
+              break
+            fi
+            if grep -q 'no outputs found' "$log"; then
+              break
+            fi
+            if [ "$attempt" != "$attempts" ]; then
+              echo "::notice::Tau Ceti cache-map fetch attempt $attempt failed; retrying from an empty cache"
+              sleep 2
+            fi
+          done
+
+          if [ "$clean" = 1 ]; then
+            echo "enabled=1" >> "$GITHUB_OUTPUT"
+            {
+              echo "LAKE_CONFIG=$config"
+              echo "LAKE_CACHE_DIR=$cache_dir"
+            } >> "$GITHUB_ENV"
+          else
+            echo "::warning::Tau Ceti cache map unavailable; building from source"
+            discard_cache
+            echo "enabled=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      # `GQ2` includes the Tau Ceti route (`GQ2.TauCeti.Instance`, `GQ2.TauCeti.Main`).
+      - name: Build Lean project
+        run: lake build GQ2 Challenge Solution ChallengePalomar SolutionPalomar
+
+      # Keep degradation visible without turning a cache-service outage into a correctness failure.
+      - name: Report Tau Ceti cache use
+        if: ${{ always() && steps.tauceti_cache.outputs.enabled == '1' }}
+        shell: bash
+        run: |
+          count=0
+          if [ -d "$LAKE_CACHE_DIR/artifacts" ]; then
+            count=$(find "$LAKE_CACHE_DIR/artifacts" -type f | wc -l)
+          fi
+          if [ "$count" -eq 0 ]; then
+            echo "::warning::Tau Ceti cache map was found, but the build restored no artifacts"
+          else
+            echo "::notice::The build restored $count Tau Ceti artifact archive(s)"
+          fi
 
       - name: Check axiom and placeholder hygiene
         run: bash scripts/check_axioms.sh
 
       - name: Check transitive axiom ledger
         run: lake env lean GQ2/AxiomLedger.lean
+
+      - name: Check explicit-hypothesis import closure
+        run: lake env lean GQ2/PalomarAxiomAudit.lean
+
+      - name: Check the Tau Ceti capstones and import closure
+        run: lake env lean GQ2/TauCetiAxiomAudit.lean

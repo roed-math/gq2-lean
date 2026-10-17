@@ -276,24 +276,24 @@ noncomputable def d0Lift (hH : IsProP 2 H) (m : Fin 3 → H)
     d0Lift hH m hrel d0A = m 0 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = m 0
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] private lemma d0Lift_S (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0Lift hH m hrel d0S = m 1 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = m 1
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] private lemma d0Lift_Y (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0Lift hH m hrel d0Y = m 2 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = m 2
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 end Lifts
 
@@ -814,14 +814,14 @@ namespace SectionThree
 
 /-- **Lemma 3.7** (paper (15)): for every `u ∈ ℤ₂ˣ` there is a continuous automorphism `Ψ_u`
 of `D₀` acting on `B`-coordinates by `Ā = (1,−2,0) ↦ (1,−2u,0)`, `S̄ = (0,1,0) ↦ (0,u,0)`.
-Consumes axiom **B8** (`peripheralCyclotomicAction`).  Declared here (not in
+Consumes axiom **B8** (`lit.peripheralCyclotomicAction`).  Declared here (not in
 `GQ2/SectionThree.lean`) because the proof needs this file's bridge; same namespace, per the
 Prop. 3.2 precedent (`GQ2/Prop32.lean`). -/
-theorem lemma_3_7 (u : ℤ_[2]ˣ) :
+theorem lemma_3_7 [lit : LiteratureInputs] (u : ℤ_[2]ˣ) :
     ∃ Ψ : ContinuousMulEquiv (D0 : Type) (D0 : Type),
       B.e (abMk (Ψ d0A)) = Multiplicative.ofAdd (1, -2 * (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0S)) = Multiplicative.ofAdd (0, (u : ℤ_[2]), 0) :=
-  ⟨psiEquiv peripheralCyclotomicAction u,
+  ⟨psiEquiv lit.peripheralCyclotomicAction u,
     (bCoordHom_apply B _).symm.trans (bCoord_psiHom_A B _ u),
     (bCoordHom_apply B _).symm.trans (bCoord_psiHom_S B _ u)⟩
 
@@ -1086,12 +1086,12 @@ namespace SectionThree
 /-- **Proposition 3.8, lifting half** (paper (18)/(19)): every `α_{u,b}` lifts to a continuous
 automorphism of `D₀` — `Ψ_u` composed with the shear `Θ_{b'}`, `b' = (b − c(u))u⁻¹`.
 Consumes axiom **B8**.  Declared here per the Prop. 3.2 precedent. -/
-theorem prop_3_8_lift (u : ℤ_[2]ˣ) (b : ℤ_[2]) :
+theorem prop_3_8_lift [lit : LiteratureInputs] (u : ℤ_[2]ˣ) (b : ℤ_[2]) :
     ∃ Ψ : ContinuousMulEquiv (D0 : Type) (D0 : Type),
       B.e (abMk (Ψ d0A)) = Multiplicative.ofAdd (1, -2 * (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0S)) = Multiplicative.ofAdd (0, (u : ℤ_[2]), 0) ∧
       B.e (abMk (Ψ d0Y)) = Multiplicative.ofAdd (0, b, 1) := by
-  set R := peripheralCyclotomicAction with hR
+  set R := lit.peripheralCyclotomicAction with hR
   obtain ⟨c, hc⟩ := bCoord_psiHom_Y B R u
   set b' := (b - c) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) with hb'
   refine ⟨(thetaEquiv b').trans (psiEquiv R u), ?_, ?_, ?_⟩

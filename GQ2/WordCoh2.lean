@@ -489,8 +489,8 @@ theorem shiftCompare_liftGen (g : L) (z : ZMod 2) :
 /-- `liftMarking (liftMark t c) a` maps (via `shiftCompare`) to `shiftLiftMark t a c`. -/
 theorem map_shiftCompare_liftMarking (t : Marking L) (a : Fin 4 → ZMod 2) :
     (liftMarking (liftMark t c) a).map shiftCompare = shiftLiftMark t a c := by
-  simp only [liftMarking, liftMark, Marking.map, shiftLiftMark, Marking.mk.injEq]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> exact shiftCompare_liftGen _ _
+  simp only [liftMarking, liftMark, Marking.map, shiftLiftMark]
+  congr 1 <;> exact shiftCompare_liftGen _ _
 
 /-- The tame relator value's base coordinate of the lift recovers that of `liftMark t c`. -/
 theorem liftMarking_tameValue_g (t : Marking L) (a : Fin 4 → ZMod 2) :
@@ -716,8 +716,8 @@ def liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) : Marking (FiberProd c
 
 @[simp] private theorem map_prSum_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
     (liftMarkFP t c₁ c₂).map FiberProd.prSum = liftMark t (c₁ + c₂) := by
-  simp only [liftMarkFP, Marking.map, liftMark, Marking.mk.injEq]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> exact CentExt.ext rfl (add_zero (0 : ZMod 2))
+  simp only [liftMarkFP, Marking.map, liftMark]
+  congr 1
 
 /-- **Additivity of the relator obstruction.** -/
 theorem relZPair_add [Finite L] (t : Marking L) (c₁ c₂ : TwoCocycle L) :
@@ -836,8 +836,8 @@ marking. -/
 theorem map_Psi_liftMark (t : Marking L) (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
     (liftMark t (coboundaryCocycle lam hlam1)).map (Psi lam hlam1)
       = shiftLiftMark t ![lam t.σ, lam t.τ, lam t.x₀, lam t.x₁] zeroCocycle := by
-  simp only [liftMark, Marking.map, shiftLiftMark, Marking.mk.injEq]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> exact CentExt.ext rfl (by simp [Psi, CentExt.fib, CentExt.base])
+  simp only [liftMark, Marking.map, shiftLiftMark]
+  congr 1 <;> exact CentExt.ext rfl (zero_add _)
 
 /-- **The obstruction of a finite-level coboundary** is `λ (tame relator) + λ (wild relator)`.
 At an admissible level both relators die, so this is `0` — the vanishing of `obs` on `B²`. -/

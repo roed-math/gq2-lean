@@ -59,6 +59,7 @@ variable {A : Type*} [AddCommGroup A] [DistribMulAction C A]
   smul_zero c := Subtype.ext (smul_zero c)
   smul_add c w₁ w₂ := Subtype.ext (smul_add c (w₁ : A) (w₂ : A))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The descended action on the quotient by a `C`-stable additive subgroup. -/
 @[reducible] def stableQuotAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
     DistribMulAction C (A ⧸ W) where
@@ -99,8 +100,7 @@ theorem stableQuotAction_mk'_equivariant (W : AddSubgroup A)
   intro c a
   show (QuotientAddGroup.mk (c • a) : A ⧸ W)
     = QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A c) _ (QuotientAddGroup.mk a)
-  rw [QuotientAddGroup.map_mk]
-  rfl
+  exact (QuotientAddGroup.map_mk W W (DistribSMul.toAddMonoidHom A c) _ a).symm
 
 /-- Exactness of `0 → W → A → A ⧸ W → 0` at the middle. -/
 theorem subtype_range_eq_mk'_ker (W : AddSubgroup A) :

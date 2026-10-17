@@ -521,7 +521,6 @@ theorem hsep_gammaA
   obtain ⟨f₀, hf₀⟩ := mlift_of_relatorFree_marking gq0.1 tHat hprojHat htameHat hwildHat
   refine ⟨⟨f₀, fun γ => hfield (f₀ γ) γ (hf₀ γ)⟩, ?_⟩
   refine Subtype.ext (DFunLike.ext _ _ fun γ => ?_)
-  rw [redTLift_apply]
   exact hf₀ γ
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]

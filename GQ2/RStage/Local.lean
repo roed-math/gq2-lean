@@ -208,7 +208,7 @@ theorem card_fixedPts_eq_card_RCharSub
       right_inv := fun chi => rfl }
   obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
   refine GQ2.FoxH.ElemDual.ext fun a => ?_
-  rw [GQ2.FoxH.ElemDual.smul_apply]
+  refine (GQ2.FoxH.ElemDual.smul_apply _ (chi.1 : GQ2.FoxH.ElemDual _) a).trans ?_
   have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
       = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
           conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
@@ -226,7 +226,7 @@ section ZCount
 additive, the conjugation action through `C = Y/K` pulled back along the surjective
 `mk' K ∘ f₀`), `card_Z1_eq` (5.16 clause (ii), B6+B7), and the invariant-character bridge
 `fixedPts C (R^∨) ≃ D_Rmod` + `blockRChar_card`. -/
-theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hZcount_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -332,7 +332,7 @@ section SepHom
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- First stage of `hsep_hom_local`: when `obs g = 0`, every paired defect class in `H²(Γ,𝔽₂)`
 vanishes (`obs_zero_iff_pairClass_zero`, with the zero-`DR` case handled directly). -/
-private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+private theorem pairClass_all_zero [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
     (g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB)
@@ -369,7 +369,7 @@ are the `cup20`-values of the `R`-valued defect class against the invariant char
 (5.16 clause (vi), B6) then forces `[rDefect] = 0` in `H²(G_ℚ₂, R_ρ)`; `B²`-extraction yields a
 continuous splitting cochain (exponent 2 kills the signs), and `homLift_of_split` assembles the
 lift. -/
-theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem hsep_hom_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -618,7 +618,7 @@ section Assembly
 **`hsep_hom`** — the `(R^∨)^C`-separation (next increment: `prop_5_16` clause (vi) +
 `B²`-extraction + `homLift_of_split`; see the module docstring for the surjectivity
 scoping note). -/
-theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem stageR136_local_of_hsep [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
@@ -640,7 +640,7 @@ theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpac
 (the Prop. 8.9 assembly): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
 the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for the §9 induction).  The
 conclusion is the `stageR136` field of the local `RecursionInputs` bundle, verbatim. -/
-theorem stageR136_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem stageR136_local [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)

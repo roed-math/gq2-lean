@@ -157,14 +157,10 @@ noncomputable def H1congr : H1 G M ≃+ H1 G N where
   left_inv x := by
     induction x using QuotientAddGroup.induction_on with
     | H a =>
-      rw [show (QuotientAddGroup.mk a : H1 G M) = H1mk G M a from rfl, mapCoeff1_H1mk,
-        mapCoeff1_H1mk]
       exact congrArg (H1mk G M) (Subtype.ext (funext fun g => e.symm_apply_apply _))
   right_inv x := by
     induction x using QuotientAddGroup.induction_on with
     | H a =>
-      rw [show (QuotientAddGroup.mk a : H1 G N) = H1mk G N a from rfl, mapCoeff1_H1mk,
-        mapCoeff1_H1mk]
       exact congrArg (H1mk G N) (Subtype.ext (funext fun g => e.apply_symm_apply _))
   map_add' := map_add _
 

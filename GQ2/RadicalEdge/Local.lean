@@ -386,7 +386,7 @@ private theorem shiftedEdge_class_ne_zero (ρ : ContinuousMonoidHom AbsGalQ2 (Bg
 
 /-- **The B6 step**: perfectness of the `(1,1)` pairing plus `[φ] ≠ 0` produce a class
 pairing nontrivially with the shifted edge. -/
-private theorem exists_pairing_partner (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
+private theorem exists_pairing_partner [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (S : TComplement D) (hedge : D.NoDescent) (hρ : Function.Surjective ρ) :
     letI := conjModule D ρ
     haveI := conjModule_continuousSMul D ρ
@@ -472,7 +472,7 @@ statement is action-free (raw cochain level) so the consumer can bridge it to th
 `H²(Γ,𝔽₂)`-class with its own coefficient instances; the *proof* runs B6's perfect `(1,1)`
 pairing on the `ρ`-conjugation module — deliberately in a **minimal context** (no
 compactness, no finiteness), keeping the `μ₂`-dual instance searches tame. -/
-private theorem exists_good_twist (S : TComplement D)
+private theorem exists_good_twist [LiteratureInputs] (S : TComplement D)
     (hedge : D.NoDescent)
     (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (hρ : Function.Surjective ρ) :
@@ -520,7 +520,7 @@ end GoodTwist
 
 /-- **Lemma 8.6, local source, engine form** — the half-torsor count for `G_ℚ₂` from
 `NoDescent`, via B6.  Consumed by `SectionEight.lemma_8_6_local`. -/
-theorem half_torsor_local
+theorem half_torsor_local [LiteratureInputs]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hfg : ∃ s : Finset AbsGalQ2,
       (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)

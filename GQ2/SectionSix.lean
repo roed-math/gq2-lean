@@ -528,9 +528,14 @@ instance : Inv (SemiProd C V) := ⟨fun p ↦ (-(p.2⁻¹ • p.1), p.2⁻¹)⟩
 
 instance : Group (SemiProd C V) :=
   Group.ofLeftAxioms
-    (fun p q r ↦ by simp [mul_def, smul_add, mul_smul, add_assoc, mul_assoc])
-    (fun p ↦ by simp [mul_def, one_def])
-    (fun p ↦ by simp [mul_def, inv_def, one_def])
+    (fun p q r ↦ Prod.ext
+      (show p.1 + p.2 • q.1 + (p.2 * q.2) • r.1 = p.1 + p.2 • (q.1 + q.2 • r.1) by
+        rw [smul_add, mul_smul, add_assoc])
+      (mul_assoc p.2 q.2 r.2))
+    (fun p ↦ Prod.ext (show (0 : V) + (1 : C) • p.1 = p.1 by rw [one_smul, zero_add])
+      (one_mul p.2))
+    (fun p ↦ Prod.ext (show -(p.2⁻¹ • p.1) + p.2⁻¹ • p.1 = 0 from neg_add_cancel _)
+      (inv_mul_cancel p.2))
 
 /-- The fibre subgroup `V × {1} ≤ V ⋊ C`. -/
 def fibre : Subgroup (SemiProd C V) where
@@ -586,39 +591,38 @@ theorem lemma_6_13_evens
     H2ofFun (SemiProd (Multiplicative (ZMod 2)) swapE)
         (fun p ↦ kappa0 twoPointDatum p.1 p.2)
       = evensNormH2 htriv hUo hUi hs fibreCoord hα hαc := by
-  subst hsJ
   have hcase : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
   have hmemU : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
       x ∈ SemiProd.fibre ↔ x.2 = 1 := fun _ ↦ Iff.rfl
   -- `b₁((v,c)) = v₁` in both membership branches
   have ha1 : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
-      evensAux SemiProd.fibre ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2))
-        fibreCoord x = x.1.1 := by
+      evensAux SemiProd.fibre sJ fibreCoord x = x.1.1 := by
     intro x
     by_cases hx : x ∈ SemiProd.fibre
     · rw [evensAux_of_mem fibreCoord hx]; rfl
     · rw [evensAux_of_notMem hUi hs fibreCoord hx]
-      simp [fibreCoord, SemiProd.mul_def]
+      simp only [fibreCoord, SemiProd.mul_def]
+      subst hsJ
+      simp
   -- `b_s((w,d)) = w₂` in both branches
   have hbs : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
-      bS SemiProd.fibre ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2))
-        fibreCoord x = x.1.2 := by
+      bS SemiProd.fibre sJ fibreCoord x = x.1.2 := by
     intro x
     simp only [bS]
     rw [ha1]
-    simp +decide [SemiProd.mul_def, SemiProd.inv_def, Prod.swap]
+    simp only [SemiProd.mul_def]
+    simp only [SemiProd.inv_def]
+    subst hsJ
+    simp +decide [Prod.swap]
   -- the two raw cocycles coincide on the nose
   have hfun : (fun p : SemiProd (Multiplicative (ZMod 2)) swapE ×
         SemiProd (Multiplicative (ZMod 2)) swapE ↦ kappa0 twoPointDatum p.1 p.2)
-      = evensNormFun SemiProd.fibre
-          ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2)) fibreCoord := by
+      = evensNormFun SemiProd.fibre sJ fibreCoord := by
     funext p
     rw [evensNormFun]
     by_cases hp : p.1 ∈ SemiProd.fibre
     · rw [if_pos hp, ha1, hbs]
       have h1 : p.1.2 = 1 := (hmemU p.1).mp hp
-      show kappa0 twoPointDatum p.1 p.2 = _
-      rw [kappa0]
       show twoPointDatum.f p.1.1 (p.1.2 • p.2.1) + twoPointDatum.m p.1.2 p.2.1 = _
       rw [h1]
       simp +decide [twoPointDatum]
@@ -632,8 +636,6 @@ theorem lemma_6_13_evens
             simpa using h0)) hp
         · rw [← h]
           exact (ofAdd_toAdd _).symm
-      show kappa0 twoPointDatum p.1 p.2 = _
-      rw [kappa0]
       show twoPointDatum.f p.1.1 (p.1.2 • p.2.1) + twoPointDatum.m p.1.2 p.2.1 = _
       rw [h1]
       simp +decide [twoPointDatum, Prod.swap]
@@ -757,7 +759,7 @@ local fields", needed by B9/B11) and the **Kummer presentation of `L/k`** — th
 unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, the deep-part proof)
 construct these concretely, and char-≠2 Kummer theory guarantees them abstractly.  See
 `docs/section67-extraction.md`.] -/
-theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+theorem lemma_6_16 [LiteratureInputs] (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)

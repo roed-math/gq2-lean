@@ -91,7 +91,7 @@ theorem commP_wordLift (Gv Hv : ℤ_[2]ˣ) (Dg Dh : ℤ_[2]) :
     commP (⟨Dg, Gv⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Dh, Hv⟩
       = ⟨(↑(Gv⁻¹) : ℤ_[2]) * ((↑(Hv⁻¹) : ℤ_[2]) - 1) * Dg
           + (↑(Hv⁻¹) : ℤ_[2]) * (1 - (↑(Gv⁻¹) : ℤ_[2])) * Dh, commP Gv Hv⟩ := by
-  ext
+  ext1
   · simp only [commP, WordLift.mul_u, WordLift.mul_g, WordLift.inv_u, WordLift.inv_g,
       Units.smul_def, smul_eq_mul, Units.val_mul]
     linear_combination ((Hv⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * Dh * Units.inv_mul Gv
@@ -136,7 +136,7 @@ theorem drWord_wordLift (S X Y : ℤ_[2]ˣ) (Ds Dx Dy : ℤ_[2]) :
   have h3 : (⟨Dx, X⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 3 = ⟨Dx, X⟩ * ⟨Dx, X⟩ * ⟨Dx, X⟩ := by
     rw [pow_succ, pow_succ, pow_one]
   have h2 : (⟨Dy, Y⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 2 = ⟨Dy, Y⟩ * ⟨Dy, Y⟩ := pow_two _
-  ext
+  ext1
   · simp only [drWord, h3, h2, conjP, commP, csR, cxR, cyR, WordLift.mul_u, WordLift.mul_g,
       WordLift.inv_u, WordLift.inv_g, Units.smul_def, smul_eq_mul, mul_inv_rev, inv_inv,
       Units.val_mul]

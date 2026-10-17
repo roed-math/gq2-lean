@@ -22,7 +22,7 @@ cycle that would arise if the theorem lived with the shared definitions in `Sect
 involution `hunram` (odd tame inertia ⟹ the involution extension is unramified, in CFT
 vocabulary).  So `prop_6_18_ramified` gains `(R, horient)` as hypotheses (the `hc`/`hV2`
 precedent); consumers discharge them at `B := boundaryMapsWitness` via
-`TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := localReciprocity` (B5).
+`TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := LiteratureInputs.localReciprocity` (B5).
 
 Axioms: std-3 + {B6, B7, B9, B11a} (B11b/B12/B13 have since been discharged as in-repo std-3
 theorems/defs; the original budget was `lemma_6_17_dim_final`'s B6/B7/B11a/B12/B13 +
@@ -50,7 +50,7 @@ Proved from the two §6.3 Kummer cores now that both are proved downstream:
 (`Q⁰_loc|X₊ = 0`), fed to the banked Lagrangian-Arf count `card_Q0loc_zero_eq_of_dim_of_vanish`.
 Amended (the architecture review flag) with `(R, horient)` — the reciprocity datum `lemma_6_17_vanish_final`
 requires; consumers discharge it at the boundary-maps witness. -/
-theorem prop_6_18_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+theorem prop_6_18_ramified [LiteratureInputs] (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)

@@ -23,6 +23,8 @@ import GQ2.Reconstruction
 import GQ2.Statement
 import GQ2.GammaA
 import GQ2.Foundations
+import GQ2.Foundations.LiteratureInputs
+import GQ2.Foundations.TauCetiInstance
 import GQ2.Foundations.Axioms
 import GQ2.Foundations.Interfaces
 import GQ2.EulerCharacteristic
@@ -1457,3 +1459,5 @@ import GQ2.Dyadic.MarkedCore.NNielsenGenerators
 import GQ2.Dyadic.MarkedCore.NNielsenFactorization
 import GQ2.Dyadic.MarkedCore.MNielsenHandles
 import GQ2.Dyadic.MarkedCore.NNielsenHandles
+import GQ2.TauCeti.Instance
+import GQ2.TauCeti.Main

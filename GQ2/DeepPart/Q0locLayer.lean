@@ -438,7 +438,7 @@ noncomputable def deepPartSubgroup (ρ : ContinuousMonoidHom AbsGalQ2 C)
         0, fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_lt_one⟩
     · congr 1
       funext n
-      rw [Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])]
+      refine (Kummer.kummerCocycleFun_eq0 ((AlgEquiv.smul_def _ _).trans (map_one _))).trans ?_
       have hv := vanish_on_ker_of_H1mk_eq_zero ρ hρ (H1mk_out (0 : H1 AbsGalQ2 V)) n
       rw [hv, map_zero]
   add_mem' := by
@@ -544,7 +544,7 @@ omit [Finite C] in
 `#X₊² = #H¹`) and the vanishing clause (`hvanish`, `Q⁰_loc|X₊ = 0`), the zero-count of
 `Q⁰_loc` is `2^{2m−1} + 2^{m−1}` — the positive Gauss sign, via the Lagrangian Arf package
 (`arf_zero_of_card_sq`) and the Euler-characteristic count.  Ax: **B6** (via `D`), **B7**. -/
-theorem card_Q0loc_zero_eq_of_dim_of_vanish (D : TateDuality 2)
+theorem card_Q0loc_zero_eq_of_dim_of_vanish [GQ2.LiteratureInputs] (D : TateDuality 2)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

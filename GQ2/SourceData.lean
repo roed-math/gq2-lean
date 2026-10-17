@@ -384,7 +384,7 @@ recon's external-`G0` seam): `SectionNine.gaussZ_obtain_blockD` replayed — the
 `F.alpha τ`, source-independent) are decided once, and each source contributes exactly its
 dichotomy leaf at the resulting `G0 = ∓2^m`: the abstract slot through
 `gaussZ_unramified`/`gaussZ_ramified`, the `G_ℚ₂` slot through the proved local twins. -/
-theorem gaussZ_obtain_blockD_of_sources {Y : Type} [Group Y] [TopologicalSpace Y]
+theorem gaussZ_obtain_blockD_of_sources [LiteratureInputs] {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY)
     [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
@@ -438,7 +438,7 @@ theorem gaussZ_obtain_blockD_of_sources {Y : Type} [Group Y] [TopologicalSpace Y
 from the structure's fields.  R32 consumes this at `sourceR`; the `Γ_A` capstone
 `SectionEight.prop_8_9` is (equivalently) the same statement at `B.sourceA`, re-derived in
 `GQ2/Prop89Close.lean` directly from the unbundled form. -/
-theorem prop_8_9_of_sources (S : SourceData) (B : BoundaryMaps) {Y : Type} [Group Y]
+theorem prop_8_9_of_sources [LiteratureInputs] (S : SourceData) (B : BoundaryMaps) {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
     (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)

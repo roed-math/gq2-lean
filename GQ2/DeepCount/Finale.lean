@@ -43,7 +43,7 @@ self-duality `eU`/`heU` (§H's `dualSelfDual(_equivariant)` given the 6.17 invar
 the dualized inertia `ht₀U` (§H's `exists_dualModule_smul_ne` given `hram`), a
 residue-trivial lift `g₀` of `t₀` (tame inertia; the f8 arithmetic), and the B13 bundle
 data for the splitting field `k` with the pointwise kernel identification `hker`. -/
-theorem hduality_of_data (hρsurj : Function.Surjective ⇑ρ)
+theorem hduality_of_data [LiteratureInputs] (hρsurj : Function.Surjective ⇑ρ)
     [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
     (hsimple : ∀ S : AddSubgroup (V →+ ZMod 2),
       (∀ (h : C), ∀ w ∈ S,

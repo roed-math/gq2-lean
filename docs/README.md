@@ -4,10 +4,23 @@ The documentation is organized by review task. Files at the top level of `docs/`
 mathematical or technical references. `docs/orchestration/` is a historical archive of the agent
 workflow that produced the proof; it is useful for provenance and design rationale, but its ticket
 states are not current project status. Two files in that directory are the exception and are
-live: [`orchestration/roe-tickets.md`](orchestration/roe-tickets.md) and
-[`orchestration/roe-verification-plan.md`](orchestration/roe-verification-plan.md), the board and
-plan for the in-flight Γ_R campaign.
-[`dyadic/`](dyadic/) is the live general-2-adic (ramified-i) campaign: plan, board, refs, surveys.
+live until the campaign's owner gate G2 is recorded:
+[`orchestration/tauceti-tickets.md`](orchestration/tauceti-tickets.md) and
+[`orchestration/tauceti-proof-plan.md`](orchestration/tauceti-proof-plan.md), the board and plan
+of the campaign that proved the nine literature inputs from the Tau Ceti library (the earlier
+Γ_R board and plan were archived on 2026-07-26).
+
+**Current state (2026-10-17):** the library contains no `axiom` declaration (census 0). The nine
+literature inputs that were axioms until then are proved from
+[Tau Ceti](https://github.com/TauCetiProject/TauCeti) (revision `706344c35`) by the adapters in
+`GQ2/TauCeti/`; their legacy names and statements are kept in
+`GQ2/Foundations/TauCetiInstance.lean`, and every declaration under `GQ2` is at the standard three
+axioms. See the Tau Ceti section below.
+
+[`dyadic/`](dyadic/) holds the general-2-adic (ramified-`i`) campaign: plan, board, refs,
+surveys; its own Tau Ceti discharge (the same programme for this branch, census 11 → 0) is planned in
+[`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md) with board
+[`dyadic/tauceti-discharge-tickets.md`](dyadic/tauceti-discharge-tickets.md).
 
 The original submitted paper is retained at
 [`paper/A_Profinite_Presentation_for_G__Q_2.pdf`](../paper/A_Profinite_Presentation_for_G__Q_2.pdf).
@@ -21,8 +34,8 @@ over displayed theorem numbers.
 |---|---|
 | [`atlas.md`](atlas.md) | Explains Lean Atlas, the Lean Compass semantic-review cone, the separate kernel axiom check, and how to regenerate `atlas-audit.md`. |
 | [`paper-api.md`](paper-api.md) | Defines the stable paper-to-Lean API policy using semantic HTML ids and `data-lean-ref` declarations. |
-| [`literature-axioms-onepage.md`](literature-axioms-onepage.md) | One-page expert checklist for the nine external mathematical inputs. |
-| [`literature-axioms.md`](literature-axioms.md) | Full statements, citations, encoding choices, and verification discussion for the literature inputs. |
+| [`literature-axioms-onepage.md`](literature-axioms-onepage.md) | One-page expert checklist for the nine external mathematical inputs, each with the Tau Ceti source and gq2 adapter that proves it. |
+| [`literature-axioms.md`](literature-axioms.md) | Full statements, citations, encoding choices, and verification discussion for the literature inputs, and (since 2026-10-17) how each is proved from Tau Ceti. |
 | [`adversarial-axioms-review.md`](adversarial-axioms-review.md) | Dated adversarial review of whether the Lean axiom interfaces are supported by the cited sources. Later census decisions are called out explicitly rather than silently rewriting the historical findings. |
 | [`angdinata-review-plan.md`](angdinata-review-plan.md) | Response plan for an external four-point review of the axiom interfaces: the verdict on each point, the state of cup products in Mathlib and FLT, and the resulting work items. |
 | [`foundations-audit.md`](foundations-audit.md) | Dated survey of which required foundations existed in the pinned Mathlib revision and which gaps had to be filled locally. |
@@ -42,6 +55,21 @@ over displayed theorem numbers.
 | [`section9-extraction.md`](section9-extraction.md) | Paper §9 crosswalk and architecture of the terminal, block, and induction lanes. |
 | [`section10-extraction.md`](section10-extraction.md) | Paper §10 crosswalk for tame-frame exhaustion, equation (154), and the count-form capstone. |
 | [`tickets.md`](tickets.md) | Concise proof-development history retained at its established path; it summarizes the mathematical route without acting as a live ticket board. |
+
+## The Tau Ceti discharge campaign
+
+The nine literature inputs (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) were the project's only axioms.
+In October 2026 each was proved from the Tau Ceti library, and the axiom file was deleted
+(census 9 → 0, owner gate G1, 2026-10-17). The trust base is now Lean's standard three axioms plus
+Tau Ceti's proofs at the pinned revision (owner gate G0).
+
+| File | Purpose |
+|---|---|
+| [`orchestration/tauceti-proof-plan.md`](orchestration/tauceti-proof-plan.md) | Live until G2. The plan: platform decisions, the axiom-by-axiom map to Tau Ceti, assembly and census flip. |
+| [`orchestration/tauceti-tickets.md`](orchestration/tauceti-tickets.md) | Live until G2. The ticket board with each ticket's landing commit. |
+| [`orchestration/tauceti-t2-recon.md`](orchestration/tauceti-t2-recon.md) | The recon memo: exact Tau Ceti signatures, instance needs, the cross-cutting hazards (unexposed Tau Ceti definitions, instance-search timeouts, separable vs algebraic closure) and the corrections to the plan. |
+| [`orchestration/tauceti-t2-evidence/`](orchestration/tauceti-t2-evidence/README.md) | The recon's scratch prototypes and probes (outside every `lean_lib`). |
+| `../GQ2/TauCeti/` | The adapters (one file per input, plus the dictionaries `GaloisDict`, `CohomologyDict`, `ProPDict`, `StiefelWhitneyDict`, `DualizingGroup`), `Instance.lean` (the bundle) and `Main.lean` (the four `*_tauceti` capstones). |
 
 ## The Γ_R (Roe-candidate) campaign
 
@@ -83,8 +111,11 @@ there:
   and [`../Solution.lean`](../Solution.lean) — the Comparator validation pair;
 - [`../atlas-audit.md`](../atlas-audit.md) — committed, regenerated Lean Compass and kernel-axiom
   report;
-- [`../scripts/check_axioms.sh`](../scripts/check_axioms.sh) — the primary gate: axiom census,
-  `sorry`/`native_decide` hygiene, and the per-capstone expected-axiom audit;
+- [`../scripts/check_axioms.sh`](../scripts/check_axioms.sh) — the primary gate: axiom census
+  (now 0), `sorry`/`native_decide` hygiene, the per-capstone expected-axiom audit (every capstone at
+  exactly the standard three), and the Palomar and Tau Ceti import-closure audits
+  ([`../GQ2/PalomarAxiomAudit.lean`](../GQ2/PalomarAxiomAudit.lean),
+  [`../GQ2/TauCetiAxiomAudit.lean`](../GQ2/TauCetiAxiomAudit.lean));
 - [`../scripts/atlas_audit.py`](../scripts/atlas_audit.py) and
   [`../scripts/paper_api_audit.py`](../scripts/paper_api_audit.py) — report generators;
 - [`../scripts/roe_sanity_counts.py`](../scripts/roe_sanity_counts.py) — independent
@@ -96,15 +127,18 @@ there:
 records produced during the July 2026 agent-assisted formalization. These files often contain
 valuable mathematical reasoning, but words such as “open”, “blocked”, “remaining”, and “sorried”
 describe the moment when the note was written. They must not be used as a current ledger — with
-the two exceptions named above, `roe-tickets.md` and `roe-verification-plan.md`, which are the
-live board and plan of the Γ_R campaign.
+the two exceptions named above, `tauceti-tickets.md` and `tauceti-proof-plan.md`, which stay live
+until the Tau Ceti campaign's G2 is recorded (the Γ_R campaign's `roe-tickets.md` and
+`roe-verification-plan.md` were archived on 2026-07-26).
 
 The archive's [`README.md`](orchestration/README.md) lists every retained file and explains its
 historical role. Current truth comes from the Lean sources and mechanical gates:
 
 ```sh
-lake build
+lake build        # with the Tau Ceti cache variables set (see README.md); otherwise Tau Ceti's
+                  # import closure is compiled from source
 bash scripts/check_axioms.sh
 lake env lean GQ2/AxiomLedger.lean
+lake env lean GQ2/TauCetiAxiomAudit.lean
 python3 scripts/atlas_audit.py atlas-graph.json
 ```

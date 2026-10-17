@@ -252,31 +252,31 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
 /-- The norm-form direction of the **B11** criterion, applied: an explicit representation
 `b = x² − a y²` kills the symbol.  This consumes **B11a** directly rather than the bundled
 `dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without the unused B11b clause. -/
-theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
+theorem cup_of_normForm [lit : LiteratureInputs] (a b : (↥k)ˣ) (x y : ↥k)
     (hb : (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
-  (hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
+  (lit.hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
 
 /-- `(a, −a) = 0` — the norm form represents `−a` as `0² − a·1²`. -/
-theorem cup_neg_self (a : (↥k)ˣ) :
+theorem cup_neg_self [LiteratureInputs] (a : (↥k)ˣ) :
     kummerClassK k a ⌣[htriv] kummerClassK k (-a) = 0 :=
   cup_of_normForm k htriv a (-a) 0 1 (by rw [Units.val_neg]; ring)
 
 /-- Steinberg `(a, 1−a) = 0` — the norm form represents `1 − a` as `1² − a·1²`. -/
-theorem cup_steinberg (a b : (↥k)ˣ) (hab : (b : ↥k) = 1 - (a : ↥k)) :
+theorem cup_steinberg [LiteratureInputs] (a b : (↥k)ˣ) (hab : (b : ↥k) = 1 - (a : ↥k)) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
   cup_of_normForm k htriv a b 1 1 (by rw [hab]; ring)
 
 /-- `(2, −1) = 0` — `−1 = 1² − 2·1²` (the paper's `2 = N_{k(i)/k}(1+i)` step, replaced by the
 explicit dyadic representation; cf. the B11 docstring). -/
-theorem cup_two_neg_one :
+theorem cup_two_neg_one [LiteratureInputs] :
     kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (-1) = 0 :=
   cup_of_normForm k htriv (twoUnit k) (-1) 1 1 (by
     simp only [Units.val_neg, Units.val_one, twoUnit, Units.val_mk0]
     ring)
 
 /-- `(a, a) = (a, −1)` (derived: `0 = (a, −a) = (a, −1) + (a, a)` + 2-torsion). -/
-theorem cup_self_eq_neg_one (a : (↥k)ˣ) :
+theorem cup_self_eq_neg_one [LiteratureInputs] (a : (↥k)ˣ) :
     kummerClassK k a ⌣[htriv] kummerClassK k a
       = kummerClassK k a ⌣[htriv] kummerClassK k (-1) := by
   have h0 := cup_neg_self k htriv a
@@ -289,7 +289,7 @@ theorem cup_self_eq_neg_one (a : (↥k)ˣ) :
 
 /-- Unramified unit-norm vanishing: if `k(δa)/k` has equal norm value groups then every unit
 symbol `(a, u)` dies — the **B11** clause-2 consumer. -/
-theorem cup_unramified_unit (a : (↥k)ˣ) (δa : ℚ̄₂)
+theorem cup_unramified_unit [LiteratureInputs] (a : (↥k)ˣ) (δa : ℚ̄₂)
     (hδa : δa ^ 2 = ((a : ↥k) : ℚ̄₂))
     (hunram : ∀ z : ℚ̄₂, z ≠ 0 → (∃ x y : ↥k, z = x + y * δa) →
       ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖)
@@ -552,7 +552,7 @@ private lemma kummerClassK_eq_of_sq_ratio (k : IntermediateField ℚ_[2] ℚ̄�
 set_option maxHeartbeats 300000 in
 /-- Step 5 of the ledger: for `[n] = [p]` with `p = 2u − 1`, Steinberg (`(2u, 1−2u) = 0`) and
 `(2, −1) = 0` give `(2, n) + (u, n) = (u, −1)`. -/
-private lemma cup_two_add_cup_eq_cup_neg_one (k : IntermediateField ℚ_[2] ℚ̄₂)
+private lemma cup_two_add_cup_eq_cup_neg_one [LiteratureInputs] (k : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] k] (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (u n p : (↥k)ˣ) (hp : (p : ↥k) = 2 * (u : ↥k) - 1)
     (hnp : kummerClassK k n = kummerClassK k p) :
@@ -594,7 +594,7 @@ Route (O-finish; every ingredient is in this file, B9, or B11):
    `[n] = [2u−1]`; `cup_steinberg` (at `a := 2u`, `b := 1−2u`, sign-flipped through
    `cup_neg_self`) turns `(2u, 2u−1)` into `(2u, −1)`; `cup_two_neg_one` reduces
    `(2u,−1) = (u,−1)`; `h2_add_self` cancels the two surviving terms. -/
-theorem evensNorm_deepUnit_vanish
+theorem evensNorm_deepUnit_vanish [LiteratureInputs]
     (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (u n d : (↥k)ˣ) (v : ↥k)
     (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
@@ -902,7 +902,7 @@ variable (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
 /-- **Eq. (94), deep ⟂ deep** (the deep-part proof's isotropy `hiso` and the Lemma 6.17 vanishing proof's free-orbit leaf): the
 symbol of two deep units vanishes.  std-3 ∪ {B11a}. -/
-theorem cup_deep_deep (a b : (↥k)ˣ)
+theorem cup_deep_deep [LiteratureInputs] (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖)
     (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 := by
@@ -911,7 +911,7 @@ theorem cup_deep_deep (a b : (↥k)ˣ)
 
 /-- **Eq. (94), mid ⟂ deep** — `(U_e, U_{e+1}) = 1` (the deep-part proof's `hsharp` inclusion input): the
 symbol of a MID unit against a deep unit vanishes.  std-3 ∪ {B11a}. -/
-theorem cup_mid_deep (a b : (↥k)ˣ)
+theorem cup_mid_deep [LiteratureInputs] (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖)
     (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
     kummerClassK k a ⌣[htriv] kummerClassK k b = 0 := by

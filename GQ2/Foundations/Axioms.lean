@@ -5,15 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
-public import GQ2.Statement
-public import GQ2.Cohomology
-public import GQ2.Reciprocity
-public import GQ2.TateDuality
-public import GQ2.EvensKahn
-public import GQ2.PeripheralAction
-public import GQ2.Orientation
-public import GQ2.TameQuotient
-public import GQ2.TraceForm
+public import GQ2.Foundations.TauCetiInstance
 public import GQ2.Dyadic.MarkedRecipBundle
 public import GQ2.UnitFiltration
 public import GQ2.Dyadic.OrientedTameBundle
@@ -21,161 +13,34 @@ public import GQ2.Dyadic.OrientedTameBundle
 @[expose] public section
 
 /-!
-# Classical literature inputs for Theorem 1.2
+# Classical literature inputs: the remaining axioms (census 2)
 
-Every `axiom` in the GQ2 library lives in this file, a rule enforced by
-`scripts/check_axioms.sh` — and since 2026-07-27 the file contains the nine `axiom`
-declarations and **nothing else**, so that its transitive imports are exactly the statement
-vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
-the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
+Every `axiom` in the GQ2 library lives in this file, a rule enforced by `scripts/check_axioms.sh`.
+Until 2026-10-17 it held eleven: the nine ℚ₂ inputs of Theorem 1.2 and the two `K`-level inputs of
+the dyadic campaign.  The Tau Ceti discharge campaign (`docs/orchestration/tauceti-tickets.md`,
+merged into this branch) proved the nine from the Tau Ceti library; they are now theorems and
+definitions under their legacy names in `GQ2/Foundations/TauCetiInstance.lean`, with their
+statements unchanged, and this file keeps the two that remain:
 
-The current census contains eleven axioms:
-
-* **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — topological finite generation
-  of `G_ℚ₂`.
-* **B3c** `dyadicOrientation` — the canonical dyadic orientation in the marked cyclotomic
-  interface used by Proposition 1.1.
-* **B5** `localReciprocity` — local reciprocity for `ℚ₂` with the paper normalization.
 * **B5-K** `markedRecipAt` — marked local reciprocity over every finite `K/ℚ₂` (AX3;
   owner-approved 2026-07-29).
-* **B6** `tateDualityAt` — local Tate duality over every finite extension of `ℚ₂`.
-* **B7** `Foundations.absGalQ2_localEulerCharacteristic` — the local Euler characteristic.
-* **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
-  `Δ = maxPro2(F₂)`.
-* **B9** `relativeStiefelWhitney_dyadic` — the degree-at-most-two relative Stiefel–Whitney
-  (Evens–Kahn) identity over finite dyadic bases.
-* **B10** `tameQuotient` — the oriented tame quotient of `G_ℚ₂`.
 * **B10-K** `orientedTameQuotientAt` — the oriented tame quotient of `G_K` at `q_K` for every
   finite `K/ℚ₂` (AX4; owner-approved 2026-07-29).
-* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — the Hilbert-symbol norm criterion over
-  finite dyadic bases.
 
-Five interfaces that were formerly axioms are constructed in the repository under the same
-names: `HilbertSymbol.hilbertSymbol_dyadic`, `unramifiedQuadratic_units_are_norms`,
-`kummerClassK_surjective`, `dyadicUnitFiltration`, and `evensKahn_dyadic` (since 2026-07-24 a
-theorem derived from the current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a).
-They live in **`GQ2/Foundations/Interfaces.lean`** — together with the B6 base member
-`tateDuality` and the `HasEqualNormValueGroups` convention `def` — because their *proofs* are
-what used to pull the proof layer into this file's transitive imports.  Keeping their public
-names unchanged lets consumers use the proved implementations without an API migration.
-
-For review, the live leaves fall into three citation-faithfulness classes:
-
-* **direct classical theorems:** B1, B6, and B7;
-* **classical theorems with encoding choices:** B5, B5-K, B9, B10, and B10-K;
-* **composite project interfaces:** B3c, B8, and B11a.
-
-The declaration docstrings below give the precise statement, source citation, paper
-cross-reference, and any encoding or convention that prevents the Lean statement from being a
-verbatim transcription of one published theorem.  The full dependency table is in
-`docs/literature-axioms.md`, matching Appendix D of the paper.
+Both are the subject of `docs/dyadic/tauceti-discharge-plan.md`, which proves them from Tau
+Ceti's local class field theory at a finite `K` and then deletes this file (census 2 → 0).  Their
+docstrings below give the precise statement, source citation, paper cross-reference and encoding
+conventions; the dependency table is `docs/dyadic/literature-axioms-dyadic.md`.
 
 References from the paper bibliography:
 
 [1] Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed., Springer 2015.  (NSW)
-[2] Labute, *Classification of Demushkin groups*, Canad. J. Math. 19 (1967), 106–132.
-[3] Serre, *Structure de certains pro-p-groupes*, Sém. Bourbaki 252 (1962–64).
-[4] Ribes–Zalesskiĭ, *Profinite Groups*, 2nd ed., Springer 2010.  (RZ)
 [7] Serre, *Local Fields*, GTM 67, Springer 1979.
-[CiA] Serre, *A Course in Arithmetic*, GTM 7, Springer 1973.
 -/
 
 open GQ2.ContCoh
 
-namespace GQ2.Foundations
-
-open scoped Classical
-
-/-! ## B1 — topological finite generation -/
-
-/-- **[Classical — B1.]** The absolute Galois group of a `p`-adic local field is *topologically
-finitely generated* (in fact by `[K : ℚ_p] + 2` elements).  For `K = ℚ₂` this is the
-input `hfgG` that `main_presentation` feeds to `reconstruction`.
-
-Citation: NSW [1], Ch. VII §7.4, Theorem (7.4.1) — for every `p`-adic local field `k`,
-`G_k` is generated by `N+2` elements (`N=[k:ℚ_p]`).  This theorem applies at `p=2` and is the
-direct source for the statement below.  Jannsen, *Invent. Math.* 70 (1982), Satz 3.2 and
-Lemma 3.3, gives the weaker `N+3` bound, which would also suffice.  Verified against the cited
-PDFs; the audit copies are not vendored in this repository.
-
-This is a genuine, faithful Lean statement: it is exactly the topological-finite-generation
-predicate used throughout `Reconstruction.lean`.  Paper: Lemma 2.5 (the `hfgG` input to the
-reconstruction argument). -/
-axiom absGalQ2_isTopologicallyFinitelyGenerated :
-    ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤
-
-/-! ## B7 — the local Euler–Poincaré characteristic
-
-Statement conventions, citation discussion, and the derived stress tests
-(`finite_H1`, `card_H1`, …) are in `GQ2/EulerCharacteristic.lean`, which imports this file. -/
-
-/-- **[Classical — B7 (local Euler–Poincaré characteristic).]**  For every finite discrete
-`G_ℚ₂`-module `M`, the continuous cohomology groups `Hⁱ(G_ℚ₂, M)` are finite for `i = 0, 1, 2`,
-and
-
-  `#H¹(G_ℚ₂, M) = #H⁰(G_ℚ₂, M) · #H²(G_ℚ₂, M) · 2 ^ v₂(#M)`.
-
-Equivalently `χ := #H⁰ · #H² / #H¹ = ‖#M‖_{ℚ₂} = 2 ^ (−v₂(#M))`.
-
-Citation: **NSW [1], Ch. VII §7.3, Theorem (7.3.1) (Tate)** (`χ(k, A) = ‖#A‖_k`); Serre,
-*Galois Cohomology*, Ch. II §5.7 Theorem 5; Milne, *ADT* Thm I.2.8.  Paper: §9.2, eq. (145).
-See `GQ2/EulerCharacteristic.lean` for conventions and for the (retained-for-faithfulness)
-redundancy of the `H⁰`-finiteness clause. -/
-axiom absGalQ2_localEulerCharacteristic (M : Type*) [AddCommGroup M] [TopologicalSpace M]
-    [DiscreteTopology M] [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M] :
-    Finite (H0 AbsGalQ2 M) ∧ Finite (H1 AbsGalQ2 M) ∧ Finite (H2 AbsGalQ2 M) ∧
-      Nat.card (H1 AbsGalQ2 M)
-        = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M)
-
-end GQ2.Foundations
-
 namespace GQ2
-
-/-! ## B3c — the canonical dyadic orientation (cyclotomic interface)
-
-The bundle `DyadicOrientation` — a B4 isomorphism together with the descended cyclotomic
-character, normalized to Labute's Theorem 4(2) values on the marked generators — and the
-route-(ii) decision with its flagged deviations are in `GQ2/Orientation.lean`; its stress
-tests are bundle-parametrized and axiom-free. -/
-
-/-- **The B3c axiom** (composite interface — Labute [2], Théorème 4, case (2): `q = 2`,
-`n = 3` odd, `f = 2`).
-There is a B4 isomorphism `ψ : G_{ℚ₂}(2) ≅ D₀` and a continuous descent `χ₂` of the cyclotomic
-character through `G_{ℚ₂} ↠ G_{ℚ₂}(2)`, surjective (image invariant `{±1} × U₂⁽²⁾ = ℤ₂ˣ`),
-with values `(χ(A), χ(S), χ(Y)) = (−1, 1, (−3)⁻¹)` — the paper's `χ_D`-row of eq. (13)
-(Lemmas 3.4/3.5).
-
-**Composite classification** (`docs/adversarial-axioms-review.md` §3): this is **not** a bare
-Labute citation.  It bundles
-(a) Labute's orientation/classification values, (b) the local-Galois fact that the Demushkin
-dualizing character equals the cyclotomic character (through *this* quotient map — Labute Thm 4
-does not by itself assert `chiCyc`-compatibility), and (c) the choice of a **normalized** B4
-isomorphism realizing (a)+(b) on the marked generators.  Consequently **B3c subsumes a marked
-version of B4**: a downstream declaration whose `#print axioms` shows `dyadicOrientation` need
-not *also* list B4 in its **Ax** column unless B4 is consumed independently (the review-packet
-classification table, `docs/orchestration/review-packet.md` §2, records this).
-
-Deviation (route (ii), flagged in `GQ2/Orientation.lean`): the *abstract* dualizing
-characterization of the canonical character (Labute Prop. 6) is not formalized; the bundle
-asserts exactly the interface the paper consumes.
-
-Citation: Labute [2], Théorème 4 case (2) and Théorème 8 (Canad. J. Math. 19 (1967), 106–132);
-dualizing character = cyclotomic through this quotient: NSW [1], Ch. VII §7.5, (7.5.11)–(7.5.12);
-Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B3/B3c. -/
-axiom dyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
-    DyadicOrientation
-
-/-! ## B5 — the local reciprocity bundle
-
-The bundle structure `LocalReciprocity` (with the convention table and the soundness note on
-the profinite target of `ν_ur`) is defined in `GQ2/Reciprocity.lean`; its stress tests are
-parametrized over an arbitrary bundle and are therefore axiom-free. -/
-
-/-- **The B5 axiom.** Local class field theory for `ℚ₂` provides the reciprocity bundle.
-
-Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII.  Paper: Lemma 3.5,
-eq. (13); Prop. 1.1. -/
-axiom localReciprocity : LocalReciprocity
 
 /-! ## B5-K — marked local reciprocity over finite `K/ℚ₂` (AX3)
 
@@ -203,160 +68,6 @@ functoriality of the reciprocity map).  Paper: the general-`K` analogue of Lemma
 `docs/literature-axioms.md` B5-K. -/
 axiom markedRecipAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] K] : Dyadic.MarkedRecip localReciprocity K
-
-/-! ## B6 — local Tate duality (per-`n` bundle, at every finite `k/ℚ₂`)
-
-The dual module `MuDual n M = Hom(M, μₙ)` (conjugation action), the evaluation cup pairing,
-the group-parametric bundle `TateDualityG G n` (with `TateDuality n` = the `G_ℚ₂` member), and
-the gate `IsLocalDualizingGroup` — with the encoding decisions and flagged deviations (per-`n`
-form, `ℤ/n`-valued Pontryagin duals, single currying, unnormalized `inv`) — are defined in
-`GQ2/TateDuality.lean`; its stress tests are parametrized over an arbitrary bundle and are
-therefore axiom-free. -/
-
-/-- **The B6 axiom (base-generalized to all finite `k/ℚ₂`).** Local Tate duality at any local
-Galois group `G` over `ℚ₂` (`G_ℚ₂` or an open finite-index subgroup `G_K`, `K/ℚ₂` finite — the
-`IsLocalDualizingGroup` hypothesis): an invariant map `inv : H²(G, μₙ) ≃+ ℤ/n` making the
-evaluation cup pairings `Hⁱ(G, Hom(M, μₙ)) × H^{2−i}(G, M) → H²(G, μₙ) ≅ ℤ/n` perfect for every
-finite discrete `n`-torsion `G`-module `M`, in the three degree pairs `(0,2)`, `(1,1)`, `(2,0)`.
-
-NSW (7.2.6) states Tate duality for arbitrary `p`-adic `k`, so the interface is parametrized by a
-local dualizing group rather than restricted to `ℚ₂`.  The base member `k = ℚ₂` is the
-in-repository definition `GQ2.tateDuality` in `GQ2/Foundations/Interfaces.lean`.
-
-Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality, for any `p`-adic `k`);
-Serre, *Galois Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Induced mod-2 Hilbert-pairing
-nondegeneracy over `G_K`: FV Ch. IV §5 Prop (5.1)(6)/Cor./Thm (5.2), O'Meara
-ITQF 63:13.  Paper: §§5–8 (the `𝔽₂` dimension counts) and §6.3;
-`docs/literature-axioms.md` B6, `docs/orchestration/p15f7-axiom-proposal.md`. -/
-axiom tateDualityAt (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    (n : ℕ) [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)]
-    (hloc : IsLocalDualizingGroup G n) : TateDualityG G n
-
-/-! ## B8 — the cyclotomic action on peripheral generators (Lemma 3.6)
-
-The concrete group `Δ = maxPro2(FreeProfinite (Fin 2))`, its peripheral generators `P, T, C`, and
-the bundle `PeripheralCyclotomicAction` — with the flagged faithfulness deviation (the literal
-statement is about the outer action on an étale/anabelian `π₁`, absent from Mathlib) and the pinning
-of the exponent embedding `ι` — are defined in `GQ2/PeripheralAction.lean`. -/
-
-/-- **[Composite — B8.]** Local cyclotomic action on the peripheral inertia generators of
-`Δ = π₁^{pro-2}(ℙ¹ ∖ {0,1,∞})`: for every `u ∈ ℤ₂ˣ` there is a continuous automorphism `φ_u` of `Δ`
-sending each peripheral generator to a cyclotomic conjugate, `φ_u(P) = c_P⁻¹ · P^u · c_P` (and
-likewise `T`, `C`), the `u`-th power via ẑ-exponentiation.  This is Lemma 3.6's group-theoretic
-conclusion; see `GQ2/PeripheralAction.lean` for the deviation from the literal `π₁` statement.
-
-**This is a composite leaf, not Stix alone** (`docs/adversarial-axioms-review.md` §1).  Stix
-supports that the decomposition group acts on
-cuspidal inertia *through the cyclotomic character*; producing an automorphism for **every**
-`u ∈ ℤ₂ˣ` — the `aut : ℤ_[2]ˣ → ContinuousMulEquiv Δ Δ` field, quantified over all units —
-additionally needs a **cyclotomic-surjectivity** input (a decomposition-group element realizing
-each `u`).  Locally, B5 supplies this through `χ_cyc(rec u) = u⁻¹` and dense reciprocity image.
-B8 keeps the all-units form because that is the interface consumed by Lemma 3.6.
-
-Citation: **Stix [8], §3.3 + Definition 37** (cuspidal inertia acts through the cyclotomic
-character — the paper's exact citation) together with local cyclotomic surjectivity from B5;
-classical origin Deligne, MSRI 16 (1989).  Paper: Lemma 3.6.  `docs/literature-axioms.md` B8. -/
-axiom peripheralCyclotomicAction : PeripheralCyclotomicAction
-
-/-! ## B9 — the relative Stiefel–Whitney identity (paper eq. (111)), degrees ≤ 2
-
-Since the B9-A flip (2026-07-24, `docs/orchestration/b9a-proof-plan.md`) the B9 leaf is the
-**relative Stiefel–Whitney identity** at the quadratic-form level: the left-hand sides are
-genuine isometry-class invariants (`swOne`/`swTwo`, `GQ2/StiefelWhitney.lean`, with Delzant
-well-definedness **proved**, not scoped away), evaluated on the twisted trace forms
-`Tr_{k(δ)/k}⟨a⟩` of `GQ2/TraceForm.lean`.  The previous composite axiom statement — eq. (111)
-at the fixed Lemma 6.16 diagonalizations — is now the same-name **theorem** `evensKahn_dyadic`
-in `GQ2/Foundations/Interfaces.lean` (its proof consumes B11a), derived via
-`evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`); consumers were untouched.  The
-cocycle-level ingredients (`corH1`, `evensNormH2`, `kummerClassK`) are unchanged from
-`GQ2/EvensKahn.lean`. -/
-
-/-- **The B9 axiom — the relative Stiefel–Whitney identity** (Kahn, Invent. Math. 78 (1984),
-Théorème 2 at the rank-1 form `⟨a⟩`, expanded through Evens Thm 1 / Kozlowski Thm 1.1 at
-index 2; paper eq. (111), degrees ≤ 2), over an arbitrary **finite dyadic base** `k`.
-
-Setting: `k/ℚ₂` finite inside the fixed `ℚ̄₂`; `d ∈ kˣ` with `δ² = d`; `L = k(δ) = quadExt k δ`,
-quadratic over `k` (`hdeg` — provable from `hidx`/`hUo` via `finrank_quadExt_eq_two`, but
-carried so the statement is locally Kahn's `L/k` setting, per the owner's Q1 decision);
-`G_L ∩ G_k` is the stabilizer subgroup of `δ` (the verbatim pre-flip encoding: `hidx`, `s`,
-`hs`, `htriv`, `hUo`); `a ∈ Lˣ` **arbitrary**, entering degree-wise through the Kummer
-1-cocycle `α` of a square root `β` of `a` (`hβ`/`hβ0`/`hαdef`/`hα`/`hαc`).  With `w₁ = swOne k`
-and `w₂ = swTwo k htriv` the Stiefel–Whitney classes of `GQ2/StiefelWhitney.lean`, the two
-components of Kahn's identity `w(Tr⟨a⟩) = w(Tr⟨1⟩)·(1 + cor[a] + N^{Ev}[a])` read:
-
-* degree 1: `w₁(Tr⟨a⟩) = w₁(Tr⟨1⟩) + cor[a]`;
-* degree 2: `w₂(Tr⟨a⟩) = w₂(Tr⟨1⟩) + w₁(Tr⟨1⟩) ⌣ cor[a] + N^{Ev}[a]`.
-
-The cited theorems hold over any field of characteristic different from `2` (Kahn Th. 2 requires
-no local hypothesis), while the paper invokes (111) over finite dyadic bases; the interface is
-therefore base-general within the dyadic setting.  Deviations (flagged): truncation to degrees
-≤ 2; `N^{Ev}` *defined* by the two-point graph cocycle (98) (`evensNormH2`, Lemma 6.13); finite
-dyadic base.  Removed relative to the pre-flip axiom: the Lemma 6.16 diagonalization scoping.
-
-Citation: Kahn, Invent. Math. 78 (1984), Théorème 2 (with Théorème 1); Kozlowski, Proc. AMS
-91 (1984), Thm 1.1; Evens, Trans. AMS 108 (1963), Thm 1.  Paper: §6, eq. (111),
-Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9; census swap user-approved 2026-07-24
-(`docs/orchestration/b9a-tickets.md`, T5 gate). -/
-axiom relativeStiefelWhitney_dyadic
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (d : (↥k)ˣ)
-    (δ β : AlgebraicClosure ℚ_[2])
-    (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hdeg : Module.finrank ↥k ↥(quadExt k δ) = 2)
-    (a : (↥(quadExt k δ))ˣ)
-    (hβ : β ^ 2 = ((a : ↥(quadExt k δ)) : AlgebraicClosure ℚ_[2]))
-    (hβ0 : β ≠ 0)
-    (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup).index = 2)
-    (s : k.fixingSubgroup)
-    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup)
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup : Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
-    (α : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup) → ZMod 2)
-    (hαdef : ∀ g, α g = Kummer.kummerCocycleFun β
-        ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
-    (hα : ∀ g h, α (g * h) = α g + α h)
-    (hαc : Continuous α) :
-    (swOne k (traceFormTwisted k δ ↑a)
-      = swOne k (traceFormOne k δ) + corH1 htriv hUo hidx hs α hα hαc)
-    ∧ (swTwo k htriv (traceFormTwisted k δ ↑a)
-      = swTwo k htriv (traceFormOne k δ)
-        + swOne k (traceFormOne k δ) ⌣[htriv] corH1 htriv hUo hidx hs α hα hαc
-        + evensNormH2 htriv hUo hidx hs α hα hαc)
-
-/-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
-
-The bundle `TameQuotientData` (closed normal pro-2 `W` + `G_ℚ₂/W ≅ T_tame`), the NSW
-convention notes (arithmetic-vs-geometric Frobenius, `σ ↦ σ⁻¹`), and the flagged deviation
-(no ramification theory: `W` is characterized, not constructed; its **maximality** — paper
-Lemma 3.3 — is deliberately *not* asserted here) are in `GQ2/TameQuotient.lean`. -/
-
-/-- **[Classical — B10 (oriented form, B10′).]**  The tame quotient of `G_ℚ₂`, *oriented
-against local reciprocity*: a closed normal pro-2 subgroup `W ≤ G_ℚ₂` (wild inertia) with
-`G_ℚ₂/W ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`, whose unramified coordinate `ν_t` matches B5's
-reciprocity normalization — `ν_t(tameF(rec u)) = 1` for units `u` and
-`ν_t(tameF(rec 2)) = ztwoOne⁻¹` (arithmetic Frobenius, geometric coordinate).
-
-Citation, existence: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `G(k_tr|k)` is the
-profinite group on `σ, τ` with the single relation `στσ⁻¹ = τ^q` (`q = 2`); with
-**(7.5.2)** (split extension `1 → Ẑ^{(p′)}(1) → G(k_tr|k) → Γ → 1`) and `G(k̄|k_tr)`
-pro-`p` (Serre, *Local Fields* [7], Ch. IV).  Citation, orientation clauses:
-**Serre, *Local Fields*, Ch. XIII §4, Proposition 13 and its corollary** (local reciprocity
-maps units onto inertia and a prime element to Frobenius).  Neukirch, *Algebraic Number Theory*,
-Ch. V, Theorem (6.2) concerns the higher unit filtration (`n > 0`), not the `n = 0` assertion;
-use **Chap. V, (1.2)** / NSW [1] (7.1.2)(i) for units being norms in unramified extensions.
-(Verified against the cited PDFs; the audit copies are not vendored in this repository.  The
-Frobenius-direction convention `σ = geometric` and the clause encoding are documented at
-`OrientedTameQuotient` in `GQ2/TameQuotient.lean`.)
-
-The orientation clauses are part of this interface because they cannot currently be derived from
-B5 alone without local ramification theory for `Field.absoluteGaloisGroup` in Mathlib.  Paper:
-Prop. 3.2 local side +
-Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").
-`docs/literature-axioms.md` B10. -/
-axiom tameQuotient : OrientedTameQuotient localReciprocity
 
 /-! ## B10-K — the oriented tame quotient of `G_K` at `q_K` (AX4)
 
@@ -388,54 +99,6 @@ B10 interface; `docs/literature-axioms.md` B10-K. -/
 axiom orientedTameQuotientAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K) :
     Dyadic.OrientedTameQuotientK (markedRecipAt K) FF
-
-/-! ## B11a — the dyadic norm criterion over finite bases
-
-Section 6.3 uses the norm criterion and unit-norm surjectivity over arbitrary finite dyadic bases.
-The interface separates the remaining classical axiom B11a (below) from the spectral-norm
-convention and the in-repository proof of unramified unit-norm surjectivity — both of which live
-in `GQ2/Foundations/Interfaces.lean`, together with the combined `dyadicNormCriterion` theorem
-that preserves the paired interface for consumers:
-
-* `hilbertSymbol_normCriterion_finiteDyadic` — the symbol/norm criterion (classical; **this
-  file**, the axiom below).
-* `unramifiedQuadratic_units_are_norms` — units of an unramified quadratic extension are norms
-  (classical, **proved in-repository**; `GQ2/Foundations/Interfaces.lean`).
-* `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24) — **not an
-  axiom**: the repo's spectral-norm *working criterion* for "`k(δa)/k` is unramified" (equal norm
-  value groups on `ℚ̄₂`, i.e. `e = 1`).  Isolated as the review's "riskiest piece": it is a
-  project convention, not a Mathlib unramifiedness notion, and is deliberately a `def` (asserting
-  nothing) rather than a bridge axiom (`GQ2/Foundations/Interfaces.lean`).
-
-Encoding conventions carried over from the pre-split axiom: the "`b` is a norm from `k(√a)`"
-condition is the **norm form** `b = x² − a y²` (elementary, no relative field-extension
-plumbing); unramifiedness by **equal norm value groups** through the spectral norm on `ℚ̄₂` (the
-`GQ2/SectionSix.lean` `IsDeepUnit`/`lemma_6_16` convention).
-
-Note for reviewers: the Steinberg relation `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` used in
-Lemma 6.16's proof are *consequences* of the criterion clause (norm representations
-`1 − x = 1² − x·1²` and `−1 = 1² − 2·1²`), so they are deliberately not separate clauses.
-
-Citation: Serre, *Local Fields* [7], Ch. XIV §2, Proposition 4(iii) (the symbol–norm criterion;
-over `ℚ_p` also CiA [CiA] Ch. III §1.1 Prop. 1), and Ch. V §2 (norms of unramified extensions
-are the units times the norms of uniformizers).  Paper: §6.3, displays (93)/(94) and Lemma 6.16.
--/
-
-/-- **[Classical — B11a.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
-`k/ℚ₂`, in Kummer-cup form: for `a, b ∈ kˣ`, `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm
-from `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
-universal, so no non-square hypothesis is needed).
-
-Citation: Serre, *Local Fields* [7], Ch. XIV §2, Proposition 4(iii) (symbol vanishes iff the
-second entry is a norm), Proposition 5 (the symbol is the cup product), and Proposition 7(iii)
-(the multiplicative-root-of-unity form); over `ℚ_p` also CiA Ch. III §1.1 Prop. 1.
-Paper: §6.3 (norm-criterion input to the local square-class calculation). -/
-axiom hilbertSymbol_normCriterion_finiteDyadic
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
-    ∀ a b : (↥k)ˣ,
-      kummerClassK k a ⌣[htriv] kummerClassK k b = 0
-        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
 
 end GQ2
 

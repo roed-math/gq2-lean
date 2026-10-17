@@ -160,7 +160,7 @@ the two `ν`-targets is quantified explicitly and pinned by `ι(1) = ofAdd 1`, a
 Fill (R15): the three-step route of the module docstring — B-Lab abstract isomorphism,
 `φ_ab`-correction via `prop_3_8_classification`/`prop_3_8_lift` (both on the `D₀` side, reused
 as-is), and the `prop_1_1`/`prop_3_10_local_marked` assembly pattern for the `ι`-bridge. -/
-theorem markedPro2_R [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+theorem markedPro2_R [LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (R : LocalReciprocity) (hBLab : BLabHypothesis) :
     ∃ ι : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]),
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧

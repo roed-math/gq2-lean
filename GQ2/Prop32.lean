@@ -35,7 +35,7 @@ Proves the §3 statements for the paper's **Prop. 3.2** (common tame quotient) a
 * **`ν`-surjectivities** (`nuT_surjective`, `nuTwo_surjective`, axiom-free): the ranges are
   closed subgroups (continuous images of compact groups) containing `ν(σ) = 1`, and `1`
   topologically generates `Z₂` (via `ℤ` dense in `ℤ̂`, the profinite-exponentiation API).
-* **Local side** (`prop_3_2_local`, `Ax = B10`): the axiom `GQ2.tameQuotient` supplies the
+* **Local side** (`prop_3_2_local`, `Ax = B10`): the axiom `lit.tameQuotient` supplies the
   closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ T_tame`; Lemma 3.3's **maximality** is proved —
   `T_tame` has no nontrivial "normal subgroup with 2-group finite images", by the paper's
   argument: through each Fermat-level quotient `C_{2^{2^m}−1} ⋊ C_{2^m}` (faithful squaring
@@ -405,8 +405,7 @@ theorem topGen_tameA :
 theorem psiW_chiW (x : Ttame) : psiW (chiW x) = x := by
   have h := monoidHom_eq_of_topGen
     (f := psiW.toMonoidHom.comp chiW.toMonoidHom) (g := MonoidHom.id Ttame)
-    (by rw [MonoidHom.coe_comp]
-        exact Continuous.comp psiW.continuous_toFun chiW.continuous_toFun) continuous_id
+    (by exact (Continuous.comp psiW.continuous_toFun chiW.continuous_toFun :)) continuous_id
     topGen_ttame ?_
   · exact h x
   · rintro z (rfl | rfl)
@@ -1265,10 +1264,10 @@ theorem tameData_maximal [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGa
 `G_{ℚ₂}` is `T_tame`, by the *maximal* closed normal pro-2 subgroup.  Existence is axiom B10
 (oriented form B10′ since the marked pro-2 isomorphisms; only the underlying `TameQuotientData` is used here);
 maximality is Lemma 3.3 (`tameData_maximal`). -/
-theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem prop_3_2_local [lit : LiteratureInputs] [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty LocalTameQuotient :=
-  ⟨{ toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
-     maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }⟩
+  ⟨{ toTameQuotientData := lit.tameQuotient.toTameQuotientData,
+     maximal := tameData_maximal lit.tameQuotient.toTameQuotientData }⟩
 
 end SectionThree
 

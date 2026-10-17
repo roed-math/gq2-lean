@@ -354,7 +354,7 @@ the c2a Kummer package (`kummer_presentation_of_index_two`), the c2c analytic `h
 (`hunram_involution`), the c2b spine (`hvanish_involution` = Lemma 6.16 + descent), and the
 carrier splice pulling the `B²`-witness back along the underlying-identity `↥U₀ →
 ↥k.fixingSubgroup`. -/
-theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
+theorem hvanish_involution_ker [LiteratureInputs] (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)
@@ -503,7 +503,8 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
   have hαcU : Continuous fun w : ↥((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀) =>
       Kummer.kummerCocycleFun β (w.1.1 : AbsGalQ2) :=
     (Kummer.kummerCocycleFun_continuous β).comp
-      (continuous_subtype_val.comp continuous_subtype_val)
+      ((continuous_subtype_val : Continuous (Subtype.val : ↥U₀ → AbsGalQ2)).comp
+        continuous_subtype_val)
   have hZ2U := evensNormFun_mem_Z2 htrivU hUoU hUiU hsUnot _ hαU hαcU
   have hZ2K := evensNormFun_mem_Z2 htrivK hUoK hindexK hsKnot _ hα hαc
   -- ### transport the vanishing along `e₀`
@@ -541,7 +542,7 @@ omit [Finite C] in
 over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
 `hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the
 Evens norm; the field-side vanishing is `hvanish_cup` (eq.-(94) orthogonality). -/
-theorem hvanish_cup_ker (ρ : ContinuousMonoidHom AbsGalQ2 C)
+theorem hvanish_cup_ker [LiteratureInputs] (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (α β : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → ZMod 2)
     (hαZ1 : α ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
     (hβZ1 : β ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))

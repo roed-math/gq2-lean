@@ -246,7 +246,7 @@ theorem exists_smul_ne_of_card (hsimple : ∀ W : AddSubgroup V,
 omit [DiscreteTopology C] [Finite C] in
 /-- The signed-sum extraction shared by both cases: with `zeroCount(Q⁰_loc)` and
 `#H¹ = 2^{2m}` known, `∑ᶠ sign(Q⁰_loc) = 2·zeroCount − 2^{2m}`. -/
-theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)
+theorem finsum_sign_eq [LiteratureInputs] (D : TateDuality 2) (dat : FactorSet C V)
     (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (zc : ℕ) (hzc : zeroCount (Q0loc D dat ρ (V := V)) = zc)
     {m : ℕ} (hH1 : Nat.card (H1 AbsGalQ2 V) = 2 ^ (2 * m)) :
@@ -270,7 +270,7 @@ theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)
 
 /-- **The pinned local Gauss value, unramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = −2^m` — `prop_6_18_unramified`'s zero count through `gaussSum_eq`. -/
-theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
+theorem sum_sign_Q0loc_unramified [LiteratureInputs] (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
@@ -304,7 +304,7 @@ theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
 
 /-- **The pinned local Gauss value, ramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = +2^m` — `prop_6_18_ramified`'s zero count through `gaussSum_eq`. -/
-theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+theorem sum_sign_Q0loc_ramified [LiteratureInputs] (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (horient : TameUnitOrientation R B.tameF)

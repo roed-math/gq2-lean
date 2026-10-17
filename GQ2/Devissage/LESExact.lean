@@ -75,7 +75,8 @@ theorem H2w_exact_mid (t : Marking C) (y : H2w (A := A) t) :
         AddMonoidHom.mem_ker.mp (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨a', rfl⟩)
       show (g (f q.1), g (f q.2)) = 0
       rw [hz0, hz0]; rfl
-    rw [AddMonoidHom.mem_ker, ← hz]
+    refine AddMonoidHom.mem_ker.mpr ?_
+    rw [← hz]
     show (QuotientAddGroup.mk (g.prodMap g (f.prodMap f q)) : H2w (A := A'') t) = 0
     rw [hgf]; exact QuotientAddGroup.mk_zero _
 

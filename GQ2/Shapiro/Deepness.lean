@@ -52,7 +52,7 @@ cocycles `a, b` over `k.fixingSubgroup` have **deep** classes, their cup 2-cocha
 `LocalKummer.cup_deepClasses` (`trivialCupPairing = 0`) with the `cup11`/`H2mk` identification
 and `B²`-extraction.  This is `H2ofFun ↥(U o) (inner o) = 0` for the square orbit
 (`inner o = α ⌣ α`, `U o = k.fixingSubgroup = ker ρ`) and, at `a ≠ b`, the free orbit. -/
-theorem hvanish_cup (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem hvanish_cup [LiteratureInputs] (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (a b : Z1 k.fixingSubgroup (ZMod 2))
@@ -187,7 +187,7 @@ involution orbit** (Step-0 decision, `docs/orchestration/p15f2c-design.md`): `ρ
 tame inertia `⟨c tameTau⟩` has odd order (`Tame.tame_odd_order`), so `ρ(ĝ) ∉ inertia` ⟹ `L/k`
 unramified; c2c discharges `hunram` in spectral-norm vocabulary.
 **Ax: B9, B11a (via `lemma_6_16`).** -/
-theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem hvanish_involution [LiteratureInputs] (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k] (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : AlgebraicClosure ℚ_[2], x ≠ 0 → x ∈ L →
@@ -228,7 +228,7 @@ which fixes `A`) and `hαc` (continuity via `kummerCocycleFun_continuous`), and 
 `hvanish_involution`.  This is steps (2)–(5) of the Lemma 6.17 vanishing proof in `L`-vocabulary; the remaining
 `ker ρ = L.fixingSubgroup` transport (to feed `mem_deepPart_iff`) and the c2a-package proof
 (the Lemma 6.17 vanishing proof) are the last pieces.  **Ax: B9, B11a, B11b (via `hvanish_involution`/`lemma_6_16`).** -/
-theorem hvanish_involution_of_deepClass
+theorem hvanish_involution_of_deepClass [LiteratureInputs]
     (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)

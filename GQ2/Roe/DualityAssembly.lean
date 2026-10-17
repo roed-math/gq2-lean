@@ -506,7 +506,7 @@ obstruction-space and unobstructed-lift-multiplicity cardinalities agree between
 complex and the local cochain complex of `G_ℚ₂`.  `Γ_R` twin of `cor_5_17_card`: the word side is
 `prop_5_15_R` (clauses 1–2 of `IsSelfDual_R`), the local side is the **word-generic** `prop_5_16`
 reused verbatim (this is where axioms B6/B7 enter, exactly as for `Γ_A`). -/
-theorem cor_5_17_card_R {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C]
+theorem cor_5_17_card_R [LiteratureInputs] {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C]
     [Finite C]
     (t : Marking C) (ht : t.TameRel) (hw : t.WildRelR) (hgen : t.Generates)
     (hcore : t.Pro2Core)

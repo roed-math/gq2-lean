@@ -684,10 +684,11 @@ theorem exists_congrSub_le {V : Subgroup MagnusU} (hV : IsOpen (V : Set MagnusU)
     refine Set.eq_empty_of_forall_notMem fun x hx ↦ ?_
     rw [Set.mem_singleton_iff.mp hx.2] at hx
     exact hx.1 V.one_mem
-  obtain ⟨t, ht⟩ := hcomp.elim_finite_subfamily_closed _ isClosed_congrSub hempty
+  obtain ⟨t, ht⟩ := hcomp.elim_finite_subfamily_closed _ isClosed_congrSub
+    (Set.disjoint_iff_inter_eq_empty.mpr hempty)
   refine ⟨t.sup id, fun u hu ↦ ?_⟩
   by_contra hV'
-  refine Set.eq_empty_iff_forall_notMem.mp ht u ⟨hV', ?_⟩
+  refine Set.disjoint_left.mp ht hV' ?_
   refine Set.mem_iInter₂.mpr fun j hj ↦ ?_
   exact congrSub_antitone (Finset.le_sup (f := id) hj) hu
 

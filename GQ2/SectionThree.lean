@@ -40,14 +40,14 @@ records the absorption and deviation decisions summarized here:
   standard rank-3, `q = 2` Demushkin group") is deliberately-unformalized Labute content per
   the standing B3b decision (the Demushkin classification and orientation interface).  No
   additional statement is introduced for it.
-* **Lemma 3.6 is absorbed**: it is axiom B8 (`peripheralCyclotomicAction`) verbatim — the
+* **Lemma 3.6 is absorbed**: it is axiom B8 (`LiteratureInputs.peripheralCyclotomicAction`) verbatim — the
   peripheral-action interface bundle is exactly Lemma 3.6's group-theoretic conclusion.
 * **Lemma 3.5's `(ν_ur, χ_D)` rows of eq. (13) and the abelianized relation `ā²s̄⁴ = 1` are
   already proved** (bundle-parametrized) in `GQ2/Reciprocity.lean`: `nu_ur_recip_neg4` /
   `nu_ur_recip_uniformizer` / `nu_ur_recip_neg3`, `chiCyc_recip_neg4` / `chiCyc_recip_neg3`,
   `abelianized_relator`.  What remains here: the marked pro-2-abelianization identification,
   the Hilbert-symbol square-class ledger, and the injectivity of the pair `(ν_ur, χ_D)`.
-* **Prop. 3.2's local side rests on axiom B10** (`GQ2.tameQuotient`): the classical
+* **Prop. 3.2's local side rests on axiom B10** (`LiteratureInputs.tameQuotient`): the classical
   tame-quotient description
   of `G_{ℚ₂}` (NSW (7.5.3), Iwasawa) is not derivable from the 2-centric step-1 census.
   The bundle and citation discussion live in `GQ2/TameQuotient.lean`; what remains a
@@ -530,24 +530,24 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
     d0LiftHom hH m hrel d0A = m 0 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = m 0
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] lemma d0LiftHom_S (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0S = m 1 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = m 1
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 @[simp] lemma d0LiftHom_Y (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0Y = m 2 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
     (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = m 2
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+  exact (maxProPHomEquiv_symm_apply_maxProPMk _ _ _).trans
+    ((quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _))
 
 end Lifts
 
