@@ -68,8 +68,11 @@ theorem oneHandleDirectLevelCorrection_eq_coords
         oneHandleDirectCoordC k E.2.2.1 *
         oneHandleDirectCoordD k E.2.2.2 := by
   rcases E with ⟨a, b, c, d⟩
-  simp [oneHandleDirectCoordA, oneHandleDirectCoordB,
-    oneHandleDirectCoordC, oneHandleDirectCoordD]
+  have hA : ∀ y, oneHandleDirectCoordA k y = (y, 1, 1, 1) := fun _ ↦ rfl
+  have hB : ∀ y, oneHandleDirectCoordB k y = (1, y, 1, 1) := fun _ ↦ rfl
+  have hC : ∀ y, oneHandleDirectCoordC k y = (1, 1, y, 1) := fun _ ↦ rfl
+  have hD : ∀ y, oneHandleDirectCoordD k y = (1, 1, 1, y) := fun _ ↦ rfl
+  simp [hA, hB, hC, hD]
 
 noncomputable def oneHandleDirectShiftA
     (m : Fin (coreRank 1) → H) (k : ℕ) (hk : 3 ≤ k) :
@@ -178,21 +181,22 @@ theorem oneHandleDirectLevelToRaw_coordA
     oneHandleDirectLevelToRaw (oneHandleDirectCoordA k x) =
       evenRawDepthCoordinateCorrection 0
         ⟨x.1, oneHandleDirectLambdaImage_le_lambdaImage _ _ x.2⟩ := by
+  have hc : ∀ y, oneHandleDirectCoordA k y = (y, 1, 1, 1) := fun _ ↦ rfl
   apply EvenRawDepthCorrection.ext
   funext i
   rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordA]
+      hc]
   · rw [evenRawDepthCoordinateCorrection_apply, if_neg directIdx10]
     simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordA]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordA]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordA]
+      hc]
   · rcases mHandleCoord_cases j with ⟨j, rfl⟩ | ⟨j, rfl⟩ <;>
       simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-        oneHandleDirectCoordA, mHandleIdx_coordU, mHandleIdx_coordV,
+        hc, mHandleIdx_coordU, mHandleIdx_coordV,
         directHandleU_ne_core j (by rw [coreVal_zero]; omega),
         directHandleV_ne_core j (by rw [coreVal_zero]; omega)]
 
@@ -201,21 +205,22 @@ theorem oneHandleDirectLevelToRaw_coordB
     oneHandleDirectLevelToRaw (oneHandleDirectCoordB k x) =
       evenRawDepthCoordinateCorrection 1
         ⟨x.1, oneHandleDirectLambdaImage_le_lambdaImage _ _ x.2⟩ := by
+  have hc : ∀ y, oneHandleDirectCoordB k y = (1, y, 1, 1) := fun _ ↦ rfl
   apply EvenRawDepthCorrection.ext
   funext i
   rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩
   · rw [evenRawDepthCoordinateCorrection_apply, if_neg directIdx01]
     simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordB]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordB]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordB]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordB]
+      hc]
   · rcases mHandleCoord_cases j with ⟨j, rfl⟩ | ⟨j, rfl⟩ <;>
       simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-        oneHandleDirectCoordB, mHandleIdx_coordU, mHandleIdx_coordV,
+        hc, mHandleIdx_coordU, mHandleIdx_coordV,
         directHandleU_ne_core j (by rw [coreVal_one]; omega),
         directHandleV_ne_core j (by rw [coreVal_one]; omega)]
 
@@ -224,20 +229,21 @@ theorem oneHandleDirectLevelToRaw_coordC
     oneHandleDirectLevelToRaw (oneHandleDirectCoordC k x) =
       evenRawDepthCoordinateCorrection 2
         ⟨x.1, oneHandleDirectNeutralLambdaImage_le_lambdaImage _ _ x.2⟩ := by
+  have hc : ∀ y, oneHandleDirectCoordC k y = (1, 1, y, 1) := fun _ ↦ rfl
   apply EvenRawDepthCorrection.ext
   funext i
   rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordC]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordC]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordC]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordC]
+      hc]
   · rcases mHandleCoord_cases j with ⟨j, rfl⟩ | ⟨j, rfl⟩ <;>
       simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-        oneHandleDirectCoordC, mHandleIdx_coordU, mHandleIdx_coordV,
+        hc, mHandleIdx_coordU, mHandleIdx_coordV,
         directHandleU_ne_core j (by rw [coreVal_two]; omega),
         directHandleV_ne_core j (by rw [coreVal_two]; omega)]
 
@@ -246,20 +252,21 @@ theorem oneHandleDirectLevelToRaw_coordD
     oneHandleDirectLevelToRaw (oneHandleDirectCoordD k x) =
       evenRawDepthCoordinateCorrection 3
         ⟨x.1, oneHandleDirectLambdaImage_le_lambdaImage _ _ x.2⟩ := by
+  have hc : ∀ y, oneHandleDirectCoordD k y = (1, 1, 1, y) := fun _ ↦ rfl
   apply EvenRawDepthCorrection.ext
   funext i
   rcases mIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordD]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordD]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordD]
+      hc]
   · simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-      oneHandleDirectCoordD]
+      hc]
   · rcases mHandleCoord_cases j with ⟨j, rfl⟩ | ⟨j, rfl⟩ <;>
       simp [oneHandleDirectLevelToRaw, oneHandleDirectLevelCorrectionMark,
-        oneHandleDirectCoordD, mHandleIdx_coordU, mHandleIdx_coordV,
+        hc, mHandleIdx_coordU, mHandleIdx_coordV,
         directHandleU_ne_core j (by rw [coreVal_three]; omega),
         directHandleV_ne_core j (by rw [coreVal_three]; omega)]
 
