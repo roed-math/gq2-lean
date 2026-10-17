@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeSeed
+import GQ2.Foundations.Axioms
 
 /-!
 # The odd-degree cup-adapted Frattini-frame supply
@@ -815,7 +816,8 @@ theorem nondegFp2_frattiniFrameCup : NondegFp2 (frattiniFrameCup (K := K)) := by
     apply FieldData.nondegFp2_cupFormK K
     intro z
     have hz := hx ((h1MaxProTwoEquivGalK (K := K)).symm z)
-    rwa [frattiniFrameCup, AddEquiv.apply_symm_apply] at hz
+    exact (congrArg (FieldData.cupFormK K (h1MaxProTwoEquivGalK (K := K) x))
+      ((h1MaxProTwoEquivGalK (K := K)).apply_symm_apply z)).symm.trans hz
   have := congrArg (h1MaxProTwoEquivGalK (K := K)).symm h0
   rwa [AddEquiv.symm_apply_apply, map_zero] at this
 
