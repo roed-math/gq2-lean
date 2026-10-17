@@ -18,7 +18,10 @@ jobs:
   build:
     name: Build and audit
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # GQ2.lean imports GQ2.TauCeti.Main, so the build also needs Tau Ceti's import closure
+    # (several thousand modules). They are unpacked from the Tau Ceti cache below; a cache miss
+    # compiles them from source and may exceed this limit.
+    timeout-minutes: 120
 
     steps:
       - name: Check out repository
@@ -103,6 +106,7 @@ jobs:
             echo "enabled=0" >> "$GITHUB_OUTPUT"
           fi
 
+      # `GQ2` includes the Tau Ceti route (`GQ2.TauCeti.Instance`, `GQ2.TauCeti.Main`).
       - name: Build Lean project
         run: lake build GQ2 Challenge Solution ChallengePalomar SolutionPalomar
 
@@ -129,3 +133,6 @@ jobs:
 
       - name: Check explicit-hypothesis import closure
         run: lake env lean GQ2/PalomarAxiomAudit.lean
+
+      - name: Check the Tau Ceti capstones and import closure
+        run: lake env lean GQ2/TauCetiAxiomAudit.lean

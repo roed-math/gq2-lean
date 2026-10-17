@@ -240,3 +240,5 @@ import GQ2.GaussZ.RelatorGammaR
 import GQ2.GaussZ.CoordGammaR
 import GQ2.GaussZ.GammaRD
 import GQ2.Roe.Main
+import GQ2.TauCeti.Instance
+import GQ2.TauCeti.Main

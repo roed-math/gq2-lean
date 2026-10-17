@@ -15,6 +15,9 @@
 #      to its Γ_A twin.  Needs a built library; skips with a notice otherwise.
 #   6. Explicit-hypothesis audit: the Palomar import closure contains none of the nine legacy
 #      axiom declarations, and both solutions use only the standard three axioms.
+#   7. Tau Ceti audit: the import closure of GQ2.TauCeti.Main contains none of the nine legacy
+#      axiom declarations, and the four Tau Ceti capstones use exactly the standard three
+#      (GQ2/TauCetiAxiomAudit.lean).  Check 5 also audits those four names (AUDIT_STD3_DECLS).
 #
 # For checks 1-4, comments and docstrings are stripped before matching (a nesting-aware
 # scan of `/- … -/` and `--`), so prose mentioning "axiom"/"sorry" does not trip the guard.
@@ -69,6 +72,16 @@ GQ2.admissibleCountR_eq_admissibleCount'
 AUDIT_PAIRS="GQ2.main_presentation_literal GQ2.main_presentation_literal_roe
 GQ2.SectionTen.eq_154 GQ2.eq_154_R
 GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
+
+# Declarations whose axiom set must be exactly the standard three, one per line: the capstones
+# instantiated at the Tau Ceti literature bundle (GQ2/TauCeti/Main.lean), whose nine inputs are
+# proved from Tau Ceti rather than assumed.  They carry no literature axiom even while the census
+# above is still 9 (the axioms remain only for the legacy capstones until ticket C2).
+AUDIT_STD3_EXPECTED='propext Classical.choice Quot.sound'
+AUDIT_STD3_DECLS='GQ2.main_presentation_literal_tauceti
+GQ2.main_presentation_literal_roe_tauceti
+GQ2.main_surjection_count_tauceti
+GQ2.main_surjection_count_R_tauceti'
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
 # line comments `-- …`.  Emits one output line per input line (line numbers preserved).
@@ -212,13 +225,15 @@ fi
 # the oleans are absent it prints a SKIP rather than failing, keeping the textual guard usable on a
 # cold checkout.  CI builds before invoking this script, so there check 5 always runs.
 audit_ok=1
-if ! command -v lake >/dev/null 2>&1 || [ ! -f .lake/build/lib/lean/GQ2/Roe/Main.olean ]; then
+if ! command -v lake >/dev/null 2>&1 || [ ! -f .lake/build/lib/lean/GQ2/Roe/Main.olean ] ||
+    [ ! -f .lake/build/lib/lean/GQ2/TauCeti/Main.olean ]; then
   echo "SKIP: terminal-theorem axiom audit — library not built (run 'lake build GQ2' to enable)"
 else
   probe_dir=$(mktemp -d)
   trap 'rm -rf "$probe_dir"' EXIT
   probe_names=$(
-    { printf '%s\n' "$AUDIT_DECLS"; printf '%s\n' "$AUDIT_PAIRS" | tr ' ' '\n'; } |
+    { printf '%s\n' "$AUDIT_DECLS"; printf '%s\n' "$AUDIT_PAIRS" | tr ' ' '\n';
+      printf '%s\n' "$AUDIT_STD3_DECLS"; } |
       sed '/^$/d' | LC_ALL=C sort -u | sed 's/^/"/; s/$/"/' | paste -sd, -
   )
   # `collectAxioms` is the same environment walk `#print axioms` performs, emitted in a canonical
@@ -227,6 +242,7 @@ else
 import GQ2.PresentationLiteral
 import GQ2.SectionTenSources
 import GQ2.Roe.Main
+import GQ2.TauCeti.Main
 
 open Lean in
 run_cmd do
@@ -286,9 +302,29 @@ EOF
 $AUDIT_PAIRS
 EOF
 
+  std3_norm=$(printf '%s' "$AUDIT_STD3_EXPECTED" | norm_axioms)
+  std3=0
+  while IFS= read -r d; do
+    [ -z "$d" ] && continue
+    got=$(axioms_of "$d" | norm_axioms)
+    std3=$((std3 + 1))
+    if [ -z "$got" ]; then
+      echo "FAIL: axiom audit: no axiom print for ${d}"
+      audit_ok=0
+    elif [ "$got" != "$std3_norm" ]; then
+      echo "FAIL: axiom audit: ${d} does not print exactly the standard three:"
+      echo "          expected: ${std3_norm}"
+      echo "          actual:   ${got}"
+      audit_ok=0
+    fi
+  done <<EOF
+$AUDIT_STD3_DECLS
+EOF
+
   if [ "$audit_ok" -eq 1 ]; then
     echo "OK:   terminal-theorem axiom audit: ${audited} capstone(s) at the expected census set"
-    echo "      (std-3 + ${EXPECTED_AXIOMS} literature axioms, no sorryAx), ${paired} twin pair(s) identical"
+    echo "      (std-3 + ${EXPECTED_AXIOMS} literature axioms, no sorryAx), ${paired} twin pair(s) identical,"
+    echo "      ${std3} Tau Ceti capstone(s) at exactly the standard three"
   else
     fail=1
   fi
@@ -303,6 +339,18 @@ elif palomar_out=$(lake env lean GQ2/PalomarAxiomAudit.lean 2>&1); then
 else
   echo "FAIL: explicit-hypothesis audit failed:"
   printf '%s\n' "$palomar_out" | sed 's/^/          /'
+  fail=1
+fi
+
+# -- 7. Tau Ceti import-closure audit -----------------------------------------
+if ! command -v lake >/dev/null 2>&1 ||
+    [ ! -f .lake/build/lib/lean/GQ2/TauCeti/Main.olean ]; then
+  echo "SKIP: Tau Ceti audit — GQ2.TauCeti.Main not built"
+elif tauceti_out=$(lake env lean GQ2/TauCetiAxiomAudit.lean 2>&1); then
+  echo "OK:   Tau Ceti audit: legacy literature axioms absent; capstones at exactly std-3"
+else
+  echo "FAIL: Tau Ceti audit failed:"
+  printf '%s\n' "$tauceti_out" | sed 's/^/          /'
   fail=1
 fi
 
