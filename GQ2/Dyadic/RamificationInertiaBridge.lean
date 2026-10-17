@@ -224,6 +224,7 @@ theorem filtrationUniformizerInteger_coe (FF : GQ2.DyadicUnitFiltration K) :
     ((filtrationUniformizerInteger K FF : ExtensionInteger K) : K) =
       ⟨FF.π, FF.hπ_mem⟩ := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- The filtration uniformizer generates the maximal ideal of the norm valuation ring. -/
 theorem extensionInteger_maximalIdeal_eq_span
     (FF : GQ2.DyadicUnitFiltration K) :
@@ -289,6 +290,7 @@ theorem span_two_eq_span_filtrationUniformizer_pow
     simpa only [norm_pow] using FF.he
   rw [heq]
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- The exact maximal-ideal factorization measured by the filtration ramification index. -/
 theorem map_baseInteger_maximalIdeal_eq_pow_extensionInteger_maximalIdeal
     (FF : GQ2.DyadicUnitFiltration K) :
@@ -302,6 +304,7 @@ theorem map_baseInteger_maximalIdeal_eq_pow_extensionInteger_maximalIdeal
   simpa only [Ideal.map_span, Set.image_singleton] using
     span_two_eq_span_filtrationUniformizer_pow K FF
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- Consecutive powers at the filtration exponent are distinct. -/
 theorem extensionInteger_maximalIdeal_pow_not_le_succ
     (FF : GQ2.DyadicUnitFiltration K) :
@@ -331,7 +334,7 @@ theorem extensionInteger_maximalIdeal_pow_not_le_succ
 theorem integer_ramificationIdx_eq_filtration_e
     (FF : GQ2.DyadicUnitFiltration K) :
     letI := normValuation_hasExtension K
-    Ideal.ramificationIdx (IsLocalRing.maximalIdeal BaseInteger)
+    Ideal.ramificationIdx' (IsLocalRing.maximalIdeal BaseInteger)
       (IsLocalRing.maximalIdeal (ExtensionInteger K)) = FF.e := by
   letI := normValuation_hasExtension K
   apply Ideal.ramificationIdx_spec
@@ -343,7 +346,7 @@ theorem integer_ramificationIdx_eq_filtration_e
 theorem integer_ramificationIdx'_eq_filtration_e
     (FF : GQ2.DyadicUnitFiltration K) :
     letI := normValuation_hasExtension K
-    (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx' BaseInteger = FF.e := by
+    (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx BaseInteger = FF.e := by
   letI := normValuation_hasExtension K
   letI : IsDiscreteValuationRing BaseInteger := baseInteger_isDiscreteValuationRing
   letI : IsDiscreteValuationRing (ExtensionInteger K) :=
@@ -361,9 +364,12 @@ theorem integer_finrank_eq_field_finrank :
     Module.finrank BaseInteger (ExtensionInteger K) = Module.finrank ℚ_[2] K := by
   letI := normValuation_hasExtension K
   letI := integer_finite K
+  haveI : IsScalarTower BaseInteger (ExtensionInteger K) K :=
+    Valuation.HasExtension.instIsScalarTowerInteger
   exact (Algebra.IsAlgebraic.finrank_of_isFractionRing
     BaseInteger ℚ_[2] (ExtensionInteger K) K).symm
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- The norm valuation-ring extension is automatically flat.  The extension relation gives
 torsion-freeness, and the base ring is a DVR (hence a Dedekind domain). -/
 theorem integer_flat :
@@ -374,13 +380,14 @@ theorem integer_flat :
   letI : IsDedekindDomain BaseInteger := inferInstance
   infer_instance
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- The norm valuation-ring extension identifies Mathlib's ring-theoretic inertia degree with the
 filtration residue degree `FF.f`.  This uses the already-proved target residue
 cardinality `2 ^ FF.f` and the base residue cardinality `2`. -/
 theorem integer_inertiaDeg_eq_filtration_f
     (FF : GQ2.DyadicUnitFiltration K) :
     letI := normValuation_hasExtension K
-    (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg' BaseInteger = FF.f := by
+    (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg BaseInteger = FF.f := by
   letI := normValuation_hasExtension K
   letI := integer_finite K
   let p := IsLocalRing.maximalIdeal BaseInteger
@@ -390,7 +397,7 @@ theorem integer_inertiaDeg_eq_filtration_f
   letI : q.LiesOver p := inferInstance
   letI : Field (BaseInteger ⧸ p) := Ideal.Quotient.field p
   letI : Field (ExtensionInteger K ⧸ q) := Ideal.Quotient.field q
-  rw [← Ideal.inertiaDeg_eq_inertiaDeg' p q, Ideal.inertiaDeg_algebraMap]
+  rw [Ideal.inertiaDeg_eq_of_isMaximal p q]
   apply Nat.pow_right_injective (le_refl 2)
   have hcard := Module.natCard_eq_pow_finrank
     (K := BaseInteger ⧸ p) (V := ExtensionInteger K ⧸ q)
@@ -422,25 +429,26 @@ def uniquePrimesOverMaximal :
 variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
 variable {FF : GQ2.DyadicUnitFiltration K}
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- The one-prime specialization of Mathlib's sum formula at the norm valuation rings. -/
 theorem integer_finrank_eq_ramification_mul_inertia
     : letI := normValuation_hasExtension K
     Module.finrank BaseInteger (ExtensionInteger K) =
-      (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx' BaseInteger *
-        (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg' BaseInteger := by
+      (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx BaseInteger *
+        (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg BaseInteger := by
   letI := normValuation_hasExtension K
   letI := integer_finite K
   letI : Module.Flat BaseInteger (ExtensionInteger K) := integer_flat K
   letI : Unique ((IsLocalRing.maximalIdeal BaseInteger).primesOver (ExtensionInteger K)) :=
     uniquePrimesOverMaximal K
   letI : Fintype ((IsLocalRing.maximalIdeal BaseInteger).primesOver (ExtensionInteger K)) :=
-    Fintype.ofFinite _
+    Fintype.ofSubsingleton default
   have hsum := Ideal.sum_ramification_inertia_eq_finrank
     (IsLocalRing.maximalIdeal BaseInteger) (ExtensionInteger K)
   rw [Fintype.sum_unique] at hsum
   change
-    (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx' BaseInteger *
-      (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg' BaseInteger =
+    (IsLocalRing.maximalIdeal (ExtensionInteger K)).ramificationIdx BaseInteger *
+      (IsLocalRing.maximalIdeal (ExtensionInteger K)).inertiaDeg BaseInteger =
         Module.finrank BaseInteger (ExtensionInteger K) at hsum
   exact hsum.symm
 
