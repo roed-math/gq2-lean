@@ -62,8 +62,8 @@ theorem coreEquiv_pro2 (e : ContinuousMulEquiv S₁.Γ S₂.Γ) (g : S₁.Γ) :
     apply (pro2IsoK hP S₁.pro2 S₁.pro2_surjective S₁.ker_pro2).injective
     rw [ContinuousMulEquiv.apply_symm_apply, pro2IsoK_mk (hP := hP)]
   simp only [coreEquiv, ContinuousMulEquiv.trans_apply]
-  rw [hs, pro2IsoK_mk (hP := hP)]
-  rfl
+  rw [hs]
+  exact pro2IsoK_mk (hP := hP) _ _ _ g
 
 /-- Preserving the prescribed pro-2 map is equivalent to the induced core map being identity. -/
 theorem coreEquiv_eq_refl_iff (e : ContinuousMulEquiv S₁.Γ S₂.Γ) :

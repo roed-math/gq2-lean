@@ -37,7 +37,7 @@ def semiProdLineHom {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C 
     C →* SectionSix.SemiProd C V where
   toFun c := (0, c)
   map_one' := Prod.ext (by simp) (by simp)
-  map_mul' c d := Prod.ext (by simp [SectionSix.SemiProd.mul_def]) (by simp)
+  map_mul' c d := Prod.ext (show (0 : V) = 0 + c • (0 : V) by simp) (show c * d = c * d from rfl)
 
 @[simp] theorem semiProdLineHom_apply
     {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V] (c : C) :

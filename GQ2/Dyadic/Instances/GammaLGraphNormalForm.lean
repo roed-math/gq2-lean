@@ -102,12 +102,12 @@ theorem lSqPhaseNormal_eq_coordsSymm
 @[simp] theorem lSqPhaseNormal_handleU
     {h : ℕ} {A : Type*} [AddCommGroup A] (p : A × (Fin h → A × A)) (j : Fin h) :
     lSqPhaseNormal h p (handleU j) = (p.2 j).1 := by
-  simp [lSqPhaseNormal, finTwoProdAddEquiv]
+  simp [lSqPhaseNormal]
 
 @[simp] theorem lSqPhaseNormal_handleV
     {h : ℕ} {A : Type*} [AddCommGroup A] (p : A × (Fin h → A × A)) (j : Fin h) :
     lSqPhaseNormal h p (handleV j) = (p.2 j).2 := by
-  simp [lSqPhaseNormal, finTwoProdAddEquiv]
+  simp [lSqPhaseNormal]
 
 /-! ## The unramified first-order normal form -/
 
@@ -501,13 +501,14 @@ noncomputable def sourceWordPhaseComparison_of_lSqGraphNormalForm
     have hsv := congrArg Subtype.val hs
     change (fun i ↦ (normalZ1 p).1
       (gammaGen (2 * h + 1) q (lSqW h) i)) = normal p
-    simpa [normalZ1, normal, theta] using hsv
+    exact (lSourceZ1Map_coe theta hcompat hres (normalZ1 p)).symm.trans hsv
   have hnormalClass (p : DD.Vmod × (Fin h → DD.Vmod × DD.Vmod)) :
       phaseEquiv (QuotientAddGroup.mk (normalSource p)) = p := by
     change wordEquiv
       (lSourceH1Equiv theta hcompat hA2 hres
         (H1mk (gamma h q : Type) DD.Vmod (normalZ1 p))) = p
-    rw [lSourceH1Equiv_mk]
+    refine (congrArg wordEquiv
+      (lSourceH1Equiv_mk theta hcompat hA2 hres (normalZ1 p))).trans ?_
     have hs := Function.surjInv_eq hZ1surj
       ⟨normal p, AddMonoidHom.mem_ker.mpr (hmem p)⟩
     rw [show lSourceZ1Map theta hcompat hres (normalZ1 p) =

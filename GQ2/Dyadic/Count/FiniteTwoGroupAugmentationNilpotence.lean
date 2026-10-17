@@ -171,9 +171,9 @@ theorem quotientGroupAlgebraMap_zpowers_ker_eq_relationIdeal
   have hinverse (x : MonoidAlgebra (ZMod 2) Q) :
       inverse (modTwoQuotientGroupAlgebraMap N x) = qmk x := by
     induction x using MonoidAlgebra.induction_on with
-    | hM q => simpa using hsingle q 1
-    | hadd x y hx hy => rw [map_add, map_add, map_add, hx, hy]
-    | hsmul a x hx => rw [map_smul, map_smul, map_smul, hx]
+    | of q => simpa using hsingle q 1
+    | add x y hx hy => rw [map_add, map_add, map_add, hx, hy]
+    | smul a x hx => rw [map_smul, map_smul, map_smul, hx]
   apply le_antisymm
   · intro x hx
     rw [RingHom.mem_ker] at hx
@@ -215,14 +215,14 @@ theorem modTwoFiniteAugmentation_quotientGroupAlgebraMap
     modTwoFiniteAugmentation (Q ⧸ N) (modTwoQuotientGroupAlgebraMap N x) =
       modTwoFiniteAugmentation Q x := by
   induction x using MonoidAlgebra.induction_on with
-  | hM q =>
+  | of q =>
       have hof : MonoidAlgebra.of (ZMod 2) Q q =
           MonoidAlgebra.single q 1 := rfl
       rw [hof, modTwoQuotientGroupAlgebraMap, MonoidAlgebra.mapDomainAlgHom_apply,
         MonoidAlgebra.mapDomain_single, modTwoFiniteAugmentation_single,
         modTwoFiniteAugmentation_single]
-  | hadd x y hx hy => simp only [map_add, hx, hy]
-  | hsmul a x hx => simp only [map_smul, hx]
+  | add x y hx hy => simp only [map_add, hx, hy]
+  | smul a x hx => simp only [map_smul, hx]
 
 /-- If the quotient by a central involution has nilpotent augmentation ideal, then so does the
 original group.  The exponent is doubled because the quotient-map kernel is square-zero. -/
@@ -282,12 +282,12 @@ theorem algebraMap_modTwoFiniteAugmentation_eq_of_subsingleton
     (Q : Type u) [Group Q] [Subsingleton Q] (x : MonoidAlgebra (ZMod 2) Q) :
     algebraMap (ZMod 2) (MonoidAlgebra (ZMod 2) Q) (modTwoFiniteAugmentation Q x) = x := by
   induction x using MonoidAlgebra.induction_on with
-  | hM q =>
+  | of q =>
       have hq : q = 1 := Subsingleton.elim _ _
       subst q
       simp [MonoidAlgebra.of_apply, modTwoFiniteAugmentation]
-  | hadd x y hx hy => simp only [map_add, hx, hy]
-  | hsmul a x hx =>
+  | add x y hx hy => simp only [map_add, hx, hy]
+  | smul a x hx =>
       rw [map_smul (modTwoFiniteAugmentation Q)]
       change algebraMap (ZMod 2) (MonoidAlgebra (ZMod 2) Q)
         (a * modTwoFiniteAugmentation Q x) = a • x

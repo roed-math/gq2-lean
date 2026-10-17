@@ -141,7 +141,7 @@ theorem gammaLSylowTwoLocalH2RightExactSupply_of_scalarKernelTails
   refine ⟨pSylow, ?_⟩
   exact h2RightExactAt_of_twoGroupActionScalarKernelTail rhoP
     (sylowTwoPreimageHom_surjective rho₀ pairFiniteActionImageHom_surjective pSylow)
-    pSylow.2 tail g (fun u a ↦ hg u.1 a) hgP hcompatA hcompatB hA₂ hB₂ hsurj
+    pSylow.isPGroup tail g (fun u a ↦ hg u.1 a) hgP hcompatA hcompatB hA₂ hB₂ hsurj
 
 /-- End-to-end scalar-kernel constructor for full Tate duality on the improved L presentation. -/
 noncomputable def tateDualityG_of_sylowPreimageScalarKernelTails

@@ -233,7 +233,7 @@ theorem regularModTwoLinearMoment_modTwoFoxDerivative
       (FreeGroup.lift
         (fun j => centLift (foxMagnusJetCocycle chi) (foxMagnusJetMark m i j)) f).fib := by
   induction f using FreeGroup.induction_on with
-  | C1 => simp
+  | one => simp
   | of j =>
       simp [modTwoFoxDerivative_of, modTwoFoxGenerator,
         regularModTwoLinearMoment_single, foxMagnusJetMark]
