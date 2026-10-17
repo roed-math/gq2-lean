@@ -16,10 +16,10 @@ Acceptance for every adapter: builds with zero sorries, imports nothing reaching
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| G0' | owner gate: approve the plan and decisions D1–D4 | owner | — | — | open |
+| G0' | owner gate: approve the plan and decisions D1–D4 | owner | — | — | done 2026-10-17 (D1 `dyadic-tauceti`, D2 public, D3 keep the 17 rows, D4 gates = `check_axioms.sh`, `check_dyadic.sh`, ledger, audits, full build) |
 | D0 | worktree `/scratch/claudeM/gq2-dyadic`, branch `dyadic-tauceti` off `origin/dyadic` | orchestrator | — | — | done 2026-10-17 |
-| T0 | merge `tauceti` into `dyadic-tauceti`; census 11 → 2 (TauCetiInstance for the nine, `Axioms.lean` reduced to B5-K/B10-K); cache toml; pins | orchestrator | the 11 conflicted files (plan §1) | G0' | open |
-| T1 | Mathlib bump `ec410d23d` → `cfc55fc58` of the dyadic tree, statements byte-identical | fable workers | `GQ2/Dyadic/**`, every dyadic-only file; ℚ₂ files already bumped on `tauceti` | T0 | open |
+| T0 | merge `tauceti` into `dyadic-tauceti`; census 11 → 2 (TauCetiInstance for the nine, `Axioms.lean` reduced to B5-K/B10-K); cache toml; pins | orchestrator | the 11 conflicted files (plan §1) | G0' | done ffb225d8 (tag `dyadic-tauceti-T0`); D2 a90262d2 |
+| T1 | Mathlib bump `ec410d23d` → `cfc55fc58` of the dyadic tree, statements byte-identical | fable workers | `GQ2/Dyadic/**`, every dyadic-only file; ℚ₂ files already bumped on `tauceti` | T0 | done 2026-10-17: full build green (7627 jobs), `check_axioms.sh` (census 2, 17 `AUDIT_DYADIC` rows at std-3, Tau Ceti audit), `check_dyadic.sh` D-checks, `AxiomLedger`, `PalomarAxiomAudit`, `TauCetiAxiomAudit` all pass; 53 commits dyadic-tauceti-T0..98057ce0, 186 files, +783/−474 |
 | T2 | recon memo for B5-K and B10-K: `docs/dyadic/tauceti-discharge-recon.md`, smoke additions | opus | the memo, `GQ2/TauCeti/SmokeK.lean` | T1 | open |
 
 ## Wave 1: dictionary
@@ -57,6 +57,38 @@ kept; `Partition.lean` and `SectionTenSources.lean` take `tauceti`'s code and `d
 Copy `.lake/tauceti-lake-cache.toml`; `lake update` is **not** run (the manifest comes from
 `tauceti`); `lake exe cache get`; check that `lake build TauCeti.NumberTheory.LocalField.Padic`
 unpacks rather than compiles. Commit `dyadic-tauceti T0: merge tauceti (census 11 → 2)`.
+
+**T1 environment leak (orchestrator, 2026-10-17).** After T0 every GQ2 file reached
+`GQ2.Foundations.TauCetiInstance` (`Interfaces → Axioms → TauCetiInstance → public import
+GQ2.TauCeti.Instance`), which put the Tau Ceti library and its Mathlib closure (instances such as
+`Pi.instCharP`, `TauCeti.IsTopologicalAddGroup.nonarchimedeanAddGroup_of_compactSpace`) into the
+environment of ℚ₂ files that are byte-identical to `tauceti`'s and build there (`GQ2/WordCoh2R.lean`,
+`GQ2/Shapiro/Read.lean` failed from changed `simp`/instance paths). Fix: `TauCetiInstance.lean`
+imports the adapters privately (`import GQ2.TauCeti.Instance`, `public section` without
+`@[expose]`, the `LiteratureInputs` instance built field-by-field from the legacy names);
+`Interfaces.lean` no longer re-exports `Axioms.lean`; the files that use a legacy input name
+import `TauCetiInstance`/`Axioms` directly. Non-`module` files (1379 of 1596) still load private
+imports transitively, so the ~1000 transitive importers of those files keep the heavier
+environment; divergences there are fixed per file and recorded in the worker brief. The same
+restructuring of `TauCetiInstance.lean` is a candidate for `tauceti` (owner item).
+
+**T1 statement exceptions (orchestrator-approved, for the owner's review at G1').** (i) The four
+ℚ₂-model pins `example : @prop_6_18_(un)ramified_K_q2 = @<ℚ₂ model> := rfl` in
+`GQ2/Dyadic/LocalGauss/{Unramified,Ramified,Main}.lean` take a `[LiteratureInputs]` binder because
+the ℚ₂ theorems gained one in the merged refactor. (ii) `GQ2/Dyadic/LocalGauss/ReadPerOrbitK.lean`:
+nine `omit` lists drop `[Finite (RegRep N)]`; in the Tau Ceti environment the
+`IsTopologicalAddGroup (Fin K → RegRep N)` instance is found through a Tau Ceti instance needing
+`Finite`, so the elaborated statements gain that hypothesis (the only caller has it). (iii) Mathlib made `MonoidAlgebra` a structure
+without a function coercion: `GQ2/Dyadic/Count/CompletedRankOneFox.lean` `regularUnitGroupAlgebraEquiv_apply`
+and `regularModTwoComponent_apply` read `(… c).coeff q = c (q, _)` instead of `… c q = c (q, _)` (the
+same translation is applied wherever a group-algebra element is applied to a point). (iv) `Set` is a
+structure: `Set`-valued defs whose bodies mention noncomputable constants are marked `noncomputable`
+(`GQ2/Dyadic/Count/Wild.lean` `wildLetters`). (v) Mathlib swapped the names `Ideal.ramificationIdx`/`ramificationIdx'` and
+`inertiaDeg'`/`inertiaDeg` without a meaning-preserving alias: the four statements of
+`GQ2/Dyadic/RamificationInertiaBridge.lean` that use them are renamed accordingly (same underlying
+definitions). Everything
+else in T1 is proof/import-only; the dyadic files that call ℚ₂ declarations carrying a
+`[LiteratureInputs]` binder import `GQ2.Foundations.TauCetiInstance` for the instance.
 
 **T1 (fable workers, orchestrated).** The `tauceti` T1 procedure: a keep-going full build, one
 subagent per failing file with the pattern brief, the statement checker on every changed file
