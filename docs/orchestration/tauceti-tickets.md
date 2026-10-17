@@ -20,12 +20,18 @@ nothing from `GQ2/Foundations/Axioms.lean` or `AxiomInstance.lean`, and
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| G0 | owner gate: accept Tau Ceti in the trust base, approve the pin | owner | — | — | open |
-| T0 | worktree, pins, caches | opus | `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, `.github/workflows/ci.yml` | G0 | open |
-| T1 | Mathlib bump `ec410d23d` → `cfc55fc58` (`v4.31.0-rc2` → `v4.35.0`) | fable | all of `GQ2/`, `Challenge*.lean`, `Solution*.lean`, `GQ2.lean` | T0 | open |
-| T2 | Tau Ceti smoke import and dictionary recon memo | opus | `GQ2/TauCeti/Smoke.lean`, `docs/orchestration/tauceti-t2-recon.md` | T1 | open |
+| G0 | owner gate: accept Tau Ceti in the trust base, approve the pin | owner | — | — | approved 2026-10-16 |
+| T0 | worktree, pins, caches | opus | `lean-toolchain`, `lakefile.toml`, `lake-manifest.json`, `.github/workflows/ci.yml` | G0 | done `90bea281` |
+| T1 | Mathlib bump `ec410d23d` → `cfc55fc58` (`v4.31.0-rc2` → `v4.35.0`) | fable | all of `GQ2/`, `Challenge*.lean`, `Solution*.lean`, `GQ2.lean` | T0 | done `d40bfb1f`…`84e08795` |
+| T2 | Tau Ceti smoke import and dictionary recon memo | opus | `GQ2/TauCeti/Smoke.lean`, `docs/orchestration/tauceti-t2-recon.md` | T1 | done `79bca060` |
 
 ## Wave 1: shared dictionaries (parallel)
+
+The T2 memo ([`tauceti-t2-recon.md`](tauceti-t2-recon.md), "Corrections to the plan and board")
+revises the Wave 2 dependencies: B1 and B5 need no dictionary, B10 needs only B5, B3c is
+self-contained, B9 does not need B11a. Prototypes for most lanes are in
+[`tauceti-t2-evidence/`](tauceti-t2-evidence/README.md). The dependency column below is unchanged
+until the orchestrator re-plans Wave 2.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
