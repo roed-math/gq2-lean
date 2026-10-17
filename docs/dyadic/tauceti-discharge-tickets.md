@@ -39,9 +39,9 @@ Acceptance for every adapter: builds with zero sorries, imports nothing reaching
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| G1' | owner gate: census flip 2 → 0 | owner | — | B5-K, B10-K | open |
-| C1' | legacy names as defs; delete `Axioms.lean`; census 0; check 5b at std-3 with the W361 endpoint; ledger; audits | orchestrator | `GQ2/Foundations/TauCetiInstance.lean`, `GQ2/Foundations/Axioms.lean` (delete), `scripts/check_axioms.sh`, `GQ2/AxiomLedger.lean`, `GQ2/TauCetiAxiomAudit.lean` | G1' | open |
-| C2' | docs sweep: `literature-axioms-dyadic.md`, `plan.md` status, owner items, `README.md`, `formalization.yaml` | opus | those files | C1' | open |
+| G1' | owner gate: census flip 2 → 0 | owner | — | B5-K, B10-K | approved 2026-10-17 |
+| C1' | legacy names as defs; delete `Axioms.lean`; census 0; check 5b at std-3 with the W361 endpoint; ledger; audits | orchestrator | `GQ2/Foundations/TauCetiInstance.lean`, `GQ2/Foundations/Axioms.lean` (delete), `scripts/check_axioms.sh`, `GQ2/AxiomLedger.lean`, `GQ2/TauCetiAxiomAudit.lean` | G1' | done 2026-10-17 (b321c22f): census 0; check 5b at 20 rows incl. the K names and the W361 endpoint; new check 8 `GQ2/DyadicTauCetiAxiomAudit.lean` (instead of extending `TauCetiAxiomAudit.lean`, whose absence check would conflict with the dyadic closure); README and formalization.yaml done here; all gates pass |
+| C2' | docs sweep: `literature-axioms-dyadic.md`, `plan.md` status, owner items, `README.md`, `formalization.yaml` | opus | those files | C1' | done 2026-10-17: literature-axioms-dyadic.md (status, §W361.0 trust base, K rows), literature-axioms.md (B5-K/B10-K rows, §T dyadic paragraph), docs/README.md, plan.md, w361 audits and ax3/ax4 proposals marked superseded |
 | G2' | owner gate: fast-forward `dyadic` to `dyadic-tauceti`, push | owner | — | C2' | open |
 
 ## Ticket briefs
@@ -120,7 +120,7 @@ adapters, never in `GaloisDictK.lean`.
 
 **C1' (orchestrator, after G1').** The C2 checklist of the `tauceti` campaign at census 2 → 0, plus
 the dyadic gates: check 5b (`AUDIT_DYADIC` rows at the standard three, the W361 endpoint
-`GQ2.Dyadic.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI` added), `check_dyadic.sh`
+`GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI` added), `check_dyadic.sh`
 D1–D6, `TauCetiAxiomAudit.lean` extended with the dyadic endpoints. Gates: full build, zero sorries,
 all audits.
 

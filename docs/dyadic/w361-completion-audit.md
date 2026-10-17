@@ -305,6 +305,13 @@ arbitrary-fixed-realization version.
 
 ## 6. Axiom and citation posture
 
+*Superseded 2026-10-17: the census is 0. The nine inputs below are theorems or definitions proved
+from Tau Ceti: seven through the merged ℚ₂ discharge, and `markedRecipAt` and
+`orientedTameQuotientAt` through ticket C1' of [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md).
+The endpoint is audited at exactly the standard three (`scripts/check_axioms.sh` checks 5b and 8).
+See [`literature-axioms-dyadic.md`](literature-axioms-dyadic.md) §W361.0. The section below is the
+2026-09-17 record.*
+
 The new bare fully marked canonical endpoint prints exactly standard-three
 (`propext`, `Classical.choice`, `Quot.sound`) plus these **nine existing** inputs:
 

@@ -18,6 +18,11 @@ theorem in the cited reference?*
 > Lean statement asserts and which published theorem it encodes.  Each §B entry now also records its
 > Tau Ceti source and gq2 adapter, and §T summarizes the new trust base.
 >
+> *On the `dyadic` branch (2026-10-17):* the census there was 2 after the merge of this discharge.
+> The two `K`-level inputs B5-K `markedRecipAt` and B10-K `orientedTameQuotientAt` were the
+> remaining axioms, and ticket C1' proved them from Tau Ceti too
+> (`GQ2/TauCeti/{GaloisDictK,B5K,B10K}.lean`). The census is 0 there as well (§T, §D).
+>
 > *Earlier status (T-20):* all leaves were *stated in Lean*, as nine axioms.
 > [`review-packet.md`](orchestration/review-packet.md), written in that period, gives the Lean name
 > per leaf, the consolidated deviations table, and mechanical verification instructions.  The
@@ -63,6 +68,27 @@ each adapter bridges conventions.
 went 10 → 9 (B4 deleted).  It stayed 9 through the B9 restatement (2026-07-24) and the B-Lab
 decision (2026-07-25/26, §B3 addendum).  On 2026-10-17 it went **9 → 0** (ticket C2): the nine
 were proved via Tau Ceti.
+
+**On the `dyadic` branch.** The general-2-adic campaign added two `K`-level inputs at gate G-AX
+(2026-07-29): **B5-K** `GQ2.markedRecipAt` (AX3, census 9 → 10) and **B10-K**
+`GQ2.orientedTameQuotientAt` (AX4, census 10 → 11). Their record is in
+[`dyadic/literature-axioms-dyadic.md`](dyadic/literature-axioms-dyadic.md). The dyadic Tau Ceti
+discharge ([`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md),
+[`dyadic/tauceti-discharge-tickets.md`](dyadic/tauceti-discharge-tickets.md)) went in two steps on
+2026-10-17. Ticket T0 merged the ℚ₂ discharge above into that branch, taking the census from 11
+to 2. Ticket C1' took it
+from 2 to 0: both inputs are now `noncomputable def`s in `GQ2/Foundations/TauCetiInstance.lean`,
+with statements byte-identical to the deleted axioms. Their bodies are the adapters
+`TauCetiBridge.markedRecipAt_tauceti` (`GQ2/TauCeti/B5K.lean`) and
+`TauCetiBridge.orientedTameQuotientAt_tauceti` (`GQ2/TauCeti/B10K.lean`), both on the `K`-level
+dictionary `GQ2/TauCeti/GaloisDictK.lean`. B5-K comes from Tau Ceti's local class field theory at
+`↥K` (`ClassFieldTheory.artinMap`, `unramifiedCoordinate`, `artinMap_norm`, and inertia ⊆
+`ker ν_ur` through `map_inertiaSubgroup_le_fixingSubgroup_iff`). B10-K comes from
+`wildInertiaSubgroup` and the geometric Iwasawa presentation (`tameQuotientGeometricEquiv`, with
+`IwasawaGroupGeometric ≃ₜ* Tq q`). On that branch `scripts/check_axioms.sh` check 5b pins the two
+names and the W361 endpoint `GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI`
+at exactly the standard three. Check 8 (`GQ2/DyadicTauCetiAxiomAudit.lean`) re-checks them in the
+environment of the whole dyadic tree.
 
 **The map.** Each adapter lives in namespace `GQ2.TauCetiBridge` and prints exactly the standard
 three axioms.  Each legacy name is now a theorem or definition in
@@ -730,14 +756,14 @@ statement's encoding (legend at the top).
 | B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡; B3c form **proved via Tau Ceti** (`B3c.lean`) |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ❌ **deleted 2026-07-10** (unused; B3c subsumes a marked B4) |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B5.lean`) |
-| B5-K  marked local reciprocity over finite `K/ℚ₂` (AX3) | **NSW Ch. I §5, Ch. VII §7.1** (functoriality); Serre *LF* **XI §3** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** | 🟡 **added 2026-07-29** (census 9→10, gate G-AX) |
+| B5-K  marked local reciprocity over finite `K/ℚ₂` (AX3; `dyadic` branch) | **NSW Ch. I §5, Ch. VII §7.1** (functoriality); Serre *LF* **XI §3** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** (clause-level source audit 2026-09-17: [`dyadic/w361-axiom-source-verification.md`](dyadic/w361-axiom-source-verification.md)) | 🟡 **proved via Tau Ceti** (`B5K.lean`, `GaloisDictK.lean`; ticket C1' of [`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md), 2026-10-17); axiom from 2026-07-29 (census 9→10, gate G-AX) |
 | B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B6.lean`, `DualizingGroup.lean`) |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B7.lean`) |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | ✅ **proved** (2026-07-09) |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ **proved via Tau Ceti** (bundle; `B8.lean`) |
 | B9  relative Stiefel–Whitney (`relativeStiefelWhitney_dyadic`; **restated 2026-07-24**, `evensKahn_dyadic` now the derived theorem) | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 **proved via Tau Ceti** (SW classes in-repo; `B9.lean`, `StiefelWhitneyDict.lean`) |
 | B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ **proved via Tau Ceti** (bundle; `B10.lean`) |
-| B10-K oriented tame quotient of `G_K` at `q_K` (AX4) | **NSW Ch. VII §7.5 (7.5.3)/(7.5.2)** (Iwasawa); Serre *LF* **Ch. IV**; **Ch. XIII §4 Prop. 13 + cor.** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** | ✅ axiom (bundle; **added 2026-07-29**, census 10→11, gate G-AX) |
+| B10-K oriented tame quotient of `G_K` at `q_K` (AX4; `dyadic` branch) | **NSW Ch. VII §7.5 (7.5.3)/(7.5.2)** (Iwasawa); Serre *LF* **Ch. IV**; **Ch. XIII §4 Prop. 13 + cor.** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** (clause-level source audit 2026-09-17: [`dyadic/w361-axiom-source-verification.md`](dyadic/w361-axiom-source-verification.md)) | ✅ **proved via Tau Ceti** (bundle; `B10K.lean`, `GaloisDictK.lean`; ticket C1', 2026-10-17); axiom from 2026-07-29 (census 10→11, gate G-AX) |
 | B11a dyadic norm criterion (finite `k/ℚ₂`) | **Serre *LF* XIV §2 Prop. 4(iii)** with Prop. 5 (symbol = cup); over `ℚ_p` CiA III §1.1 Prop. 1 | ✅ **line-checked** (P-20) | ✅ **proved via Tau Ceti** (`B11a.lean`) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |

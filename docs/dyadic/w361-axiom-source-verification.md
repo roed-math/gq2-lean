@@ -5,6 +5,14 @@ Date: 2026-09-17. Scope: the already approved citation targets for B5-K
 not an axiom change, a new owner approval, or a census revision. No source PDF
 is vendored by this audit.
 
+> *Superseded status (2026-10-17):* B5-K and B10-K are no longer axioms. Ticket C1' of
+> [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md) proved both from Tau Ceti revision
+> `706344c35` (`GQ2/TauCeti/{GaloisDictK,B5K,B10K}.lean`; census 0). The statements are
+> byte-identical, so this audit now records which published statements those proofs establish,
+> not a trust assumption. The "inherited-axiom status of the current general endpoint" in §1,
+> item 6 is superseded: see [`literature-axioms-dyadic.md`](literature-axioms-dyadic.md)
+> §W361.0. The audit text below is unchanged.
+
 ## 1. Result and limits
 
 The principal cited results were found and inspected in primary sources.

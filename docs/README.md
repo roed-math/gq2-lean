@@ -18,9 +18,16 @@ literature inputs that were axioms until then are proved from
 axioms. See the Tau Ceti section below.
 
 [`dyadic/`](dyadic/) holds the general-2-adic (ramified-`i`) campaign: plan, board, refs,
-surveys; its own Tau Ceti discharge (the same programme for this branch, census 11 → 0) is planned in
-[`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md) with board
-[`dyadic/tauceti-discharge-tickets.md`](dyadic/tauceti-discharge-tickets.md).
+surveys. It ran its own Tau Ceti discharge, the same programme applied to this branch (census
+11 → 0, done 2026-10-17). The plan is
+[`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md), the board
+[`dyadic/tauceti-discharge-tickets.md`](dyadic/tauceti-discharge-tickets.md) and the recon memo
+[`dyadic/tauceti-discharge-recon.md`](dyadic/tauceti-discharge-recon.md). Ticket T0 merged the
+ℚ₂ discharge (census 11 → 2). Ticket C1' then proved the campaign's two `K`-level inputs, B5-K
+`markedRecipAt` and B10-K `orientedTameQuotientAt`, from Tau Ceti by the adapters
+`GQ2/TauCeti/{GaloisDictK,B5K,B10K}.lean` (census 2 → 0). The current state above therefore
+holds on this branch, the dyadic endpoints included. The trust record is
+[`dyadic/literature-axioms-dyadic.md`](dyadic/literature-axioms-dyadic.md).
 
 The original submitted paper is retained at
 [`paper/A_Profinite_Presentation_for_G__Q_2.pdf`](../paper/A_Profinite_Presentation_for_G__Q_2.pdf).
@@ -69,7 +76,16 @@ Tau Ceti's proofs at the pinned revision (owner gate G0).
 | [`orchestration/tauceti-tickets.md`](orchestration/tauceti-tickets.md) | Live until G2. The ticket board with each ticket's landing commit. |
 | [`orchestration/tauceti-t2-recon.md`](orchestration/tauceti-t2-recon.md) | The recon memo: exact Tau Ceti signatures, instance needs, the cross-cutting hazards (unexposed Tau Ceti definitions, instance-search timeouts, separable vs algebraic closure) and the corrections to the plan. |
 | [`orchestration/tauceti-t2-evidence/`](orchestration/tauceti-t2-evidence/README.md) | The recon's scratch prototypes and probes (outside every `lean_lib`). |
-| `../GQ2/TauCeti/` | The adapters (one file per input, plus the dictionaries `GaloisDict`, `CohomologyDict`, `ProPDict`, `StiefelWhitneyDict`, `DualizingGroup`), `Instance.lean` (the bundle) and `Main.lean` (the four `*_tauceti` capstones). |
+| `../GQ2/TauCeti/` | The adapters (one file per input, plus the dictionaries `GaloisDict`, `CohomologyDict`, `ProPDict`, `StiefelWhitneyDict`, `DualizingGroup`), `Instance.lean` (the bundle) and `Main.lean` (the four `*_tauceti` capstones). On the `dyadic` branch also `GaloisDictK`, `B5K`, `B10K` (the two `K`-level inputs) and `SmokeK` (recon smoke file, not imported by the library). |
+
+On the `dyadic` branch the same programme also covered the campaign's two `K`-level inputs, B5-K
+and B10-K (census 11 → 2 at the merge of this campaign, ticket T0; 2 → 0 at ticket C1',
+2026-10-17). Its records are the plan
+[`dyadic/tauceti-discharge-plan.md`](dyadic/tauceti-discharge-plan.md), the board
+[`dyadic/tauceti-discharge-tickets.md`](dyadic/tauceti-discharge-tickets.md) (live until its gate
+G2'), the recon memo [`dyadic/tauceti-discharge-recon.md`](dyadic/tauceti-discharge-recon.md)
+with its prototypes in [`dyadic/tauceti-t2-evidence/`](dyadic/tauceti-t2-evidence/README.md), and
+the bump notes [`dyadic/tauceti-t1-bump-notes.md`](dyadic/tauceti-t1-bump-notes.md).
 
 ## The Γ_R (Roe-candidate) campaign
 
@@ -115,7 +131,9 @@ there:
   (now 0), `sorry`/`native_decide` hygiene, the per-capstone expected-axiom audit (every capstone at
   exactly the standard three), and the Palomar and Tau Ceti import-closure audits
   ([`../GQ2/PalomarAxiomAudit.lean`](../GQ2/PalomarAxiomAudit.lean),
-  [`../GQ2/TauCetiAxiomAudit.lean`](../GQ2/TauCetiAxiomAudit.lean));
+  [`../GQ2/TauCetiAxiomAudit.lean`](../GQ2/TauCetiAxiomAudit.lean)); on the `dyadic` branch also
+  check 5b (the dyadic capstones, B5-K, B10-K and the W361 endpoint at exactly the standard three)
+  and check 8 ([`../GQ2/DyadicTauCetiAxiomAudit.lean`](../GQ2/DyadicTauCetiAxiomAudit.lean));
 - [`../scripts/atlas_audit.py`](../scripts/atlas_audit.py) and
   [`../scripts/paper_api_audit.py`](../scripts/paper_api_audit.py) — report generators;
 - [`../scripts/roe_sanity_counts.py`](../scripts/roe_sanity_counts.py) — independent
@@ -140,5 +158,6 @@ lake build        # with the Tau Ceti cache variables set (see README.md); other
 bash scripts/check_axioms.sh
 lake env lean GQ2/AxiomLedger.lean
 lake env lean GQ2/TauCetiAxiomAudit.lean
+lake env lean GQ2/DyadicTauCetiAxiomAudit.lean   # dyadic branch only
 python3 scripts/atlas_audit.py atlas-graph.json
 ```

@@ -5,6 +5,12 @@ Memo only — no Lean lands with this commit, census unchanged (9).  Protocol: t
 sign-off (**G-AX**) → census-flip commit per the b9a checklist (`docs/orchestration/b9a-tickets.md`).
 Until the flip, every consumer binds the statement as an explicit hypothesis (§5).
 
+> *Later status:* the flip landed on 2026-07-29/30 as axiom **B10-K** `GQ2.orientedTameQuotientAt`
+> (gate G-AX, census 10 → 11). Since 2026-10-17 it is no longer an axiom. Ticket C1' of
+> [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md) made it a `noncomputable def` with the
+> same statement, proved from Tau Ceti by `GQ2/TauCeti/B10K.lean` (census 0). This memo is
+> unchanged as the design record.
+
 Composes with **AX3** (`docs/dyadic/ax3-proposal.md`), whose §4.1 "B1 boundary lane" bullet
 recommends exactly this shape: *"recommend AX4 adopt `structure OrientedTameQuotientK
 (B : MarkedRecip R K)` whose `ν_t` clauses are pinned against `B.recip` on

@@ -1,5 +1,23 @@
 # Trust boundary for the dyadic campaign (ramified-`i` case) — census and residual surface
 
+> **Status (2026-10-17): census 0; the two `K`-level inputs are proved via Tau Ceti.** On this
+> branch the census went 11 → 2 → 0 in the dyadic Tau Ceti discharge
+> ([plan](tauceti-discharge-plan.md), [board](tauceti-discharge-tickets.md),
+> [recon memo](tauceti-discharge-recon.md)). Ticket T0 merged the ℚ₂ discharge, so the nine ℚ₂
+> rows of §B became theorems or definitions proved from Tau Ceti
+> ([`../literature-axioms.md`](../literature-axioms.md) §T): census 11 → 2. Ticket C1' did the
+> same for the last two rows: census 2 → 0. **B5-K** `GQ2.markedRecipAt` and **B10-K**
+> `GQ2.orientedTameQuotientAt` are now `noncomputable def`s in
+> `GQ2/Foundations/TauCetiInstance.lean`, with statements byte-identical to the deleted axioms.
+> Their bodies are the adapters `GQ2/TauCeti/B5K.lean` and `GQ2/TauCeti/B10K.lean`, built on the
+> `K`-level dictionary `GQ2/TauCeti/GaloisDictK.lean` and proved from
+> [Tau Ceti](https://github.com/TauCetiProject/TauCeti) at revision `706344c35`.
+> `GQ2/Foundations/Axioms.lean` is deleted. The trust base of every dyadic statement, the W361
+> endpoint included, is now Lean's standard three axioms plus Tau Ceti's proofs (§W361.0). The
+> measured sets of §W361.1 and §A, the eleven-row census of §B and the checklist of §D are kept
+> as the record of the period when these inputs were axioms (gate G-AX 2026-07-29 to
+> 2026-10-17). They are superseded and have not been rewritten.
+
 **Current general endpoint (W361, 2026-09-17): see §W361 immediately below.**
 The older §§A–D are preserved as the AS5/frozen-quadratic audit snapshot, not as
 the binder or axiom inventory of the new general theorem. In particular, the
@@ -17,6 +35,8 @@ is accepted?*  Three layers, kept strictly separate:
   (`scripts/check_axioms.sh`, `AUDIT_DYADIC`), so growth fails the gate mechanically.
 * **§B — the axiom census (11)**: one row per `axiom` declaration in
   `GQ2/Foundations/Axioms.lean`, with its literature citation and its role in the dyadic tree.
+  *(Since 2026-10-17 the file is deleted and the census is 0. §B's status note and the last
+  column of its `K`-side table record how the rows are proved via Tau Ceti.)*
 * **§C — the residual hypothesis-binder surface**: everything the theorems *quantify over*
   rather than assume.  Binders contribute **nothing** to an axiom print; they are the honest
   "givens" a caller must supply, and this section enumerates all of them with provenance and
@@ -30,7 +50,11 @@ approval records are preserved below. The W361 [clause-level source audit](w361-
 now records the primary pages actually checked and the remaining composite translations;
 it does not authorize a blanket "entire bundle verified" label. The nine ℚ₂-side rows keep the verification markers they already
 have in `docs/literature-axioms.md` (many are `[✓ source-audited]` from the T-20/B9-A passes);
-those markers are *quoted*, not re-audited here.
+those markers are *quoted*, not re-audited here. *(Since 2026-10-17 no row's proof rests on its
+citation: all eleven are proved via Tau Ceti. As for the nine ℚ₂ rows
+(`docs/literature-axioms.md` §E), the citations and their verification status now record which
+published theorem the Tau Ceti proof establishes. The UNVERIFIED annotations on B5-K and B10-K
+are historical.)*
 
 ---
 
@@ -39,7 +63,7 @@ those markers are *quoted*, not re-audited here.
 The public entry point is
 [`GQ2/Dyadic/GeneralMain.lean`](../../GQ2/Dyadic/GeneralMain.lean).
 It exports
-`GQ2.Dyadic.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI`, proved in
+`GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI`, proved in
 [`FieldFamilySpliceMarkedCanonical.lean`](../../GQ2/Dyadic/Instances/FieldFamilySpliceMarkedCanonical.lean).
 The statement takes a finite intermediate field `K/ℚ₂` and
 `RI : RamifiedIData K`. It returns an actual source word at degree `[K : ℚ₂]`,
@@ -54,7 +78,61 @@ ramified-`i` scope**. It does not assert `RamifiedIData K` for every finite K.
 The odd-degree corollary discharges this hypothesis by the existing norm
 obstruction; it is not a restriction of the main endpoint to odd degrees.
 
+### W361.0 Trust base since 2026-10-17
+
+The endpoint `GQ2.Dyadic.Instances.FieldFamilySpliceMarkedCanonical.exists_certifiedFullyMarkedFlexiblePresentation_ramifiedI` now rests on
+Lean's standard three axioms (`propext`, `Classical.choice`, `Quot.sound`) plus Tau Ceti's proofs
+at revision `706344c35` (`706344c35426d3df6931a2457271dceb3f9ac507`, pinned in `lakefile.toml`).
+Its proof still uses the nine inputs listed in §W361.1 by name. All nine are now theorems or
+definitions proved from Tau Ceti, so none of them appears in its axiom print. The seven ℚ₂ inputs
+among them are proved by the adapters of the ℚ₂ campaign, merged here at ticket T0 (map:
+[`../literature-axioms.md`](../literature-axioms.md) §T). The two `K`-level inputs are proved by
+ticket C1':
+
+| input | legacy name (`noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean`) | adapter, file | Tau Ceti source at `↥K` (main declarations) |
+| --- | --- | --- | --- |
+| B5-K (AX3) | `GQ2.markedRecipAt K : Dyadic.MarkedRecip localReciprocity K` | `TauCetiBridge.markedRecipAt_tauceti`, `GQ2/TauCeti/B5K.lean`, on the dictionary `GQ2/TauCeti/GaloisDictK.lean` | `TauCeti.ClassFieldTheory.artinMap` with `continuous_artinMap`, `denseRange_artinMap`, `unramifiedCoordinate_artinMap`, and `artinMap_norm` (norm functoriality at `(ℚ₂, ↥K)`). The `ki_unramified` clause uses inertia ⊆ `ker ν_ur` (`unramifiedCoordinate_mk_eq_one_iff`) with `map_inertiaSubgroup_le_fixingSubgroup_iff` and `isUnramified_iff_normalizedValuation_comp_unitsMap_surjective`. |
+| B10-K (AX4) | `GQ2.orientedTameQuotientAt K FF : Dyadic.OrientedTameQuotientK (markedRecipAt K) FF` | `TauCetiBridge.orientedTameQuotientAt_tauceti`, `GQ2/TauCeti/B10K.lean` | `TauCeti.wildInertiaSubgroup` (normal, closed, `isProP_wildInertiaSubgroup`) and `tameQuotientGeometricEquiv` with `exists_isArithFrobeniusLift`, `exists_topologicalClosure_zpowers_inertiaTameCharacter_eq_top`, `iwasawaCoordinateGeometric_tameQuotientGeometricEquiv`. These go through the generic gq2 identification `iwasawaGeometricEquivTq : IwasawaGroupGeometric L ≃ₜ* Tq q` for `#𝓀[L] = q`. |
+
+No Tau Ceti lemma was missing. The gaps were gq2-side lemmas, now in `GaloisDictK.lean` and the
+two adapters:
+
+- the norm ↔ valuation bridge on `↥K`;
+- the topology comparison `localTopology_eq`;
+- the residue count `#𝓀[↥K] = 2 ^ FF.f`;
+- the closed-subgroup lemma for `ℤ₂` behind the level `r`;
+- unramified ⇒ equal norm value groups;
+- `IwasawaGroupGeometric ≃ₜ* Tq q`.
+
+The recon memo [`tauceti-discharge-recon.md`](tauceti-discharge-recon.md) has the clause-by-clause
+translation.
+
+The mechanical checks are in `scripts/check_axioms.sh`:
+
+- Checks 1 and 3 require census 0 (`EXPECTED_AXIOMS=0`, no `axiom` declaration in the library).
+- Check 5b pins the endpoint, `GQ2.markedRecipAt`, `GQ2.orientedTameQuotientAt` and the seventeen
+  older dyadic capstones of §A at exactly the standard three.
+- Check 8 runs `GQ2/DyadicTauCetiAxiomAudit.lean`. It re-checks the two inputs and the endpoint at
+  exactly the standard three in the environment of the whole dyadic tree. It also fails if that
+  environment contains an axiom constant beyond Lean's own.
+
+The trust-base change is the one owner gate G0 (2026-10-16) accepted for the ℚ₂ campaign: from
+"cited theorems, stated in this repository as axioms" to "Tau Ceti's proofs of them". The dyadic
+discharge plan, approved at gate G0' (2026-10-17), applies the same change to the two `K`-level
+inputs. Tau Ceti is machine-written, and its own CI enforces zero sorries and an axiom allowlist.
+
+**What did not change.** The eleven statements are byte-identical to the former axioms, so the
+endpoint's statement and scope are as in §W361 and §W361.2. It still takes `RamifiedIData K` and
+does not assert it for every finite `K`. It still runs on the flexible construction's words, not
+the frozen M-word presentation. What changed is why the inputs hold.
+
 ### W361.1 Exact measured axiom sets
+
+*Superseded 2026-10-17 (§W361.0): these sets were measured on 2026-09-17, at census 11. The
+environment of the dyadic tree now contains no axiom constant beyond Lean's own. Every declaration
+below therefore prints at most the standard three, and the endpoint prints exactly the standard
+three (check 5b and check 8). The table and the paragraphs after it are kept as the historical
+measurement.*
 
 These are the default-limit `#print axioms` sets of the actual new declarations,
 not a union guessed from their imported files. `std-3` means `propext`,
@@ -118,6 +196,10 @@ is the additive general endpoint, with the changed-word qualification explicit.
 
 ### W361.3 Citation and acceptance status
 
+*(2026-10-17: the formal axioms this section refers to no longer exist. B5-K and B10-K are proved
+via Tau Ceti (§W361.0). The source audit below is now a record of which published statements the
+Tau Ceti proofs establish. The owner gate G3 remains open.)*
+
 This section records new proof/axiom measurements, not a new owner G-AX or G3
 approval. The original refresh did not verify literature. The subsequent
 [W361 source audit](w361-axiom-source-verification.md) now verifies the principal
@@ -137,6 +219,14 @@ seventeen-capstone audit do not by themselves audit the new words or new headlin
 ---
 
 ## A. The measured axiom surface
+
+*Superseded 2026-10-17: these sets were measured on 2026-08-02, at census 11. Ticket T0 (census
+11 → 2) set every row of check 5b's `AUDIT_DYADIC` block to exactly the standard three, which the
+T1 gate run confirmed. Ticket C1' (census 2 → 0) added `GQ2.markedRecipAt`,
+`GQ2.orientedTameQuotientAt` and the W361 endpoint to the block, also at exactly the standard
+three. The `n = 1` twin pairs still print identically to the ℚ₂ capstone, which is now also at
+the standard three. The tables and the invariants of §A.3 below are the historical
+measurement.*
 
 Abbreviations: **std-3** = `propext`, `Classical.choice`, `Quot.sound`.  B-labels as in §B.
 Measurement: `collectAxioms`, sorted, at commit `482f89b` (`dyadic-as5`); the raw lists are
@@ -187,10 +277,23 @@ All three `n = 1` routes print **byte-identically** to
 * **No `sorryAx` anywhere**; zero sorries repo-wide (check 2, allowlist empty).
 * **Census = 11** (`EXPECTED_AXIOMS`, check 3); the frozen ℚ₂ capstone audit (check 5's
   original block) is untouched and still passes with its 9-set byte-identical.
+  *(Superseded: census 2 from T0, 0 from C1', 2026-10-17. Check 5's ℚ₂ capstones and every check-5b
+  row are now at exactly the standard three.)*
 
 ---
 
 ## B. The axiom census (11 rows)
+
+**Status (2026-10-17): none of the eleven rows is an axiom.** `GQ2/Foundations/Axioms.lean` is
+deleted, and every name below is a theorem or definition in `GQ2/Foundations/TauCetiInstance.lean`
+proved from Tau Ceti at revision `706344c35`, with its statement byte-identical to the former
+axiom:
+
+- the nine ℚ₂ rows since ticket T0 (census 11 → 2). Their adapters are those of the ℚ₂ campaign,
+  `GQ2/TauCeti/{B1,B3c,B5,B6,B7,B8,B9,B10,B11a}.lean`, listed in `docs/literature-axioms.md` §T;
+- the two `K`-level rows since ticket C1' (census 2 → 0), shown in the second table below.
+
+The citation and role columns are unchanged, as the record of the axiom period.
 
 The Lean names below are the exact `axiom` declarations in `GQ2/Foundations/Axioms.lean`
 (the only file allowed to contain them — check 1).  "Dyadic role" states where the axiom
@@ -213,17 +316,20 @@ enters *this* campaign's tree; "print appearances" is measured (§A).
 *(B2, B4, B7′, B11b, B12, B13 were discharged or deleted before this campaign — history in
 `literature-axioms.md` and the check-3 census comment.  There is no ℚ₂-side row they occupy.)*
 
-### The two K-side axioms (added at gate G-AX, 2026-07-29; census 9 → 11)
+### The two K-side inputs (axioms from gate G-AX, 2026-07-29, census 9 → 11; proved via Tau Ceti since ticket C1', 2026-10-17, census 2 → 0)
 
-| # | Lean axiom | Statement (one line) | Citation — **UNVERIFIED** (owner Q7: targets approved, PDFs not checked) | Dyadic role |
-|---|---|---|---|---|
-| B5-K | `GQ2.markedRecipAt` | for every finite `K/ℚ₂` (as `IntermediateField ℚ_[2] ℚ̄₂`): a `MarkedRecip Rec K` — marked local reciprocity with full `ℤ₂`-valued `ν_ur^K`, unit/uniformizer normalization, norm functoriality, `ki_unramified` clause | NSW (7.1.1)/(7.1.5) at base `K`; Serre LF Ch. XI §3 (norm functoriality), Ch. XIII §4 Prop. 13 + corollary (unit normalization); cyclotomic-tower ramification Serre LF Ch. IV / NSW VII §7.5 — **all UNVERIFIED** (proposal `docs/dyadic/ax3-proposal.md` §6) | **producer of the `B` binder.** Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). |
-| B10-K | `GQ2.orientedTameQuotientAt` | for every finite `K/ℚ₂` with a `MarkedRecip` and a `DyadicUnitFiltration`: an `OrientedTameQuotientK B FF` — `G_K/W_K ≅ T_{q_K}` with orientation clauses at `q_K = 2^{f_K}` | NSW (7.5.3) (Iwasawa) at base `K`, with (7.5.2); Serre LF Ch. IV (wild part), Ch. XIII §4 Prop. 13 (orientation) — **all UNVERIFIED** (proposal `docs/dyadic/ax4-proposal.md` §§5–6) | **producer of the `T` binder** (`FieldInputs.T`). Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). |
+| # | Lean name (axiom until 2026-10-17) | Statement (one line) | Citation — **UNVERIFIED** (owner Q7: targets approved, PDFs not checked; historical, see the W361 [source audit](w361-axiom-source-verification.md)) | Dyadic role | Lean status since 2026-10-17 |
+|---|---|---|---|---|---|
+| B5-K | `GQ2.markedRecipAt` | for every finite `K/ℚ₂` (as `IntermediateField ℚ_[2] ℚ̄₂`): a `MarkedRecip Rec K` — marked local reciprocity with full `ℤ₂`-valued `ν_ur^K`, unit/uniformizer normalization, norm functoriality, `ki_unramified` clause | NSW (7.1.1)/(7.1.5) at base `K`; Serre LF Ch. XI §3 (norm functoriality), Ch. XIII §4 Prop. 13 + corollary (unit normalization); cyclotomic-tower ramification Serre LF Ch. IV / NSW VII §7.5 — **all UNVERIFIED** (proposal `docs/dyadic/ax3-proposal.md` §6) | **producer of the `B` binder.** Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). | **Proved via Tau Ceti** (ticket C1'). It is a `noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean` whose body is `TauCetiBridge.markedRecipAt_tauceti K` (`GQ2/TauCeti/B5K.lean`, on `GQ2/TauCeti/GaloisDictK.lean`). Sources: Tau Ceti's local class field theory at `↥K` (`artinMap`, `unramifiedCoordinate`, `artinMap_norm`, inertia ⊆ `ker ν_ur` through `map_inertiaSubgroup_le_fixingSubgroup_iff`; §W361.0). Prints exactly the standard three (check 5b, check 8). |
+| B10-K | `GQ2.orientedTameQuotientAt` | for every finite `K/ℚ₂` with a `MarkedRecip` and a `DyadicUnitFiltration`: an `OrientedTameQuotientK B FF` — `G_K/W_K ≅ T_{q_K}` with orientation clauses at `q_K = 2^{f_K}` | NSW (7.5.3) (Iwasawa) at base `K`, with (7.5.2); Serre LF Ch. IV (wild part), Ch. XIII §4 Prop. 13 (orientation) — **all UNVERIFIED** (proposal `docs/dyadic/ax4-proposal.md` §§5–6) | **producer of the `T` binder** (`FieldInputs.T`). Absent from the historical §A headline prints; consumed by the W361 canonical bare-field endpoints (§W361.1). | **Proved via Tau Ceti** (ticket C1'). It is a `noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean` whose body is `TauCetiBridge.orientedTameQuotientAt_tauceti K FF` (`GQ2/TauCeti/B10K.lean`). Sources: Tau Ceti's `wildInertiaSubgroup` at `↥K` and the geometric Iwasawa presentation, through `tameQuotientGeometricEquiv` and gq2's `iwasawaGeometricEquivTq : IwasawaGroupGeometric ↥K ≃ₜ* Tq q` (§W361.0). Prints exactly the standard three (check 5b, check 8). |
 
 ⚠ **The soundness-critical parametrization** (AX4 Q2, owner-confirmed): B10-K is quantified
 over the `DyadicUnitFiltration` bundle `FF`, so `q_K` enters as `qOf K FF = 2^{FF.f}` — the
 axiom cannot be instantiated at a wrong residue degree without supplying a wrong filtration,
 which B13's discharged theorem prevents at ℚ₂ and AS-F must respect at literal `K`.
+*(Since 2026-10-17 the parametrization is also what the proof uses. B10K.lean identifies Tau
+Ceti's relator at `Nat.card 𝓀[↥K]` with gq2's at `qOf K FF` through A1-K's
+`natCard_residueField_eq_two_pow : #𝓀[↥K] = 2 ^ FF.f`.)*
 
 ---
 
@@ -245,6 +351,11 @@ instance files, `KSupply.lean`).
 | `B` | `MarkedRecip Rec K` | **B5-K** at a literal `K`; abstract otherwise | not consumed as an axiom by the historical §A headlines; invoked by the W361 canonical wrappers |
 | `FF` | `DyadicUnitFiltration K` | B13's discharged construction at ℚ₂; caller at `K` | fixes `q_K = qOf K FF` |
 | `T` | `OrientedTameQuotientK B FF` | **B10-K** at a literal `K`; abstract otherwise | = `FieldInputs.T` |
+
+*(2026-10-17: the producers named in this table are no longer axioms. `localReciprocity` (B5),
+`markedRecipAt` (B5-K) and `orientedTameQuotientAt` (B10-K) are definitions proved from Tau
+Ceti (§B, §W361.0). The rows still describe binders: a historical headline that quantifies over
+`B` and `T` still does so.)*
 
 ### C.1 Row-independent field-side inputs (`GQ2.Dyadic.FieldInputs`, packet §12)
 
@@ -378,6 +489,9 @@ Galois/CFT layer — `ramifiedData` (C.1) together with the AX3/AX4 bundles `B` 
 B5-K and B10-K, local class field theory over a general local base, which Mathlib does not
 have.  That is the owner-approved endstate of the census (§B, gate G-AX), and these four
 theorems are the first *measured* evidence for it rather than an argument for it.
+*(Superseded 2026-10-17: that layer is now supplied by Tau Ceti's local class field theory at
+`↥K`, which proves B5-K and B10-K (ticket C1', census 0; §B, §W361.0). Mathlib still does not
+have it.)*
 
 ⚠ One asymmetry worth recording: the three AS-F2 rows consume **no `hdeg`**.  The pilot builds
 its own `KSupply` (`sqrtNegTwoKSupply hdeg …`) and so carries `hdeg : finrank ℚ_[2] K = 2` as a
@@ -392,6 +506,8 @@ the degree enters only inside a package nobody has built yet.  `Fields.finrank_K
 
 This is the preserved AS5 checklist. For the new general endpoint use §W361 and
 the completion audit; this historical list is not a recorded W361 owner approval.
+*(Items 1 and 2 are superseded as of 2026-10-17: census 0, and every check-5b print at exactly the
+standard three, as described in the status note at the top and §W361.0.)*
 
 1. **Census 11** (§B): 9 frozen ℚ₂ + B5-K + B10-K; `EXPECTED_AXIOMS = 11`; K-side citations
    remain UNVERIFIED per Q7; no obligation appears as an axiom (D2 guard green).

@@ -5,6 +5,12 @@ Memo only — no Lean lands with this commit, census unchanged (9).  Protocol: t
 sign-off (**G-AX**) → census-flip commit per the b9a checklist (`docs/orchestration/b9a-tickets.md`).
 Until the flip, every consumer binds the statement as an explicit hypothesis (§7).
 
+> *Later status:* the flip landed on 2026-07-29 as axiom **B5-K** `GQ2.markedRecipAt` (gate G-AX,
+> census 9 → 10). Since 2026-10-17 it is no longer an axiom. Ticket C1' of
+> [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md) made it a `noncomputable def` with the
+> same statement, proved from Tau Ceti by `GQ2/TauCeti/B5K.lean` (census 0). This memo is
+> unchanged as the design record.
+
 Sources: packet `refs/dyadic-presentations-formalization-proof.tex` §8 (Prop 8.1 :774, Cor 8.2
 :801), §12 local-inputs table (`MarkedRecip` row :1000–1002), §7 (Def 7.1 :711, Prop 7.2 :726),
 §3 (Prop 3.4 :258, Thm 3.5 :288); draft `refs/dyadic-presentations.tex` §2 (eq:CI :232,

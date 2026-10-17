@@ -7,6 +7,22 @@ Work lives on branch **`dyadic`**; `master` stays focused on `ℚ₂`. Board:
 [`tickets.md`](tickets.md). References + authority order: [`refs/README.md`](refs/README.md).
 Recon surveys (repo state at `d0714a7`): [`recon/`](recon/).
 
+> **Status 2026-10-17: axiom census 0 on this branch (dyadic Tau Ceti discharge).** The axiom
+> plan of §4 ended with census 11: the nine ℚ₂ inputs, plus AX3 and AX4 as **B5-K**
+> `GQ2.markedRecipAt` and **B10-K** `GQ2.orientedTameQuotientAt` (gate G-AX, 2026-07-29). The
+> other AX rows closed without an axiom. Since 2026-10-17 none of the eleven is an axiom; the
+> campaign is recorded in [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md) and
+> [`tauceti-discharge-tickets.md`](tauceti-discharge-tickets.md). Ticket T0 merged the ℚ₂
+> discharge, which proves the nine from Tau Ceti (census 11 → 2). Ticket C1' then made B5-K and
+> B10-K `noncomputable def`s in `GQ2/Foundations/TauCetiInstance.lean`, with statements
+> byte-identical to the deleted axioms (census 2 → 0). Their bodies are the adapters
+> `GQ2/TauCeti/B5K.lean` and `GQ2/TauCeti/B10K.lean`, on `GQ2/TauCeti/GaloisDictK.lean`, proved
+> from Tau Ceti revision `706344c35`. `GQ2/Foundations/Axioms.lean` is deleted. The trust base of
+> the final theorem and of the W361 general endpoint is now Lean's standard three plus Tau Ceti's
+> proofs; see [`literature-axioms-dyadic.md`](literature-axioms-dyadic.md). The binding constraint
+> §0.1 (the nine obligations are never axioms) and the gates of §6 are unchanged. G3, the final
+> sign-off and the decision on whether and when `dyadic` merges to `master`, is still open.
+
 > **✅ 2026-07-31 — GATE G-1 RELEASED.** The simplification campaign signed R0–R5; the word
 > selection is **FROZEN** at `general_2adic/artifacts/reports/selection-freeze.md` (the five
 > rows + certificate hashes + per-row Lean-facing obligations). Headlines: type L = **`L_sq`**
@@ -35,6 +51,9 @@ Recon surveys (repo state at `d0714a7`): [`recon/`](recon/).
    (census bump in the same commit), and is enforced by `scripts/check_axioms.sh`
    (kernel `decide` only, no `native_decide`, no field-specific presentation-isomorphism
    axiom, no theorem whose proof is a finite-target test).
+   *(Since 2026-10-17 `GQ2/Foundations/Axioms.lean` is deleted and the census is 0. Check 1 of
+   `scripts/check_axioms.sh` now rejects any `axiom` declaration in the library. The other
+   clauses stand.)*
 
 ## 1. Mathematical target
 
@@ -199,6 +218,18 @@ commit; all are published inputs per packet §12):
 
 The trust boundary must never contain an assertion that a candidate word presents `G_K`
 (packet §12), and never any of the nine obligations (§0.1).
+
+*Outcome:*
+
+- AX1 became a theorem from B1 (`GQ2/Dyadic/FinitelyGeneratedK.lean`, ticket FG1).
+- AX2 was not needed: the Euler characteristic over `K` is derived from B7 (LG1/LG2a).
+- AX3 and AX4 were added as the axioms B5-K and B10-K at gate G-AX (2026-07-29, census 9 → 11).
+- AX5 is a theorem (`GQ2/Dyadic/Projectivity.lean`, ticket PJ1).
+- AX6 was not needed.
+
+*2026-10-17:* B5-K and B10-K are proved via Tau Ceti (`GQ2/TauCeti/B5K.lean`, `B10K.lean`;
+ticket C1' of [`tauceti-discharge-plan.md`](tauceti-discharge-plan.md)), as are the nine ℚ₂
+inputs. No axiom remains (census 0).
 
 ## 5. Parallelism protocol (worktrees + file ownership)
 
