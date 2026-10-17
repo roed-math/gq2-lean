@@ -102,11 +102,14 @@ theorem sqFiniteInputUniversalReconstructionFactorsThroughFoxAt_iff_kernel
     apply AddMonoidHom.ext
     intro c
     change E (J c) = T c
-    let Jc : LinearMap.range J := ⟨J c, ⟨c, rfl⟩⟩
+    let Jc : LinearMap.range J := ⟨J c, LinearMap.mem_range_self J c⟩
     calc
       E (J c) = E ((LinearMap.range J).subtype Jc) := rfl
       _ = onRange Jc := LinearMap.congr_fun hE Jc
-      _ = T c := by simp [onRange, Jc]
+      _ = T c := by
+        simp only [onRange, Jc, LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
+          LinearMap.quotKerEquivRange_symm_apply_image]
+        exact Submodule.liftQ_apply _ _ _
 
 /-- If reconstruction depends only on the universal Fox output, Fox-preservation of any
 compatible single-relator lift gives the exact reconstruction transport condition. -/
