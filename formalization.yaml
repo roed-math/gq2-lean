@@ -44,19 +44,36 @@ status:
     continuous surjections G_Q2 ->> G equals the number of admissible marked
     quadruples in G^4).
 
-    This metadata records the explicit-input route. The capstone
-    GQ2.main_presentation_literal_of_inputs is sorry-free and takes
-    [LiteratureInputs] as an explicit bundled hypothesis containing the nine cited
-    local-arithmetic results that Mathlib does not yet provide. Its proof term uses
-    only Lean's standard three axioms: propext, Classical.choice, and Quot.sound. This
-    repository does not construct a LiteratureInputs instance without assumptions, so
-    the standard-three axiom print does not claim proofs of those nine inputs.
+    The capstones GQ2.main_presentation_literal and GQ2.SectionTen.main_surjection_count'
+    are sorry-free, take no hypothesis, and use only Lean's standard three axioms:
+    propext, Classical.choice, and Quot.sound. The library contains no axiom
+    declaration, and every declaration under GQ2 uses only those three
+    (GQ2/AxiomLedger.lean). The nine cited local-arithmetic inputs of the paper's
+    Appendix B (B1, B3c, B5, B6, B7, B8, B9, B10, B11a), which Mathlib does not
+    provide, were stated in this repository as axioms until 2026-10-17. They are now
+    proved from the Tau Ceti library (https://github.com/TauCetiProject/TauCeti,
+    revision 706344c35) by adapters in GQ2/TauCeti/. Nothing is assumed beyond Lean's
+    standard three axioms; the trust base is Lean's kernel, Mathlib, and Tau Ceti's
+    proofs at that revision. Tau Ceti is machine-written and enforces zero sorries and
+    an axiom allowlist in its own CI; a sorry or non-standard axiom in its proofs of
+    the nine inputs would appear in the axiom prints audited here.
 
-    A second capstone, GQ2.main_presentation_literal_roe_unconditional_of_inputs,
-    proves the same literal isomorphism for the different candidate group Gamma_R.
-    The theorem remains conditional on the same explicit LiteratureInputs bundle
-    as the Gamma_A result.
-  # Counts and axiom inventory for the explicit-input route.
+    The nine legacy public names are kept, with statements byte-identical to the
+    former axioms, as theorems and definitions in GQ2/Foundations/TauCetiInstance.lean
+    whose bodies are the adapters; that file also registers the LiteratureInputs
+    instance. GQ2/TauCeti/Main.lean restates the capstones with the Tau Ceti bundle
+    passed explicitly, independent of instance selection
+    (GQ2.main_presentation_literal_tauceti, GQ2.main_presentation_literal_roe_tauceti,
+    GQ2.main_surjection_count_tauceti, GQ2.main_surjection_count_R_tauceti). The
+    explicit-input route is retained: the `_of_inputs` capstones take
+    [LiteratureInputs] as a hypothesis and are packaged for Comparator separately
+    (comparator-config-palomar.json).
+
+    A second main result, GQ2.main_presentation_literal_roe_unconditional, proves the
+    same literal isomorphism for a different candidate group Gamma_R (not in the
+    paper), with exactly the same axioms as the Gamma_A result.
+  # Counts and axiom inventory for the whole GQ2 library: axiom census 0 since 2026-10-17
+  # (scripts/check_axioms.sh, GQ2/AxiomLedger.lean).
   sorry_count: 0
   sorry_in_definitions: 0
   axioms:
@@ -64,6 +81,50 @@ status:
     - "Classical.choice"
     - "Quot.sound"
   main_results:
+    # The two unconditional capstones, as certified by the Comparator pair Challenge.lean /
+    # Solution.lean. Their Tau Ceti-route twins with identical statements are
+    # GQ2.main_presentation_literal_tauceti and GQ2.main_presentation_literal_roe_tauceti
+    # (GQ2/TauCeti/Main.lean, audited by GQ2/TauCetiAxiomAudit.lean).
+    - declaration: "GQ2.main_presentation_literal"
+      file: "GQ2/PresentationLiteral.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator-config.json"
+      literature_dependencies:
+        - "B1: G_Q2 is topologically finitely generated. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.absGalQ2_isTopologicallyFinitelyGenerated_tauceti (GQ2/TauCeti/B1.lean) from TauCeti.isTopologicallyFinitelyGenerated_absoluteGaloisGroup"
+        - "B7: local Euler characteristic formula at p = 2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.absGalQ2_localEulerCharacteristic_tauceti (GQ2/TauCeti/B7.lean, M : Type; transported to M : Type* in GQ2/Foundations/TauCetiInstance.lean) from TauCeti.ClassFieldTheory.eulerCharacteristic_mixed and TauCeti.ClassFieldTheory.finite_H"
+        - "B3c: dyadic orientation / cyclotomic normalization. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.dyadicOrientation_tauceti (GQ2/TauCeti/B3c.lean) from TauCeti.absoluteGaloisGroupProP_two_ratPadic_marked and TauCeti.standardD0Orientation_d0A/_d0S/_d0Y"
+        - "B5: local reciprocity for Q_2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.localReciprocity_tauceti (GQ2/TauCeti/B5.lean) from TauCeti.ClassFieldTheory.artinMap and its continuity, density, restriction, kernel and cyclotomic-character lemmas (TauCeti.NumberTheory.ClassFieldTheory.Local.*)"
+        - "B6: local Tate duality at finite extensions of Q_2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.tateDualityAt_tauceti (GQ2/TauCeti/B6.lean, GQ2/TauCeti/DualizingGroup.lean) from TauCeti.ClassFieldTheory.tateDualityPairing_perfect_mixed and TauCeti.ClassFieldTheory.h2MuEquivZMod_mixed"
+        - "B8: peripheral cyclotomic action. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.peripheralCyclotomicAction_tauceti (GQ2/TauCeti/B8.lean) from TauCeti.Peripheral.exists_peripheralPowerAutomorphism_two"
+        - "B9: relative Stiefel-Whitney identity, dyadic case. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.relativeStiefelWhitney_dyadic_tauceti (GQ2/TauCeti/B9.lean, GQ2/TauCeti/StiefelWhitneyDict.lean) from TauCeti.sw1_eq_add_galoisCor_of_equivalent_traceTransfer and TauCeti.sw2_eq_add_galoisEvens_add_cup_of_equivalent_traceTransfer"
+        - "B10: oriented tame quotient structure of G_Q2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.tameQuotient_tauceti (GQ2/TauCeti/B10.lean) from TauCeti.wildInertiaSubgroup, TauCeti.isProP_wildInertiaSubgroup, TauCeti.tameQuotientGeometricEquiv and TauCeti.iwasawaCoordinateGeometric"
+        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.hilbertSymbol_normCriterion_finiteDyadic_tauceti (GQ2/TauCeti/B11a.lean) from TauCeti.cup_kummerClass_eq_zero_iff"
+    - declaration: "GQ2.main_presentation_literal_roe_unconditional"
+      file: "GQ2/Roe/Main.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator-config.json"
+      literature_dependencies:
+        - "B1: G_Q2 is topologically finitely generated. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.absGalQ2_isTopologicallyFinitelyGenerated_tauceti (GQ2/TauCeti/B1.lean) from TauCeti.isTopologicallyFinitelyGenerated_absoluteGaloisGroup"
+        - "B7: local Euler characteristic formula at p = 2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.absGalQ2_localEulerCharacteristic_tauceti (GQ2/TauCeti/B7.lean, M : Type; transported to M : Type* in GQ2/Foundations/TauCetiInstance.lean) from TauCeti.ClassFieldTheory.eulerCharacteristic_mixed and TauCeti.ClassFieldTheory.finite_H"
+        - "B3c: dyadic orientation / cyclotomic normalization. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.dyadicOrientation_tauceti (GQ2/TauCeti/B3c.lean) from TauCeti.absoluteGaloisGroupProP_two_ratPadic_marked and TauCeti.standardD0Orientation_d0A/_d0S/_d0Y"
+        - "B5: local reciprocity for Q_2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.localReciprocity_tauceti (GQ2/TauCeti/B5.lean) from TauCeti.ClassFieldTheory.artinMap and its continuity, density, restriction, kernel and cyclotomic-character lemmas (TauCeti.NumberTheory.ClassFieldTheory.Local.*)"
+        - "B6: local Tate duality at finite extensions of Q_2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.tateDualityAt_tauceti (GQ2/TauCeti/B6.lean, GQ2/TauCeti/DualizingGroup.lean) from TauCeti.ClassFieldTheory.tateDualityPairing_perfect_mixed and TauCeti.ClassFieldTheory.h2MuEquivZMod_mixed"
+        - "B8: peripheral cyclotomic action. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.peripheralCyclotomicAction_tauceti (GQ2/TauCeti/B8.lean) from TauCeti.Peripheral.exists_peripheralPowerAutomorphism_two"
+        - "B9: relative Stiefel-Whitney identity, dyadic case. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.relativeStiefelWhitney_dyadic_tauceti (GQ2/TauCeti/B9.lean, GQ2/TauCeti/StiefelWhitneyDict.lean) from TauCeti.sw1_eq_add_galoisCor_of_equivalent_traceTransfer and TauCeti.sw2_eq_add_galoisEvens_add_cup_of_equivalent_traceTransfer"
+        - "B10: oriented tame quotient structure of G_Q2. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.tameQuotient_tauceti (GQ2/TauCeti/B10.lean) from TauCeti.wildInertiaSubgroup, TauCeti.isProP_wildInertiaSubgroup, TauCeti.tameQuotientGeometricEquiv and TauCeti.iwasawaCoordinateGeometric"
+        - "B11a: Hilbert-symbol norm criterion for finite dyadic extensions. Proved via Tau Ceti: adapter GQ2.TauCetiBridge.hilbertSymbol_normCriterion_finiteDyadic_tauceti (GQ2/TauCeti/B11a.lean) from TauCeti.cup_kummerClass_eq_zero_iff"
+    # The explicit-input route. For these two declarations the nine inputs are fields of the
+    # explicit [LiteratureInputs] hypothesis (GQ2/Foundations/LiteratureInputs.lean);
+    # GQ2.TauCetiBridge.tauCetiInputs (GQ2/TauCeti/Instance.lean) supplies all nine, which gives
+    # the unconditional entries above.
     - declaration: "GQ2.main_presentation_literal_of_inputs"
       file: "GQ2/PresentationLiteralWithInputs.lean"
       sorry_count: 0
@@ -138,6 +199,23 @@ automation:
       prompting_notes: >
         Refactor the literature-dependent proof graph to take an explicit bundled
         hypothesis and package the explicit-input Palomar Comparator entry points.
+    - method: "agent"
+      models: ["claude-opus-5-5", "claude-fable-5-1"]
+      framework: "Claude Code"
+      tool_setup: >
+        Tau Ceti discharge campaign: an orchestrating session dispatched worker agents
+        per ticket through an on-disk board (docs/orchestration/tauceti-tickets.md, plan
+        docs/orchestration/tauceti-proof-plan.md): the Lean v4.35.0 / Mathlib bump to
+        Tau Ceti's Mathlib revision, shared dictionaries and one adapter per literature
+        input in GQ2/TauCeti/, the Tau Ceti capstones and audit, and the census flip.
+      cost:
+        wall_time: "2026-10-16 to 2026-10-17"
+        spend_usd: "not recorded"
+        hardware: "a Linux server"
+      prompting_notes: >
+        Per-ticket briefs with acceptance criteria: theorem statements byte-identical
+        through the Mathlib bump, every adapter at the standard three axioms, and owner
+        gates for the trust-base change (G0) and the census flip (G1).
   spend_usd: "$600 (three Claude Max 20 subscriptions)"
   notes: >
     Human role was orchestration-level: approving trust-base changes, owner-gated
@@ -148,9 +226,18 @@ fidelity:
   divergences: >
     Statements track the paper closely; module docstrings carry paper-tag ledgers
     mapping equations and propositions to declarations. Known deviations: (i) the nine
-    literature inputs are not proved in-repository. The `_of_inputs`
-    capstones take them as fields of an explicit `[LiteratureInputs]` hypothesis. The
-    bundled B7 field uses `M : Type`, which covers every consumer in this development;
+    literature inputs are cited results, not the paper's own, and their Lean statements
+    are encodings of the cited theorems chosen in this repository; docs/literature-axioms.md
+    records, per input, the citation, its faithfulness class and the encoding choices.
+    Until 2026-10-17 these statements were assumed as axioms; they are now proved from
+    Tau Ceti (revision 706344c35) by the adapters in GQ2/TauCeti/, with statements
+    byte-identical to the former axioms. Any remaining divergence from the cited
+    formulations therefore lies in those statement encodings, which did not change.
+    Convention differences with Tau Ceti (for example arithmetic versus geometric
+    Frobenius in B5 and B10) are reconciled inside the adapters' proofs, not in the
+    statements. The bundled B7 field of LiteratureInputs uses `M : Type`, which covers
+    every consumer in this development; the legacy B7 theorem keeps `M : Type*` by
+    transport along a `Fin (Nat.card M)` copy of `M`;
     (ii) a transcription erratum in the paper's H^0 bookkeeping was found and corrected
     during formalization (docs/erratum-h0-transcription.md); (iii) helper-lemma names
     follow mathlib conventions rather than paper numbering; (iv) on 2026-07-24 B9 was
@@ -161,9 +248,11 @@ fidelity:
     candidate group proposed afterward. Its former extra input, the Labute
     classification instance, was carried as the explicit theorem binder BLabHypothesis
     rather than admitted as an axiom, and was discharged in-repository on 2026-07-26 by
-    GQ2.Roe.Labute.bLab. Thus the `_of_inputs` Gamma_R capstone is unconditional with
-    respect to BLabHypothesis but remains conditional on the same LiteratureInputs
-    bundle as the Gamma_A capstone.
+    GQ2.Roe.Labute.bLab. Thus GQ2.main_presentation_literal_roe_unconditional rests on
+    exactly what the Gamma_A capstone rests on (the standard three axioms, with the
+    literature inputs proved from Tau Ceti), and the `_of_inputs` Gamma_R capstone is
+    unconditional with respect to BLabHypothesis and parametrized by LiteratureInputs
+    like the Gamma_A one.
 
 review:
   status: "agent-reviewed"
@@ -172,34 +261,47 @@ review:
     No external human peer review yet. Internal review includes a foundations audit
     (docs/foundations-audit.md), off-path statement checks
     (docs/off-path-statements.md), kernel-checked builds, zero-sorry enforcement, and
-    transitive environment audits. The Palomar route is checked by
-    GQ2/PalomarAxiomAudit.lean, which imports only SolutionPalomar and checks
-    that both exported solutions use only propext, Classical.choice, and Quot.sound. The two Palomar-facing main results are
+    transitive environment audits: scripts/check_axioms.sh enforces axiom census 0, no
+    sorry and no native_decide, and that every audited capstone prints exactly
+    propext, Classical.choice, and Quot.sound; GQ2/AxiomLedger.lean walks every
+    declaration under GQ2 (7486 at the census flip, all at the standard three). The
+    Tau Ceti route is checked by GQ2/TauCetiAxiomAudit.lean, which imports only
+    GQ2.TauCeti.Main and checks that none of the nine legacy declarations is in its
+    import closure and that the four Tau Ceti capstones use exactly the standard
+    three. The Palomar route is checked by GQ2/PalomarAxiomAudit.lean, which imports
+    only SolutionPalomar and checks that both exported solutions use only propext,
+    Classical.choice, and Quot.sound. The two Palomar-facing main results are
     independently checkable with leanprover/comparator through
-    comparator-config-palomar.json (ChallengePalomar.lean / SolutionPalomar.lean). The
-    post-refactor Lean Compass report identifies 30 project declarations for human
-    semantic review (atlas-audit.md); those declarations have not yet received external
-    human review. The Gamma_R result and the proof of GQ2.Roe.Labute.bLab have likewise
-    had no external human review.
+    comparator-config-palomar.json (ChallengePalomar.lean / SolutionPalomar.lean); the
+    legacy pair (Challenge.lean / Solution.lean, comparator-config.json) now permits
+    only the standard three axioms. The Lean Compass report (atlas-audit.md, a
+    2026-07-26 snapshot taken before the Tau Ceti discharge) identifies 30 project
+    declarations for human semantic review; those declarations have not yet received
+    external human review. The Gamma_R result, the proof of GQ2.Roe.Labute.bLab, and
+    the Tau Ceti adapters in GQ2/TauCeti/ have likewise had no external human review.
 
 alignment:
   namespace: "GQ2"
   statements:
     - source: "Presentation theorem (Theorem 1.2 in the retained original PDF)"
-      lean: "GQ2.main_presentation_literal_of_inputs"
-      module: "GQ2/PresentationLiteralWithInputs.lean"
-      status: "proved-from-explicit-literature-inputs"
+      lean: "GQ2.main_presentation_literal"
+      module: "GQ2/PresentationLiteral.lean"
+      status: "proved"
       note: >
-        Literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2), conditional on
-        the explicit [LiteratureInputs] bundle; proof term uses only the standard three
-        Lean axioms.
+        Literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2), with no hypothesis;
+        uses only the standard three Lean axioms. Same statement on the Tau Ceti route:
+        GQ2.main_presentation_literal_tauceti (GQ2/TauCeti/Main.lean). Explicit-input
+        form: GQ2.main_presentation_literal_of_inputs
+        (GQ2/PresentationLiteralWithInputs.lean).
     - source: "Presentation theorem, surjection-count form (Theorem 1.2 in the retained original PDF)"
-      lean: "GQ2.SectionTen.main_surjection_count_of_inputs"
-      module: "GQ2/SectionTenSourcesWithInputs.lean"
-      status: "proved-from-explicit-literature-inputs"
+      lean: "GQ2.SectionTen.main_surjection_count'"
+      module: "GQ2/SectionTenSources.lean"
+      status: "proved"
       note: >
         #{continuous surjections G_Q2 ->> G} = #{admissible marked quadruples in G^4},
-        conditional on [LiteratureInputs].
+        with no hypothesis. Same statement on the Tau Ceti route:
+        GQ2.main_surjection_count_tauceti (GQ2/TauCeti/Main.lean). Explicit-input form:
+        GQ2.SectionTen.main_surjection_count_of_inputs (GQ2/SectionTenSourcesWithInputs.lean).
     - source: "Definition of the candidate group Gamma_A (equation (7) in the retained original PDF)"
       lean: "GQ2.GammaA"
       module: "GQ2/GammaA.lean"
@@ -210,22 +312,30 @@ alignment:
       module: "GQ2/Prop23.lean"
       status: "proved"
     - source: "Literature inputs B1-B11a (Appendix B in the retained original PDF)"
-      lean: "GQ2.LiteratureInputs"
-      module: "GQ2/Foundations/LiteratureInputs.lean"
-      status: "explicit-literature-dependency"
+      lean: "GQ2.TauCetiBridge.tauCetiInputs"
+      module: "GQ2/TauCeti/Instance.lean"
+      status: "proved"
       note: >
-        Bundle of nine cited inputs, supplied as an ordinary typeclass hypothesis and
-        not constructed in-repository.
+        The nine cited inputs, bundled as the typeclass GQ2.LiteratureInputs
+        (GQ2/Foundations/LiteratureInputs.lean), each proved from Tau Ceti (revision
+        706344c35) by an adapter in GQ2/TauCeti/; standard three axioms only. The instance
+        GQ2.tauCetiLiteratureInputs and the nine legacy names, with statements
+        byte-identical to the axioms they replaced on 2026-10-17, are in
+        GQ2/Foundations/TauCetiInstance.lean. Per-input citations and encoding choices:
+        docs/literature-axioms.md.
     # Roe-candidate verification. Not in the original paper: a later campaign asking whether a
     # different candidate group, Gamma_R, also presents G_Q2.
     - source: "Replacement theorem (Roe candidate; not in the original PDF)"
-      lean: "GQ2.main_presentation_literal_roe_unconditional_of_inputs"
-      module: "GQ2/Roe/MainWithInputs.lean"
-      status: "proved-from-explicit-literature-inputs"
+      lean: "GQ2.main_presentation_literal_roe_unconditional"
+      module: "GQ2/Roe/Main.lean"
+      status: "proved"
       note: >
-        Literal form: Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). The former
-        BLabHypothesis is discharged by GQ2.Roe.Labute.bLab; the theorem remains
-        conditional on [LiteratureInputs] and uses only the standard three Lean axioms.
+        Literal form: Nonempty (ContinuousMulEquiv GammaR AbsGalQ2), with no hypothesis;
+        the former BLabHypothesis is discharged by GQ2.Roe.Labute.bLab, and the theorem
+        uses only the standard three Lean axioms. Same statement on the Tau Ceti route:
+        GQ2.main_presentation_literal_roe_tauceti (GQ2/TauCeti/Main.lean).
+        Explicit-input form: GQ2.main_presentation_literal_roe_unconditional_of_inputs
+        (GQ2/Roe/MainWithInputs.lean).
     - source: "Labute classification instance for Gamma_R (Cor. 3.4 of the Roe note; D_R = D_0)"
       lean: "GQ2.Roe.Labute.bLab"
       module: "GQ2/Roe/Labute/Assembly.lean"
@@ -236,14 +346,15 @@ alignment:
         and the profinite Hopfian endgame turns them into an isomorphism. Standard three
         axioms only; no literature input is used.
     - source: "Replacement theorem, surjection-count form (Roe candidate; not in the original PDF)"
-      lean: "GQ2.main_surjection_count_R_of_inputs"
-      module: "GQ2/Roe/MainWithInputs.lean"
-      status: "proved-from-explicit-literature-inputs-and-BLabHypothesis"
+      lean: "GQ2.main_surjection_count_R_tauceti"
+      module: "GQ2/TauCeti/Main.lean"
+      status: "proved"
       note: >
         #{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in
-        G^4}. The declaration takes both [LiteratureInputs] and an explicit
-        hBLab : BLabHypothesis argument; GQ2.Roe.Labute.bLab can discharge hBLab when
-        an unconditional corollary is needed.
+        G^4}, with no hypothesis: GQ2.main_surjection_count_R_of_inputs at the Tau Ceti
+        bundle and GQ2.Roe.Labute.bLab. The legacy GQ2.main_surjection_count_R
+        (GQ2/Roe/Main.lean) states the same with an explicit hBLab : BLabHypothesis
+        argument, which GQ2.Roe.Labute.bLab discharges.
     - source: "Definition of the Roe candidate group Gamma_R (not in the original PDF)"
       lean: "GQ2.GammaR"
       module: "GQ2/Roe/GammaR.lean"
@@ -255,18 +366,23 @@ alignment:
       status: "proved"
       note: "unconditional and at the standard three axioms; no literature input is used"
     - source: "Agreement of the two admissible-marking semantics (Roe campaign)"
-      lean: "GQ2.admissibleCountR_eq_admissibleCount_of_inputs"
-      module: "GQ2/Roe/MainWithInputs.lean"
-      status: "proved-from-explicit-literature-inputs-and-BLabHypothesis"
+      lean: "GQ2.admissibleCountR_eq_admissibleCount"
+      module: "GQ2/Roe/Main.lean"
+      status: "proved"
       note: >
-        admissibleCountR G = admissibleCount G for every finite G. The declaration
-        takes both [LiteratureInputs] and an explicit hBLab : BLabHypothesis argument;
-        GQ2.Roe.Labute.bLab can discharge hBLab in downstream use. Independently
-        pinned numerically on C2, C4, V4, D4, and Q8 by two Python engines and the June
-        LMFDB-verified counts (GQ2/Roe/Sanity.lean).
+        admissibleCountR G = admissibleCount G for every finite G, at the standard three
+        axioms. The declaration takes an explicit hBLab : BLabHypothesis argument, which
+        GQ2.Roe.Labute.bLab discharges; the explicit-input form is
+        GQ2.admissibleCountR_eq_admissibleCount_of_inputs (GQ2/Roe/MainWithInputs.lean).
+        Independently pinned numerically on C2, C4, V4, D4, and Q8 by two Python engines
+        and the June LMFDB-verified counts (GQ2/Roe/Sanity.lean).
 
 acknowledgements: >
-  Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
-  leanprover/comparator (locally checked at commit
-  68a064109f01c08f47c8edc9f51d6a2bbffaa188) and leanprover/lean4export. Process
-  archive: docs/orchestration/.
+  Built on Lean v4.35.0 and mathlib4 (pinned at cfc55fc, 2026-10-15, the Mathlib
+  revision of Tau Ceti's manifest; until 2026-10-16 the project used Lean v4.31.0-rc2
+  and mathlib4 ec410d2, 2026-06-12). The nine literature inputs are proved from Tau Ceti
+  (TauCetiProject, https://github.com/TauCetiProject/TauCeti, pinned at revision
+  706344c35, 2026-10-16), whose build outputs CI fetches from Tau Ceti's public Lake
+  cache. Comparator verification uses leanprover/comparator (locally checked at commit
+  68a064109f01c08f47c8edc9f51d6a2bbffaa188, under Lean v4.31.0-rc2) and
+  leanprover/lean4export. Process archive: docs/orchestration/.
