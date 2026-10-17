@@ -1439,9 +1439,8 @@ anchoring convention. -/
 theorem ancSubgroup_kerAnc_id :
     ancSubgroup (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)
       = (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
-  rw [ancSubgroup_kerAnc]
   ext x
-  exact ⟨fun ⟨g, hg, hgx⟩ => hgx ▸ hg, fun hx => ⟨x, hx, rfl⟩⟩
+  exact ⟨fun ⟨n, hnx⟩ => hnx ▸ n.2, fun hx => ⟨⟨x, hx⟩, rfl⟩⟩
 
 omit [DistribMulAction C V] in
 /-- **`n = 1` regression**: the scalar restriction at the identity anchor is
