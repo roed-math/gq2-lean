@@ -59,6 +59,7 @@ theorem heisWord_transpose_of_pointwise_zero
     apply FreeGroup.ext_hom
     intro i
     apply HeisLift.ext <;> simp [heisTranspose, heisGen, hxy]
+    rfl
   exact congrArg HeisLift.z (DFunLike.congr_fun H w)
 
 /-- A vanishing primal word jet removes the remaining transpose correction. -/

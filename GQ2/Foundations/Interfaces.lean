@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Foundations.LiteratureInputs
+public import GQ2.Foundations.Axioms
 public import GQ2.HilbertSymbol
 public import GQ2.HilbertSymbolDyadicClose
 public import GQ2.KummerSurjectivity
@@ -20,7 +21,8 @@ public import GQ2.Dyadic.MarkedRecipBundle
 /-!
 # Discharged and derived interfaces over the literature inputs
 
-Companion to `GQ2/Foundations/TauCetiInstance.lean`, which holds the nine literature inputs under
+Companion to `GQ2/Foundations/TauCetiInstance.lean` (re-exported here, through `GQ2.Foundations.Axioms`,
+as the `dyadic` tree's consumers expect), which holds the nine literature inputs under
 their legacy names — `axiom` declarations in `GQ2/Foundations/Axioms.lean` until the Tau Ceti
 discharge (ticket C2, 2026-10-17), theorems/definitions proved from Tau Ceti since.  This file hosts
 the *derived* layer that shares their public interface, over the generic `LiteratureInputs`:
