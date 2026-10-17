@@ -421,8 +421,11 @@ def lRamifiedSourceArf_blockK
         = SectionNine.blockProjF T Blk
             (powOmega2 (rho0 DD rhoM (gammaGen (2 * h + 1) q (lSqW h) .tau))) • v :=
       SectionNine.blockProjF_compat T Blk _ v
-    rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), htauHead,
-      powOmega2_eq_one_of_odd hoddHV, one_smul]
+    have hone : SectionNine.blockProjF T Blk
+        (powOmega2 (rho0 DD rhoM (gammaGen (2 * h + 1) q (lSqW h) .tau))) = 1 :=
+      (powOmega2_map (SectionNine.blockProjF T Blk) _).trans
+        ((congrArg powOmega2 htauHead).trans (powOmega2_eq_one_of_odd hoddHV))
+    exact hstep.trans ((congrArg (· • v) hone).trans (one_smul _ v))
   -- the tame pair at the head, in the shape the general-`q` pack consumes
   have hgenC : Subgroup.closure
       ({SectionNine.blockProjF T Blk

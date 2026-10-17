@@ -56,19 +56,19 @@ private def sqDerivMark (h : ℕ) (v : Fin (SqCore.sqRank h) → ℤ_[2])
 
 private theorem sqDerivMark_zero (h : ℕ) (v : Fin (SqCore.sqRank h) → ℤ_[2]) :
     sqDerivMark h v 0 = ⟨v 0, GQ2.Roe.SvalUnit⟩ := by
-  ext
+  refine WordLift.ext ?_ (Units.ext ?_)
   · rfl
   · exact congrArg Units.val (SqCore.chiSq_sigma h)
 
 private theorem sqDerivMark_one (h : ℕ) (v : Fin (SqCore.sqRank h) → ℤ_[2]) :
     sqDerivMark h v 1 = ⟨v 1, GQ2.Roe.rootXUnit⟩ := by
-  ext
+  refine WordLift.ext ?_ (Units.ext ?_)
   · rfl
   · exact congrArg Units.val (SqCore.chiSq_x0 h)
 
 private theorem sqDerivMark_two (h : ℕ) (v : Fin (SqCore.sqRank h) → ℤ_[2]) :
     sqDerivMark h v 2 = ⟨v 2, GQ2.Roe.YvalUnit⟩ := by
-  ext
+  refine WordLift.ext ?_ (Units.ext ?_)
   · rfl
   · exact congrArg Units.val (SqCore.chiSq_x1 h)
 
@@ -429,14 +429,15 @@ private theorem rawDepthCorrection_eq_prod_coordinate
     rawDepthCoordinateCorrection i
       (⟨V.correction i, V.depth i⟩ : lambdaImage (SqCore.DSq h : Type) 2 4)).prod)
   rw [map_list_prod]
+  have hev : ∀ W, ev W = W.correction j := fun _ ↦ rfl
   have hsingle := list_map_prod_eq_single_of_nodup_obstruction
     (List.finRange (SqCore.sqRank h)) j
     (fun i ↦ ev (rawDepthCoordinateCorrection i
       (⟨V.correction i, V.depth i⟩ : lambdaImage (SqCore.DSq h : Type) 2 4)))
     (by simp) (List.nodup_finRange _) (by
       intro i _ hij
-      simp [ev, rawDepthCoordinateCorrection_apply, Ne.symm hij])
-  simpa [List.map_map, Function.comp_def, ev, rawDepthCoordinateCorrection_apply] using
+      simp [hev, rawDepthCoordinateCorrection_apply, Ne.symm hij])
+  simpa [List.map_map, Function.comp_def, hev, rawDepthCoordinateCorrection_apply] using
     hsingle.symm
 
 /-- The whole literal raw shift image is annihilated by every coordinate derivation
