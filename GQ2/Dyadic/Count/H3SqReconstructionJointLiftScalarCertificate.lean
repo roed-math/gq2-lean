@@ -157,11 +157,14 @@ theorem exists_linearMap_comp_eq_of_ker_le_ker
   refine ⟨E, ?_⟩
   apply LinearMap.ext
   intro c
-  let Rc : LinearMap.range R := ⟨R c, ⟨c, rfl⟩⟩
+  let Rc : LinearMap.range R := ⟨R c, LinearMap.mem_range_self R c⟩
   calc
     E (R c) = E ((LinearMap.range R).subtype Rc) := rfl
     _ = onRange Rc := LinearMap.congr_fun hE Rc
-    _ = T c := by simp [onRange, Rc]
+    _ = T c := by
+      simp only [onRange, Rc, LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
+        LinearMap.quotKerEquivRange_symm_apply_image]
+      exact Submodule.liftQ_apply _ _ _
 
 /-- **Smallest finite certificate.**  Existence of a reconstruction-compatible lift is exactly
 the existence of one reachable corrected relation coordinate whose rank is not increased by
