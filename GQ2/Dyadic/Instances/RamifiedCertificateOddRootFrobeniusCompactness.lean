@@ -68,8 +68,8 @@ theorem oddRootFrobeniusSet_isClosed (m : ℕ) (hm : 0 < m) :
     have hright : Continuous
         (fun _ : Kummer.GaloisGroup ℚ_[2] => Additive.ofMul (x.toMul ^ 2)) :=
       continuous_const
-    simpa using isClosed_eq hleft hright
-  · simp [hzeta]
+    simpa only [Set.iInter_true] using isClosed_eq hleft hright
+  · simp only [hzeta, Set.iInter_false, isClosed_univ]
 
 theorem oddRootFrobeniusSet_antitone_of_dvd {m n : ℕ} (hm : m ∣ n) :
     oddRootFrobeniusSet n ⊆ oddRootFrobeniusSet m := by
