@@ -208,7 +208,7 @@ theorem smul_eq_self_of_simple_sylowTwoPreimage
     rw [hu]
     exact hW (sylowTwoPreimageHom rho P u) w hw
   have htrivP : ∀ (p : P) (v : V), p • v = v :=
-    FoxH.smul_eq_self_of_isPGroup_two_of_simple P.2 hV₂ hsimpleP
+    FoxH.smul_eq_self_of_isPGroup_two_of_simple P.isPGroup hV₂ hsimpleP
   intro u v
   change u.1 • v = v
   rw [hcompat u.1 v]

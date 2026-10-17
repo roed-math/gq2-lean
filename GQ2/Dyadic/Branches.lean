@@ -784,7 +784,7 @@ def mockSplitting : MarkedSplitting mockDatum where
 
 /-- `λ(-1) = 2 = ε·2^{r-1}` with `ε = 1` and `r = 2`. -/
 theorem mock_negOneVal : mockSplitting.negOneVal = ((epsVal true * 2 ^ (2 - 1) : ℕ) : ZMod 4) := by
-  decide
+  rfl
 
 /-- `η = λ(u) = 1`.  **This is the sign-bearing value**: at `r = 2` the wrong sign would be
 `3 = -1`, and `mock_not_isEtaFor_neg_one` rejects it. -/

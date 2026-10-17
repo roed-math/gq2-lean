@@ -125,7 +125,8 @@ theorem depthUnits_succ_e_pow_injective (FF : DyadicUnitFiltration K)
     {n : ℕ} (hn : n ≠ 0) :
     Function.Injective (fun u : ↥(depthUnits K FF.π (FF.e + 1)) => u ^ n) := by
   letI := isMulTorsionFree_depthUnits_succ_e FF
-  exact pow_left_injective hn
+  intro a b hab
+  exact (Commute.all a b).eq_of_pow_eq_pow hn hab
 
 /-- The deep principal units lie in the norm-one unit group. -/
 theorem depthUnits_succ_e_le_normUnits (FF : DyadicUnitFiltration K) :
