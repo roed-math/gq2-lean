@@ -26,14 +26,14 @@ Acceptance for every adapter: builds with zero sorries, imports nothing reaching
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| A1-K | `abEquivK`, the norm ↔ valuation bridge on `↥K`, `localTopology_eq`, the residue-degree bridge `Nat.card 𝓀[↥K] = 2 ^ FF.f` (the `chiCycKAb` item is not needed by any clause; D2 is moot — `residueField_card_eq_pow_f` was public) | opus | `GQ2/TauCeti/GaloisDictK.lean` | T2 | landing from the T2 prototype `tauceti-t2-evidence/bridge/` |
+| A1-K | `abEquivK`, the norm ↔ valuation bridge on `↥K`, `localTopology_eq`, the residue-degree bridge `Nat.card 𝓀[↥K] = 2 ^ FF.f` (the `chiCycKAb` item is not needed by any clause; D2 is moot — `residueField_card_eq_pow_f` was public) | opus | `GQ2/TauCeti/GaloisDictK.lean` | T2 | done 2026-10-17 (401 lines; `lake build GQ2.TauCeti.GaloisDictK` green) |
 
 ## Wave 2: the two inputs
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| B5-K | `markedRecipAt_tauceti K : Dyadic.MarkedRecip localReciprocity_tauceti K` | opus | `GQ2/TauCeti/B5K.lean` | A1-K | landing from `tauceti-t2-evidence/{recipK,kiunram}/` |
-| B10-K | `orientedTameQuotientAt_tauceti K FF : Dyadic.OrientedTameQuotientK (markedRecipAt_tauceti K) FF` | opus | `GQ2/TauCeti/B10K.lean` | B5-K, A1-K (not P1) | landing from `tauceti-t2-evidence/tameK/` |
+| B5-K | `markedRecipAt_tauceti K : Dyadic.MarkedRecip localReciprocity_tauceti K` | opus | `GQ2/TauCeti/B5K.lean` | A1-K | done 2026-10-17 (588 lines; builds; std-3; exports `markedRecipAt_tauceti_recip/_nu_ur`) |
+| B10-K | `orientedTameQuotientAt_tauceti K FF : Dyadic.OrientedTameQuotientK (markedRecipAt_tauceti K) FF` | opus | `GQ2/TauCeti/B10K.lean` | B5-K, A1-K (not P1) | done 2026-10-17 (407 lines; builds; std-3; `landing-check.lean`: forbidden modules and legacy names absent from the closure) |
 
 ## Wave 3: flip and docs
 

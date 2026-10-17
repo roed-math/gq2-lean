@@ -38,3 +38,10 @@ or, to see the `#print axioms` lines:
 export LAKE_CONFIG=$PWD/.lake/tauceti-lake-cache.toml LAKE_CACHE_DIR=/scratch/claudeM/gq2-tauceti/.lake/cache
 lake env lean -DautoImplicit=false docs/dyadic/tauceti-t2-evidence/full/b5k_b10k.lean
 ```
+
+## `landing-check.lean`
+
+Non-module scratch file importing `GQ2.TauCeti.B10K` after the landing of A1-K/B5-K/B10-K: `#check`s
+the two main declarations, prints their axioms (`propext, Classical.choice, Quot.sound`, pinned with
+`#guard_msgs`), and checks that none of `GQ2.Foundations.{Axioms,AxiomInstance,Interfaces,TauCetiInstance}`,
+`GQ2.Prop32` or the twelve legacy names is in the environment. Run with `lake env lean`.
