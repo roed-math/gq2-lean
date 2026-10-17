@@ -92,8 +92,13 @@ the norm-valued-field instance.  The equivalence is the identity on underlying f
 def oSubEquivNormInteger :
     GQ2.UnitFiltrationCounts.Osub K ≃+*
       (NormedField.valuation (K := K)).integer where
-  toFun x := ⟨x, by simpa [Valuation.mem_integer_iff, ← NNReal.coe_le_coe] using x.2⟩
-  invFun x := ⟨x, by simpa [Valuation.mem_integer_iff, ← NNReal.coe_le_coe] using x.2⟩
+  toFun x := ⟨x, by
+    have hx : ‖(x : K)‖ ≤ 1 := x.2
+    simpa [Valuation.mem_integer_iff, ← NNReal.coe_le_coe] using hx⟩
+  invFun x := ⟨x, by
+    have hx : NormedField.valuation (K := K) (x : K) ≤ 1 := x.2
+    change ‖(x : K)‖ ≤ 1
+    simpa [NormedField.valuation_apply, ← NNReal.coe_le_coe] using hx⟩
   left_inv _ := rfl
   right_inv _ := rfl
   map_add' _ _ := rfl
@@ -125,6 +130,7 @@ theorem oSubEquivNormInteger_symm_apply
     (x : (NormedField.valuation (K := K)).integer) :
     ((oSubEquivNormInteger K).symm x : K) = x := rfl
 
+set_option synthInstance.maxHeartbeats 40000 in
 /-- Under the valuation-ring equivalence, the intrinsic open unit ball is exactly Mathlib's
 maximal ideal of the norm valuation ring. -/
 theorem map_maxIdeal_eq :

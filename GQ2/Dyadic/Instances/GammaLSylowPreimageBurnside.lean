@@ -190,9 +190,9 @@ theorem gammaLSylowPreimage_burnside_restrictionKernel_le
   have htransfer : MonoidHom.transferSylow D.sylow D.fusion_control s = 1 := by
     exact MonoidHom.mem_ker.mp hu
   have hinj : Function.Injective
-      ((MonoidHom.transferSylow D.sylow D.fusion_control).restrict D.sylow) := by
-    rw [MonoidHom.transferSylow_restrict_eq_pow]
-    exact (D.sylow.2.powEquiv' D.sylow.not_dvd_index).injective
+      ((MonoidHom.transferSylow D.sylow D.fusion_control).domRestrict (D.sylow : Subgroup _)) := by
+    rw [MonoidHom.transferSylow_domRestrict_eq_pow]
+    exact (D.sylow.isPGroup.powEquiv' D.sylow.not_dvd_index).injective
   have hs : s = 1 := by
     apply hinj
     exact htransfer.trans (map_one _).symm
@@ -223,7 +223,7 @@ theorem gammaLSylowPreimageProTwoKernelEquality_of_normalClosureBurnside
   apply gammaLSylowPreimage_burnside_restrictionKernel_le P V D
   rw [MonoidHom.mem_ker]
   apply MonoidHom.mem_ker.mp
-  apply proPKernel_le_ker (isProP_of_isPGroup D.sylow.2)
+  apply proPKernel_le_ker (isProP_of_isPGroup D.sylow.isPGroup)
     (transfer.comp
       (quotientMk (gammaLSylowPreimageAmbientNormalClosure P V).toSubgroup))
   rw [Subgroup.mem_comap] at hu

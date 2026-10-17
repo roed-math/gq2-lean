@@ -497,7 +497,8 @@ noncomputable def sqCompatibleUniversalBarRelationLiftAtOfBasisPreimages
   let R : SqInputThree h V →+
       ModTwoCompletedRegularModule (DSq h : Type) Unit := Rlin.toAddMonoidHom
   have hlinear : (sqCompletedModTwoFoxBoundary h).map.comp Rlin =
-      S.toCompletedFox.toZModLinearMap 2 := by
+      S.toCompletedFox.toZModLinearMap 2 (M := SqInputThree h V)
+        (M₁ := ModTwoCompletedRegularModule (DSq h : Type) (Fin (sqRank h))) := by
     apply (Pi.basisFun (ZMod 2) (SqInputThreeBasisIndex h V)).ext
     intro i
     change (sqCompletedModTwoFoxBoundary h).map
