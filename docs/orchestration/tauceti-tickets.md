@@ -47,7 +47,7 @@ until the orchestrator re-plans Wave 2.
 | B11a | Hilbert-symbol norm criterion | opus | `GQ2/TauCeti/B11a.lean` | A1, A2 | open |
 | B7 | local Euler characteristic | fable | `GQ2/TauCeti/B7.lean` | A2 | open |
 | B5 | local reciprocity bundle | fable | `GQ2/TauCeti/B5.lean` | A1 | done `a395ed6b`, `8a6d969b` |
-| B8 | peripheral cyclotomic action | fable | `GQ2/TauCeti/B8.lean` | P1 | in progress |
+| B8 | peripheral cyclotomic action | fable | `GQ2/TauCeti/B8.lean` | P1 | done `6f68cfe3` |
 | B9 | relative Stiefel-Whitney identity | fable | `GQ2/TauCeti/B9.lean`, `GQ2/TauCeti/StiefelWhitneyDict.lean` | A1, A2 | open |
 | B6 | local Tate duality at finite `k/ℚ₂` | fable | `GQ2/TauCeti/B6.lean`, `GQ2/TauCeti/DualizingGroup.lean` | A1, A2 | open |
 | B10 | oriented tame quotient | fable | `GQ2/TauCeti/B10.lean` | B5, P1 | done `a2c2b6ea` |
