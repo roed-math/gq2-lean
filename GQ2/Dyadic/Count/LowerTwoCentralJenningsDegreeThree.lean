@@ -103,10 +103,10 @@ theorem modTwoFiniteGroupDifference_sq (q : Q) :
   let A := MonoidAlgebra (ZMod 2) Q
   have hdouble (x : A) : x + x = 0 := by
     ext a
-    exact CharTwo.add_self_eq_zero (x a)
+    exact CharTwo.add_self_eq_zero (x.coeff a)
   have hneg (x : A) : -x = x := by
     ext a
-    exact CharTwo.neg_eq (x a)
+    exact CharTwo.neg_eq (x.coeff a)
   simp only [modTwoFiniteGroupDifference, pow_two, map_mul, sub_eq_add_neg, hneg]
   let x := MonoidAlgebra.of (ZMod 2) Q q
   change x * x + 1 = (x + 1) * (x + 1)
