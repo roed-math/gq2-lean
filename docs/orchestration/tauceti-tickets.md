@@ -45,7 +45,7 @@ until the orchestrator re-plans Wave 2.
 |---|---|---|---|---|---|
 | B1 | topological finite generation | opus | `GQ2/TauCeti/B1.lean` | A1 | done `a5ccd575` |
 | B11a | Hilbert-symbol norm criterion | opus | `GQ2/TauCeti/B11a.lean` | A1, A2 | done `230647d9` |
-| B7 | local Euler characteristic | fable | `GQ2/TauCeti/B7.lean` | A2 | in progress |
+| B7 | local Euler characteristic | fable | `GQ2/TauCeti/B7.lean` | A2 | done `ea16f29b` |
 | B5 | local reciprocity bundle | fable | `GQ2/TauCeti/B5.lean` | A1 | done `a395ed6b`, `8a6d969b` |
 | B8 | peripheral cyclotomic action | fable | `GQ2/TauCeti/B8.lean` | P1 | done `6f68cfe3` |
 | B9 | relative Stiefel-Whitney identity | fable | `GQ2/TauCeti/B9.lean`, `GQ2/TauCeti/StiefelWhitneyDict.lean` | A1, A2 | in progress |
