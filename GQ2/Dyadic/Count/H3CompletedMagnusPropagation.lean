@@ -311,7 +311,7 @@ theorem sqCompletedMagnusNormalCoefficient_mul_foxRow_of_adjacent
         sqCompletedMagnusNormalCoefficient h (n + 1) Hsucc y := by
     have hz := (sqCompletedMagnusNormalCoefficient_eq_zero_iff
       h (n + 1) Hsucc (x - y)).2 hxy
-    rw [map_sub] at hz
+    rw [LinearMap.map_sub] at hz
     exact sub_eq_zero.mp hz
   obtain ⟨c, hc⟩ :=
     sqCompletedGeneratorMonomialToAugmentationPower_surjective h n a
