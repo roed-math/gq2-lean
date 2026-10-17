@@ -14,15 +14,28 @@ For current truth use the Lean sources, [`../../formalization.yaml`](../../forma
 and the repository gates. The maintained documentation index is [`../README.md`](../README.md).
 
 **Live since 2026-10-16:** [`tauceti-proof-plan.md`](tauceti-proof-plan.md) and
-[`tauceti-tickets.md`](tauceti-tickets.md), the plan and board for proving the nine literature
-inputs from the Tau Ceti library. Everything else here is archival.
+[`tauceti-tickets.md`](tauceti-tickets.md), the plan and board of the campaign that proved the nine
+literature inputs from the Tau Ceti library. Its work is complete through the census flip (C2,
+2026-10-17: census 9 → 0) and the docs sweep (C3); the two files become archival once the
+campaign's own owner gate G2 (keep or retire the legacy `Challenge`/`Solution` Comparator pair) is
+recorded on the board. Everything else here is archival.
 
-**As of the owner's G2 sign-off (2026-07-26), everything else in this directory is archival.**
+**As of the Γ_R campaign's G2 sign-off (2026-07-26), everything else in this directory is
+archival.**
 [`roe-tickets.md`](roe-tickets.md) (the Γ_R/Labute campaign board — the ground truth for
 what happened, closed by the G2 entry at its foot) and
 [`roe-verification-plan.md`](roe-verification-plan.md) (the campaign plan with its dated
 status block) were the last two live files; they were archived at G2 with the census
 signed off at nine and the unconditional Γ_R capstone in place.
+
+## The Tau Ceti discharge campaign (October 2026)
+
+| File | Role |
+|---|---|
+| [`tauceti-proof-plan.md`](tauceti-proof-plan.md) | Live until G2. Platform decisions (pins, caches, module system, namespaces), the axiom-by-axiom map to Tau Ceti, assembly and census flip, risks. |
+| [`tauceti-tickets.md`](tauceti-tickets.md) | Live until G2. The board: waves T, A/P (dictionaries), B (the nine inputs), C (assembly, flip, docs), owner gates G0–G2, each row with its landing commit. |
+| [`tauceti-t2-recon.md`](tauceti-t2-recon.md) | T2 recon memo: verbatim Tau Ceti signatures and instance needs per lane, the six recon answers, the cross-cutting hazards for adapter work, and the corrections to the plan that re-ordered Wave 2. |
+| [`tauceti-t2-evidence/`](tauceti-t2-evidence/README.md) | The recon lanes' scratch prototypes and probes; several were complete adapter terms that the B tickets re-did cleanly. |
 
 ## Global plans, boards, and review packets
 
