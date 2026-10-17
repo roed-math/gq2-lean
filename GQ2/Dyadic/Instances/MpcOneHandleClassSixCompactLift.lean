@@ -115,7 +115,6 @@ theorem oneHandleC6Ut_mem : oneHandleC6Ut ∈ twoCentralSeries H 4 := by
   simp only [oneHandleC6Ut]
   have hB8 : B ^ 8 ∈ twoCentralSeries H 4 := by
     convert pow_two_pow_mem_twoCentralSeries_succ (G := H) B 3 using 1
-    norm_num
   exact Subgroup.mul_mem _ (Subgroup.mul_mem _ (Subgroup.mul_mem _
     (Subgroup.mul_mem _ hB8 (sq_comm_three_four B C B))
       (sq_comm_three_four B D B)) (comm_four B C B B)) (comm_four B D D B)
