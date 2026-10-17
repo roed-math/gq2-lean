@@ -231,12 +231,13 @@ noncomputable def wPmPhaseComparison_of_normalForm
     have hs := Function.surjInv_eq hZ1surj ⟨normal p, AddMonoidHom.mem_ker.mpr (hmem p)⟩
     have hsv := congrArg Subtype.val hs
     change (fun i ↦ (normalZ1 p).1 (gammaGen n q Rw i)) = normal p
-    simpa [normalZ1, theta] using hsv
+    exact hsv
   have hnormalClass (p : W) :
       phaseEquiv (QuotientAddGroup.mk (normalSource p)) = p := by
     change wordEquiv (Count.h1Equiv_gammaR_range theta hcompat hres hA2
       (H1mk ((GammaR n q Rw : ProfiniteGrp) : Type) DD.Vmod (normalZ1 p))) = p
-    rw [Count.h1Equiv_gammaR_range_H1mk]
+    refine (congrArg wordEquiv
+      (Count.h1Equiv_gammaR_range_H1mk theta hcompat hres hA2 (normalZ1 p))).trans ?_
     have hs := Function.surjInv_eq hZ1surj ⟨normal p, AddMonoidHom.mem_ker.mpr (hmem p)⟩
     rw [show Count.toZ1w theta hcompat (fun _ ↦ rfl)
         (isAdmissibleMarkedPresentation_gammaR n q Rw) hres (normalZ1 p) =

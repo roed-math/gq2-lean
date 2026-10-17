@@ -166,13 +166,15 @@ private theorem sig_handleV_ne_handleV {j' : Fin h} (hne : j' ≠ j) :
 
 theorem sigMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sigMark h j A0 C0 A1 C1 A B C D P Q F T S (sqHandleIdxU j') = 1 := by
-  simp only [sigMark, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [sigMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (sig_handleU_ne_handleU hne), if_neg (sig_handleU_ne_handleV j')]
 
 theorem sigMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sigMark h j A0 C0 A1 C1 A B C D P Q F T S (sqHandleIdxV j') = 1 := by
-  simp only [sigMark, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [sigMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (sig_handleV_ne_handleU j'), if_neg (sig_handleV_ne_handleV hne)]
 
@@ -518,13 +520,15 @@ variable {x0 x1 x2 x3 x4 : SelConDress}
 
 theorem sigTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxU j') = 1 := by
-  simp only [sigTuple, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [sigTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (sig_handleU_ne_handleU hne), if_neg (sig_handleU_ne_handleV j')]
 
 theorem sigTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sigTuple h j c A0 C0 A1 C1 A B C D P Q F x0 x1 x2 x3 x4 (sqHandleIdxV j') = 1 := by
-  simp only [sigTuple, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [sigTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (sig_handleV_ne_handleU j'), if_neg (sig_handleV_ne_handleV hne)]
 
@@ -566,22 +570,26 @@ variable {m : Fin (sqRank h) → SqU4 R} {z0 w1 w2 z3 z4 : SqU4 R}
 
 @[simp] theorem sigRefine_handleU :
     sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxU j) = m (sqHandleIdxU j) * z3 := by
-  simp only [sigRefine, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j
+  simp only [sigRefine]
   rw [if_neg (by omega), selRefine_handleU]
 
 @[simp] theorem sigRefine_handleV :
     sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxV j) = m (sqHandleIdxV j) * z4 := by
-  simp only [sigRefine, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j
+  simp only [sigRefine]
   rw [if_neg (by omega), selRefine_handleV]
 
 theorem sigRefine_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxU j') = m (sqHandleIdxU j') := by
-  simp only [sigRefine, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [sigRefine]
   rw [if_neg (by omega), selRefine_handleU_ne hne]
 
 theorem sigRefine_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sigRefine j m z0 w1 w2 z3 z4 (sqHandleIdxV j') = m (sqHandleIdxV j') := by
-  simp only [sigRefine, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [sigRefine]
   rw [if_neg (by omega), selRefine_handleV_ne hne]
 
 /-- ⭐⭐ **The five-slot translation identity**: the refinement translates the relator by a

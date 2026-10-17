@@ -54,11 +54,13 @@ private def mpcMkCanonicalFamily (k : ℕ) :
   deriv_base := fun i _ ↦ by
     exact evenFamDerivModelM_isChiShadow 2 0 (by omega) (by omega) (Pi.single i 1)
   deriv_diag := fun i _ ↦ by
-    rw [mpcMkCoordinateDeriv, evenFamDerivModelM_u]
+    unfold mpcMkCoordinateDeriv
+    rw [evenFamDerivModelM_u]
     rw [evenFam_two_dvd_iff_castHom_eq_zero (by omega)]
     norm_num
   deriv_off := fun i _ j _ hji ↦ by
-    rw [mpcMkCoordinateDeriv, evenFamDerivModelM_u]
+    unfold mpcMkCoordinateDeriv
+    rw [evenFamDerivModelM_u]
     simp only [Pi.single_apply]
     split_ifs with h
     · exact (hji h).elim
