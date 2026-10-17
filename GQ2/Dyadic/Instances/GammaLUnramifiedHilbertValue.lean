@@ -7,6 +7,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageMarkedFrame
 import GQ2.UnramifiedQuadraticNorms
 import GQ2.UnramifiedNorm
 import GQ2.Dyadic.RamificationInertiaBridge
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The unramified Hilbert value `(2, u)_K = −1`

@@ -696,12 +696,14 @@ theorem sqCubicCorrectedNormalWord_apply_empty (h : ℕ)
     ext u
     by_cases hu : u = v
     · subst u
-      simp [sqQuadraticHomogeneousProject]
+      rw [sqQuadraticHomogeneousProject_apply]
+      simp
     · have hu' : u.1 ≠ v.1 := by
         intro e
         apply hu
         exact Subtype.ext e
-      simp [sqQuadraticHomogeneousProject, hu]
+      rw [sqQuadraticHomogeneousProject_apply]
+      simp [hu, hu']
   rwa [hnormal] at H
 
 /-- Linear evaluation of cubic normal words in corrected endomorphisms. -/
@@ -816,8 +818,9 @@ theorem sqCubicCorrectedOperatorWord_snd (h : ℕ)
               subst l
               simp only [quadraticWordEval, List.map_cons, List.prod_cons,
                 List.map_nil, List.prod_nil, mul_one]
-              simp [sqCubicCorrectedOperatorLetter,
-                sqCubicCorrectedStrictLetter, Unitization.snd_mul]
+              simp only [sqCubicCorrectedOperatorLetter, ← Unitization.inr_mul,
+                Unitization.snd_inr]
+              rfl
 
 theorem sqCubicCorrectedNormalOperatorLinearCombination_fst_zero (h : ℕ)
     (D : SqCubicDegreeTwoCorrection h)
@@ -980,6 +983,7 @@ def sqCubicCorrectedRelatorBlock (h : ℕ) (D : SqCubicDegreeTwoCorrection h)
   sqCubicCorrectedRelatorEnd h D
     (Finsupp.single source 1) target
 
+set_option synthInstance.maxHeartbeats 100000 in
 @[simp] theorem sqCubicCorrectedMarkedUnit_augmentation (h : ℕ)
     (D : SqCubicDegreeTwoCorrection h) (i : Fin (sqRank h)) :
     Units.map (sqCubicOperatorAugmentation h).toMonoidHom
@@ -1403,6 +1407,7 @@ def sqCubicCorrectedCorePrefix (h : ℕ) (D : SqCubicDegreeTwoCorrection h) :
     ((sqCubicCorrectedMarkedUnit h D 1) ^ 3)⁻¹
 
 set_option maxHeartbeats 4000000 in
+set_option synthInstance.maxHeartbeats 100000 in
 theorem sqCubicCorrectedCorePrefix_val (h : ℕ)
     (D : SqCubicDegreeTwoCorrection h) :
     (sqCubicCorrectedCorePrefix h D).val =
@@ -2304,6 +2309,7 @@ theorem sqCubicZeroCorePrefixCubic_raises (h : ℕ) :
     (sqCubicHomogeneousOperatorTriple_raises h 1 0 1)).add
     (sqCubicHomogeneousOperatorTriple_raises h 1 1 0)
 
+set_option synthInstance.maxHeartbeats 100000 in
 theorem sqCubicZeroCorePrefix_val_secondOrder (h : ℕ) :
     (sqCubicCorrectedCorePrefix h (sqCubicZeroDegreeTwoCorrection h)).val =
       1 + sqCubicZeroCorePrefixQuadratic h + sqCubicZeroCorePrefixCubic h := by
@@ -2563,6 +2569,7 @@ theorem sqCubicCorrectedRelator_val_eq_prefix_mul_suffix (h : ℕ)
 
 set_option maxHeartbeats 1000000 in
 set_option maxRecDepth 10000 in
+set_option synthInstance.maxHeartbeats 100000 in
 def sqCubicZeroRelator_secondOrder (h : ℕ) :
     SqCubicSecondOrderExpansion h
       (sqCubicCorrectedRelatorUnit h (sqCubicZeroDegreeTwoCorrection h)).val := by

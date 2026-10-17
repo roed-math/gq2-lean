@@ -71,7 +71,9 @@ noncomputable def SqCompatibleUniversalBarRelationLiftAt.addCompletedFoxKernelCo
         SqCompletedModTwoFoxKernel h) :
     SqCompatibleUniversalBarRelationLiftAt S := by
   let Rlin :=
-    L₀.relationSyzygy.toCompleted.toZModLinearMap 2 +
+    L₀.relationSyzygy.toCompleted.toZModLinearMap 2
+        (M := FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ V.toSubgroup))
+        (M₁ := ModTwoCompletedRegularModule (DSq h : Type) Unit) +
       (LinearMap.ker (sqCompletedModTwoFoxBoundary h).map).subtype.comp K
   refine {
     relationSyzygy := sqCompatibleFiniteRelationSyzygyAtOfCompleted
@@ -114,7 +116,9 @@ theorem SqCompatibleUniversalBarRelationLiftAt.addCompletedFoxKernelCorrection_c
     SqCompatibleUniversalBarRelationLiftAt.addCompletedFoxKernelCorrection]
   change
     ModTwoCompletedRegularModule.coordinate (DSq h : Type) Unit W
-        ((L₀.relationSyzygy.toCompleted.toZModLinearMap 2 +
+        ((L₀.relationSyzygy.toCompleted.toZModLinearMap 2
+            (M := FiniteModTwoBarCochainThree ((DSq h : Type) ⧸ V.toSubgroup))
+            (M₁ := ModTwoCompletedRegularModule (DSq h : Type) Unit) +
           (LinearMap.ker
             (sqCompletedModTwoFoxBoundary h).map).subtype.comp K) c) =
       L₀.relationSyzygy.coordinate W c +
