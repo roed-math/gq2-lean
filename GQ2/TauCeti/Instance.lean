@@ -23,13 +23,14 @@ public import GQ2.Foundations.LiteratureInputs
 
 `tauCetiInputs : GQ2.LiteratureInputs` assembles the nine Tau Ceti adapters
 (`GQ2/TauCeti/B*.lean`) into the typeclass the generic capstones consume. Every field is a
-theorem or construction proved from Tau Ceti `706344c35`; nothing here, and nothing this file
-imports, depends on `GQ2/Foundations/Axioms.lean` or `AxiomInstance.lean`
-(`GQ2/TauCetiAxiomAudit.lean` checks this).
+theorem or construction proved from Tau Ceti `706344c35` (`GQ2/TauCetiAxiomAudit.lean` checks
+that the import closure carries none of the nine legacy names and that the capstones built on it
+use only the standard three axioms).
 
-It is a `def`, not an `instance`, while the axiom-backed instance of
-`GQ2/Foundations/AxiomInstance.lean` still exists: the capstones of `GQ2/TauCeti/Main.lean` pass it
-explicitly. Ticket C2 (after owner gate G1) deletes the axioms and installs this as the instance.
+It is a `def`; the instance is `GQ2.tauCetiLiteratureInputs := tauCetiInputs` in
+`GQ2/Foundations/TauCetiInstance.lean` (ticket C2, which replaced the axiom-backed instance and
+deleted `GQ2/Foundations/Axioms.lean`). The capstones of `GQ2/TauCeti/Main.lean` pass it
+explicitly.
 -/
 
 namespace GQ2.TauCetiBridge

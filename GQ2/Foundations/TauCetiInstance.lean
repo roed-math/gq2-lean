@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8, Fable-5, and Claude Opus 5.5
 -/
 module
 
@@ -14,54 +14,47 @@ public import GQ2.PeripheralAction
 public import GQ2.Orientation
 public import GQ2.TameQuotient
 public import GQ2.TraceForm
+public import GQ2.CupSymmetry
+public import GQ2.Foundations.LiteratureInputs
+public import GQ2.TauCeti.Instance
 
 @[expose] public section
 
 /-!
-# Classical literature inputs for Theorem 1.2
+# The nine literature inputs, proved from Tau Ceti
 
-Every `axiom` in the GQ2 library lives in this file, a rule enforced by
-`scripts/check_axioms.sh` — and since 2026-07-27 the file contains the nine `axiom`
-declarations and **nothing else**, so that its transitive imports are exactly the statement
-vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
-the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
+Until 2026-10-17 the nine cited classical inputs of Theorem 1.2 were `axiom` declarations in
+`GQ2/Foundations/Axioms.lean` (census 9).  Ticket C2 of the Tau Ceti discharge campaign
+(`docs/orchestration/tauceti-tickets.md`, owner gate G1) deleted that file: the GQ2 library now
+contains **no `axiom` declaration**, and every one of the nine is proved from the
+[Tau Ceti](https://github.com/TauCetiProject/TauCeti) library (revision `706344c35`) by the
+adapters in `GQ2/TauCeti/`.
 
-The current census contains nine axioms:
+This file keeps the nine legacy public names, each with its statement **byte-identical** to the
+deleted axiom, now as a theorem or definition whose body is the adapter:
 
-* **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — topological finite generation
-  of `G_ℚ₂`.
-* **B3c** `dyadicOrientation` — the canonical dyadic orientation in the marked cyclotomic
-  interface used by Proposition 1.1.
-* **B5** `localReciprocity` — local reciprocity for `ℚ₂` with the paper normalization.
-* **B6** `tateDualityAt` — local Tate duality over every finite extension of `ℚ₂`.
-* **B7** `Foundations.absGalQ2_localEulerCharacteristic` — the local Euler characteristic.
-* **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
-  `Δ = maxPro2(F₂)`.
-* **B9** `relativeStiefelWhitney_dyadic` — the degree-at-most-two relative Stiefel–Whitney
-  (Evens–Kahn) identity over finite dyadic bases.
-* **B10** `tameQuotient` — the oriented tame quotient of `G_ℚ₂`.
-* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — the Hilbert-symbol norm criterion over
-  finite dyadic bases.
+* **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `GQ2/TauCeti/B1.lean`.
+* **B3c** `dyadicOrientation` — `GQ2/TauCeti/B3c.lean`.
+* **B5** `localReciprocity` — `GQ2/TauCeti/B5.lean`.
+* **B6** `tateDualityAt` — `GQ2/TauCeti/B6.lean`, `GQ2/TauCeti/DualizingGroup.lean`.
+* **B7** `Foundations.absGalQ2_localEulerCharacteristic` — `GQ2/TauCeti/B7.lean` (for `M : Type`),
+  transported here to `M : Type*` along a `Fin (Nat.card M)` copy of `M`.
+* **B8** `peripheralCyclotomicAction` — `GQ2/TauCeti/B8.lean`.
+* **B9** `relativeStiefelWhitney_dyadic` — `GQ2/TauCeti/B9.lean`,
+  `GQ2/TauCeti/StiefelWhitneyDict.lean`.
+* **B10** `tameQuotient` — `GQ2/TauCeti/B10.lean`.
+* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — `GQ2/TauCeti/B11a.lean`.
 
-Five interfaces that were formerly axioms are constructed in the repository under the same
-names: `HilbertSymbol.hilbertSymbol_dyadic`, `unramifiedQuadratic_units_are_norms`,
-`kummerClassK_surjective`, `dyadicUnitFiltration`, and `evensKahn_dyadic` (since 2026-07-24 a
-theorem derived from the current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a).
-They live in **`GQ2/Foundations/Interfaces.lean`** — together with the B6 base member
-`tateDuality` and the `HasEqualNormValueGroups` convention `def` — because their *proofs* are
-what used to pull the proof layer into this file's transitive imports.  Keeping their public
-names unchanged lets consumers use the proved implementations without an API migration.
+It also provides the `LiteratureInputs` instance `tauCetiLiteratureInputs :=
+TauCetiBridge.tauCetiInputs`, replacing the axiom-backed instance of the deleted
+`GQ2/Foundations/AxiomInstance.lean`; the legacy capstones (`GQ2.main_presentation_literal`, …)
+select it and so print exactly the standard three axioms (`scripts/check_axioms.sh` check 5,
+`GQ2/AxiomLedger.lean`).
 
-For review, the live leaves fall into three citation-faithfulness classes:
-
-* **direct classical theorems:** B1, B6, and B7;
-* **classical theorems with encoding choices:** B5, B9, and B10;
-* **composite project interfaces:** B3c, B8, and B11a.
-
-The declaration docstrings below give the precise statement, source citation, paper
-cross-reference, and any encoding or convention that prevents the Lean statement from being a
-verbatim transcription of one published theorem.  The full dependency table is in
-`docs/literature-axioms.md`, matching Appendix D of the paper.
+The declaration docstrings keep the literature citations and encoding notes of the former axioms:
+they now document which published theorem each Tau Ceti proof establishes.  The trust base is
+Lean's standard three axioms plus Tau Ceti's proofs (Tau Ceti enforces zero sorries and an axiom
+allowlist in its own CI); see `docs/literature-axioms.md`.
 
 References from the paper bibliography:
 
@@ -74,6 +67,64 @@ References from the paper bibliography:
 -/
 
 open GQ2.ContCoh
+
+namespace GQ2
+
+/-! ## B7 for every universe
+
+The Tau Ceti adapter `absGalQ2_localEulerCharacteristic_tauceti` covers `M : Type` (Tau Ceti's
+Euler-characteristic theorem is stated on `GalRep n F = TopRep.{0}`).  The legacy statement
+quantifies over `M : Type*`; a finite `M` is transported to a `Fin (Nat.card M)` copy carrying the
+transported module structure and the discrete topology, and `H⁰`, `H¹`, `H²` are carried back along
+`H0congr`/`H1congr`/`H2congr` (`GQ2/CupSymmetry.lean`). -/
+
+namespace TauCetiBridge
+
+/-- A structure-free copy of `Fin n` (`Fin n` carries its own modular `Add`, which would shadow the
+transported structure). -/
+private def FinCopy (n : ℕ) : Type := Fin n
+
+/-- **B7 at an arbitrary universe**, from the `Type`-level Tau Ceti adapter by transport along
+`Finite.equivFin`. -/
+theorem localEulerCharacteristic_of_type (M : Type*) [AddCommGroup M] [TopologicalSpace M]
+    [DiscreteTopology M] [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M] :
+    Finite (H0 AbsGalQ2 M) ∧ Finite (H1 AbsGalQ2 M) ∧ Finite (H2 AbsGalQ2 M) ∧
+      Nat.card (H1 AbsGalQ2 M)
+        = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M) := by
+  -- `e : F ≃ M` with `F = FinCopy (Nat.card M) : Type`; transport the structure of `M` to `F`
+  let e : FinCopy (Nat.card M) ≃ M := (Finite.equivFin M).symm
+  let : AddCommGroup (FinCopy (Nat.card M)) := e.addCommGroup
+  let : TopologicalSpace (FinCopy (Nat.card M)) := ⊥
+  have : DiscreteTopology (FinCopy (Nat.card M)) := ⟨rfl⟩
+  have : Finite (FinCopy (Nat.card M)) := inferInstanceAs (Finite (Fin _))
+  let eAdd : FinCopy (Nat.card M) ≃+ M := e.addEquiv
+  let : DistribMulAction AbsGalQ2 (FinCopy (Nat.card M)) := eAdd.distribMulAction AbsGalQ2
+  have hsmul : ∀ (g : AbsGalQ2) (m : FinCopy (Nat.card M)), g • m = eAdd.symm (g • eAdd m) :=
+    fun _ _ => rfl
+  have he : ∀ (g : AbsGalQ2) (m : FinCopy (Nat.card M)), eAdd (g • m) = g • eAdd m := fun g m => by
+    rw [hsmul, AddEquiv.apply_symm_apply]
+  have : ContinuousSMul AbsGalQ2 (FinCopy (Nat.card M)) := by
+    refine ⟨?_⟩
+    have : (fun p : AbsGalQ2 × FinCopy (Nat.card M) => p.1 • p.2)
+        = fun p => eAdd.symm (p.1 • eAdd p.2) := funext fun p => hsmul p.1 p.2
+    rw [this]
+    exact continuous_of_discreteTopology.comp
+      (continuous_smul.comp (continuous_fst.prodMk (continuous_of_discreteTopology.comp
+        continuous_snd)))
+  obtain ⟨h0, h1, h2, hcard⟩ := absGalQ2_localEulerCharacteristic_tauceti (FinCopy (Nat.card M))
+  let c0 := H0congr eAdd he
+  let c1 := H1congr eAdd he
+  let c2 := H2congr eAdd he
+  refine ⟨Finite.of_equiv _ c0.toEquiv, Finite.of_equiv _ c1.toEquiv,
+    Finite.of_equiv _ c2.toEquiv, ?_⟩
+  have hM : Nat.card (FinCopy (Nat.card M)) = Nat.card M := Nat.card_congr e
+  rw [hM] at hcard
+  rw [← Nat.card_congr c0.toEquiv, ← Nat.card_congr c1.toEquiv, ← Nat.card_congr c2.toEquiv]
+  exact hcard
+
+end TauCetiBridge
+
+end GQ2
 
 namespace GQ2.Foundations
 
@@ -93,9 +144,12 @@ PDFs; the audit copies are not vendored in this repository.
 
 This is a genuine, faithful Lean statement: it is exactly the topological-finite-generation
 predicate used throughout `Reconstruction.lean`.  Paper: Lemma 2.5 (the `hfgG` input to the
-reconstruction argument). -/
-axiom absGalQ2_isTopologicallyFinitelyGenerated :
-    ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤
+reconstruction argument).
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.absGalQ2_isTopologicallyFinitelyGenerated_tauceti` (`GQ2/TauCeti/B1.lean`). -/
+theorem absGalQ2_isTopologicallyFinitelyGenerated :
+    ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤ :=
+  TauCetiBridge.absGalQ2_isTopologicallyFinitelyGenerated_tauceti
 
 /-! ## B7 — the local Euler–Poincaré characteristic
 
@@ -113,12 +167,15 @@ Equivalently `χ := #H⁰ · #H² / #H¹ = ‖#M‖_{ℚ₂} = 2 ^ (−v₂(#M))
 Citation: **NSW [1], Ch. VII §7.3, Theorem (7.3.1) (Tate)** (`χ(k, A) = ‖#A‖_k`); Serre,
 *Galois Cohomology*, Ch. II §5.7 Theorem 5; Milne, *ADT* Thm I.2.8.  Paper: §9.2, eq. (145).
 See `GQ2/EulerCharacteristic.lean` for conventions and for the (retained-for-faithfulness)
-redundancy of the `H⁰`-finiteness clause. -/
-axiom absGalQ2_localEulerCharacteristic (M : Type*) [AddCommGroup M] [TopologicalSpace M]
+redundancy of the `H⁰`-finiteness clause.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.absGalQ2_localEulerCharacteristic_tauceti` (`GQ2/TauCeti/B7.lean`). -/
+theorem absGalQ2_localEulerCharacteristic (M : Type*) [AddCommGroup M] [TopologicalSpace M]
     [DiscreteTopology M] [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M] :
     Finite (H0 AbsGalQ2 M) ∧ Finite (H1 AbsGalQ2 M) ∧ Finite (H2 AbsGalQ2 M) ∧
       Nat.card (H1 AbsGalQ2 M)
-        = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M)
+        = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M) :=
+  TauCetiBridge.localEulerCharacteristic_of_type M
 
 end GQ2.Foundations
 
@@ -154,9 +211,12 @@ asserts exactly the interface the paper consumes.
 
 Citation: Labute [2], Théorème 4 case (2) and Théorème 8 (Canad. J. Math. 19 (1967), 106–132);
 dualizing character = cyclotomic through this quotient: NSW [1], Ch. VII §7.5, (7.5.11)–(7.5.12);
-Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B3/B3c. -/
-axiom dyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
-    DyadicOrientation
+Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B3/B3c.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.dyadicOrientation_tauceti` (`GQ2/TauCeti/B3c.lean`). -/
+noncomputable def dyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    DyadicOrientation :=
+  TauCetiBridge.dyadicOrientation_tauceti
 
 /-! ## B5 — the local reciprocity bundle
 
@@ -167,8 +227,11 @@ parametrized over an arbitrary bundle and are therefore axiom-free. -/
 /-- **The B5 axiom.** Local class field theory for `ℚ₂` provides the reciprocity bundle.
 
 Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII.  Paper: Lemma 3.5,
-eq. (13); Prop. 1.1. -/
-axiom localReciprocity : LocalReciprocity
+eq. (13); Prop. 1.1.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.localReciprocity_tauceti` (`GQ2/TauCeti/B5.lean`). -/
+noncomputable def localReciprocity : LocalReciprocity :=
+  TauCetiBridge.localReciprocity_tauceti
 
 /-! ## B6 — local Tate duality (per-`n` bundle, at every finite `k/ℚ₂`)
 
@@ -193,10 +256,13 @@ Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality, for a
 Serre, *Galois Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Induced mod-2 Hilbert-pairing
 nondegeneracy over `G_K`: FV Ch. IV §5 Prop (5.1)(6)/Cor./Thm (5.2), O'Meara
 ITQF 63:13.  Paper: §§5–8 (the `𝔽₂` dimension counts) and §6.3;
-`docs/literature-axioms.md` B6, `docs/orchestration/p15f7-axiom-proposal.md`. -/
-axiom tateDualityAt (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+`docs/literature-axioms.md` B6, `docs/orchestration/p15f7-axiom-proposal.md`.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.tateDualityAt_tauceti` (`GQ2/TauCeti/B6.lean`). -/
+noncomputable def tateDualityAt (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     (n : ℕ) [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)]
-    (hloc : IsLocalDualizingGroup G n) : TateDualityG G n
+    (hloc : IsLocalDualizingGroup G n) : TateDualityG G n :=
+  TauCetiBridge.tateDualityAt_tauceti G n hloc
 
 /-! ## B8 — the cyclotomic action on peripheral generators (Lemma 3.6)
 
@@ -221,8 +287,11 @@ B8 keeps the all-units form because that is the interface consumed by Lemma 3.6.
 
 Citation: **Stix [8], §3.3 + Definition 37** (cuspidal inertia acts through the cyclotomic
 character — the paper's exact citation) together with local cyclotomic surjectivity from B5;
-classical origin Deligne, MSRI 16 (1989).  Paper: Lemma 3.6.  `docs/literature-axioms.md` B8. -/
-axiom peripheralCyclotomicAction : PeripheralCyclotomicAction
+classical origin Deligne, MSRI 16 (1989).  Paper: Lemma 3.6.  `docs/literature-axioms.md` B8.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.peripheralCyclotomicAction_tauceti` (`GQ2/TauCeti/B8.lean`). -/
+noncomputable def peripheralCyclotomicAction : PeripheralCyclotomicAction :=
+  TauCetiBridge.peripheralCyclotomicAction_tauceti
 
 /-! ## B9 — the relative Stiefel–Whitney identity (paper eq. (111)), degrees ≤ 2
 
@@ -262,8 +331,10 @@ dyadic base.  Removed relative to the pre-flip axiom: the Lemma 6.16 diagonaliza
 Citation: Kahn, Invent. Math. 78 (1984), Théorème 2 (with Théorème 1); Kozlowski, Proc. AMS
 91 (1984), Thm 1.1; Evens, Trans. AMS 108 (1963), Thm 1.  Paper: §6, eq. (111),
 Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9; census swap user-approved 2026-07-24
-(`docs/orchestration/b9a-tickets.md`, T5 gate). -/
-axiom relativeStiefelWhitney_dyadic
+(`docs/orchestration/b9a-tickets.md`, T5 gate).
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.relativeStiefelWhitney_dyadic_tauceti` (`GQ2/TauCeti/B9.lean`). -/
+theorem relativeStiefelWhitney_dyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (d : (↥k)ˣ)
     (δ β : AlgebraicClosure ℚ_[2])
@@ -290,7 +361,9 @@ axiom relativeStiefelWhitney_dyadic
     ∧ (swTwo k htriv (traceFormTwisted k δ ↑a)
       = swTwo k htriv (traceFormOne k δ)
         + swOne k (traceFormOne k δ) ⌣[htriv] corH1 htriv hUo hidx hs α hα hαc
-        + evensNormH2 htriv hUo hidx hs α hα hαc)
+        + evensNormH2 htriv hUo hidx hs α hα hαc) :=
+  TauCetiBridge.relativeStiefelWhitney_dyadic_tauceti k d δ β hδ hdeg a hβ hβ0 hidx s hs
+    htriv hUo α hαdef hα hαc
 
 /-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
 
@@ -321,8 +394,11 @@ The orientation clauses are part of this interface because they cannot currently
 B5 alone without local ramification theory for `Field.absoluteGaloisGroup` in Mathlib.  Paper:
 Prop. 3.2 local side +
 Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").
-`docs/literature-axioms.md` B10. -/
-axiom tameQuotient : OrientedTameQuotient localReciprocity
+`docs/literature-axioms.md` B10.
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.tameQuotient_tauceti` (`GQ2/TauCeti/B10.lean`). -/
+noncomputable def tameQuotient : OrientedTameQuotient localReciprocity :=
+  TauCetiBridge.tameQuotient_tauceti
 
 /-! ## B11a — the dyadic norm criterion over finite bases
 
@@ -364,13 +440,23 @@ universal, so no non-square hypothesis is needed).
 Citation: Serre, *Local Fields* [7], Ch. XIV §2, Proposition 4(iii) (symbol vanishes iff the
 second entry is a norm), Proposition 5 (the symbol is the cup product), and Proposition 7(iii)
 (the multiplicative-root-of-unity form); over `ℚ_p` also CiA Ch. III §1.1 Prop. 1.
-Paper: §6.3 (norm-criterion input to the local square-class calculation). -/
-axiom hilbertSymbol_normCriterion_finiteDyadic
+Paper: §6.3 (norm-criterion input to the local square-class calculation).
+
+**Proved from Tau Ceti** (ticket C2; formerly an `axiom`): the body is `GQ2.TauCetiBridge.hilbertSymbol_normCriterion_finiteDyadic_tauceti` (`GQ2/TauCeti/B11a.lean`). -/
+theorem hilbertSymbol_normCriterion_finiteDyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     ∀ a b : (↥k)ˣ,
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0
-        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
+  TauCetiBridge.hilbertSymbol_normCriterion_finiteDyadic_tauceti k htriv
+
+/-! ## The `LiteratureInputs` instance -/
+
+/-- Importing this module selects the literature inputs proved from Tau Ceti
+(`GQ2/TauCeti/Instance.lean`).  It replaces the axiom-backed `axiomaticLiteratureInputs` of the
+deleted `GQ2/Foundations/AxiomInstance.lean`. -/
+noncomputable instance tauCetiLiteratureInputs : LiteratureInputs := TauCetiBridge.tauCetiInputs
 
 end GQ2
 

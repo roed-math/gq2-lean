@@ -11,8 +11,9 @@ import GQ2
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the nine literature axioms (`GQ2/Foundations/Axioms.lean`) to their
-B-labels, and reports:
+`Quot.sound`), maps the literature axioms (`bAxioms`; **empty since the Tau Ceti discharge, ticket
+C2, 2026-10-17**, when the nine former axioms became theorems proved from Tau Ceti and
+`GQ2/Foundations/Axioms.lean` was deleted) to their B-labels, and reports:
 
 * **legacy certificate** — which declarations consume each B-axiom.  With the compatibility
   instance, these uses are intentionally concentrated in the provider and legacy wrappers; field
@@ -29,8 +30,9 @@ B-labels, and reports:
 * **alarm** — any *other* non-standard axiom.  Must be empty: a stray `axiom`, a `native_decide`
   (`Lean.ofReduceBool`), or a miscounted census would surface here.
 * **terminal certificate** — the campaign capstones, *checked* rather than reported: each legacy
-  capstone is free of `sorryAx` and of any axiom outside the census and matches its Γ_A/Γ_R twin;
-  each explicit-input capstone uses only the standard three axioms.  Unlike the reports above, a
+  capstone is free of `sorryAx` and of any axiom outside the census (now: outside the standard
+  three) and matches its Γ_A/Γ_R twin; each explicit-input capstone and each Tau Ceti capstone
+  (`GQ2/TauCeti/Main.lean`) uses only the standard three axioms.  Unlike the reports above, a
   violation here fails the command.
 
 Unlike the textual guard `scripts/check_axioms.sh`, this walks the elaborated environment directly,
@@ -41,7 +43,7 @@ so it reports transitive dependencies and covers the whole library, including `p
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently nine) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently zero) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -49,19 +51,11 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The nine literature axioms and their B-labels; see `GQ2/Foundations/Axioms.lean` for their
-statements, citations, and encoding notes.  The quoted names make this file fail to compile if an
-axiom is renamed or removed, keeping the ledger synchronized with the declarations it audits. -/
-def bAxioms : List (Name × String) :=
-  [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
-  , (``GQ2.dyadicOrientation,                                     "B3c")
-  , (``GQ2.localReciprocity,                                      "B5")
-  , (``GQ2.tateDualityAt,                                         "B6")
-  , (``GQ2.Foundations.absGalQ2_localEulerCharacteristic,         "B7")
-  , (``GQ2.peripheralCyclotomicAction,                            "B8")
-  , (``GQ2.relativeStiefelWhitney_dyadic,                         "B9")
-  , (``GQ2.tameQuotient,                                          "B10")
-  , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a") ]
+/-- The literature axioms and their B-labels.  **Empty since ticket C2 (2026-10-17):** the nine
+former axioms (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) are theorems/definitions proved from Tau Ceti
+under their legacy names in `GQ2/Foundations/TauCetiInstance.lean`, so every consumer now reports
+at the standard three, and any reappearing non-standard axiom lands in the ALARM section below. -/
+def bAxioms : List (Name × String) := []
 
 /-- The three axioms every classical theorem is allowed to use. -/
 def stdAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]
@@ -170,9 +164,9 @@ Labute classification enters those capstones as an explicit binder, never as an 
 contributes nothing to an axiom print, so the two sides of each pair are directly comparable.  The
 fourth row carries no binder at all: `main_presentation_literal_roe_unconditional` is that
 hypothesis *discharged*, by the theorem `GQ2.Roe.Labute.bLab` (L6, 2026-07-26).  Since both legacy
-routes select the same axiom-backed `LiteratureInputs` provider, twin identity chiefly guards
-against a new off-census dependency in either wrapper; the explicit-input certificate below is the
-stronger check on the generic proof terms. -/
+routes select the same `LiteratureInputs` instance (proved from Tau Ceti since ticket C2), twin
+identity chiefly guards against a new off-census dependency in either wrapper; the explicit-input
+certificate below is the stronger check on the generic proof terms. -/
 def terminalPairs : List (Name × Name) :=
   [ (``GQ2.main_presentation_literal,         ``GQ2.main_presentation_literal_roe)
   , (``GQ2.SectionTen.eq_154,                 ``GQ2.eq_154_R)
@@ -228,10 +222,18 @@ run_cmd do
     let badMsg := String.intercalate "\n  " bad.toList
     throwError "terminal certificate FAILED:\n  {badMsg}"
 
+/-- The capstones instantiated at the Tau Ceti literature bundle (`GQ2/TauCeti/Main.lean`, ticket
+C1); like the explicit-input ones they must use only the standard three axioms. -/
+def tauCetiTerminals : List Name :=
+  [ ``GQ2.main_presentation_literal_tauceti
+  , ``GQ2.main_presentation_literal_roe_tauceti
+  , ``GQ2.main_surjection_count_tauceti
+  , ``GQ2.main_surjection_count_R_tauceti ]
+
 run_cmd do
   let env ← getEnv
   let mut bad : Array String := #[]
-  for n in explicitInputTerminals do
+  for n in explicitInputTerminals ++ tauCetiTerminals do
     unless env.contains n do
       bad := bad.push s!"unknown explicit-input declaration {n}"
       continue
@@ -239,7 +241,7 @@ run_cmd do
     for a in axs do
       unless stdAxioms.contains a do
         bad := bad.push s!"{n} uses non-standard axiom {a}"
-  IO.println s!"\n--- explicit-input certificate ---\n{explicitInputTerminals.length} capstones checked; {bad.size} violation(s) (must be 0)"
+  IO.println s!"\n--- explicit-input and Tau Ceti certificate ---\n{explicitInputTerminals.length + tauCetiTerminals.length} capstones checked; {bad.size} violation(s) (must be 0)"
   unless bad.isEmpty do
     let badMsg := String.intercalate "\n  " bad.toList
     throwError "explicit-input certificate FAILED:\n  {badMsg}"

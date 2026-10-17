@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Roe.MainWithInputs
-import GQ2.Foundations.AxiomInstance
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Legacy axiom-backed `Γ_R` capstones

@@ -3,15 +3,15 @@
 #
 # Checks 1-4 are textual and comment-aware; checks 5-6 walk elaborated environments
 # (run from anywhere):
-#   1. `axiom` declarations appear ONLY in GQ2/Foundations/Axioms.lean.
+#   1. No `axiom` declarations anywhere (census 0 since the Tau Ceti discharge, ticket C2,
+#      2026-10-17; until then they were confined to GQ2/Foundations/Axioms.lean).
 #   2. `sorry` appears nowhere (the allowlist is empty — the library is fully proved;
 #      re-add a file to SORRY_ALLOWLIST only for a deliberate, ticketed gap).
-#   3. The axiom census in Axioms.lean matches the expected count (bump EXPECTED_AXIOMS
-#      when a new B-leaf lands, in the same commit).
+#   3. The library-wide axiom census matches EXPECTED_AXIOMS (now 0).
 #   4. No `native_decide` anywhere (it would add `Lean.ofReduceBool` beyond the standard
 #      three axioms; the project convention is kernel-checked `decide` only).
 #   5. Terminal-theorem axiom audit: the legacy campaign capstones print EXACTLY the standard
-#      three plus the frozen literature census, and each Γ_R capstone prints identically
+#      three (the literature census is now empty), and each Γ_R capstone prints identically
 #      to its Γ_A twin.  Needs a built library; skips with a notice otherwise.
 #   6. Explicit-hypothesis audit: the Palomar import closure contains none of the nine legacy
 #      axiom declarations, and both solutions use only the standard three axioms.
@@ -29,8 +29,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=9  # B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24)
+EXPECTED_AXIOMS=0  # census 9→0: the nine literature inputs are proved from Tau Ceti (GQ2/TauCeti/, legacy names kept as theorems/defs in GQ2/Foundations/TauCetiInstance.lean) and GQ2/Foundations/Axioms.lean is deleted: Tau Ceti discharge campaign ticket C2, owner gate G1 approved 2026-10-17, docs/orchestration/tauceti-tickets.md.  Earlier history: B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24)
 # Emptied 2026-07-08 (library fully sorry-free; last leaves GammaA/FoxHeisenberg/SectionSeven
 # discharged); held the four GQ2/Roe/Labute/ skeletons while the L-campaign was in flight
 # (R40, 2026-07-25) and RE-EMPTIED at L6 (2026-07-26) when the Labute classification instance
@@ -39,20 +38,11 @@ EXPECTED_AXIOMS=9  # B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-
 SORRY_ALLOWLIST=''
 
 # -- check 5 configuration ---------------------------------------------------
-# The exact axiom set every audited capstone must print: the standard three plus the frozen
-# census of EXPECTED_AXIOMS literature axioms (GQ2/Foundations/Axioms.lean).  Order is
-# irrelevant — both sides are sorted before comparison — but membership is exact, so a
-# `sorryAx`, a stray axiom, or a dropped B-leaf all show up as a diff.
-AUDIT_EXPECTED_AXIOMS='propext Classical.choice Quot.sound
-GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated
-GQ2.Foundations.absGalQ2_localEulerCharacteristic
-GQ2.dyadicOrientation
-GQ2.localReciprocity
-GQ2.tateDualityAt
-GQ2.peripheralCyclotomicAction
-GQ2.relativeStiefelWhitney_dyadic
-GQ2.tameQuotient
-GQ2.hilbertSymbol_normCriterion_finiteDyadic'
+# The exact axiom set every audited capstone must print.  Until ticket C2 this was the standard
+# three plus the nine literature axioms of GQ2/Foundations/Axioms.lean; since the census flip it is
+# the standard three alone.  Order is irrelevant — both sides are sorted before comparison — but
+# membership is exact, so a `sorryAx` or a stray axiom shows up as a diff.
+AUDIT_EXPECTED_AXIOMS='propext Classical.choice Quot.sound'
 
 # Declarations whose axiom set must equal AUDIT_EXPECTED_AXIOMS exactly, one per line.
 # The Γ_R capstones (R32) are hypothesis-parametrized by `BLabHypothesis`; a hypothesis binder
@@ -75,8 +65,8 @@ GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 
 # Declarations whose axiom set must be exactly the standard three, one per line: the capstones
 # instantiated at the Tau Ceti literature bundle (GQ2/TauCeti/Main.lean), whose nine inputs are
-# proved from Tau Ceti rather than assumed.  They carry no literature axiom even while the census
-# above is still 9 (the axioms remain only for the legacy capstones until ticket C2).
+# proved from Tau Ceti rather than assumed.  (Since ticket C2 the legacy capstones print the same
+# set; these four names keep the Tau Ceti route audited independently of the instance selection.)
 AUDIT_STD3_EXPECTED='propext Classical.choice Quot.sound'
 AUDIT_STD3_DECLS='GQ2.main_presentation_literal_tauceti
 GQ2.main_presentation_literal_roe_tauceti
@@ -164,7 +154,6 @@ while IFS= read -r rec; do
   if is_tracked "$f"; then tracked=1; else tracked=0; fi
   case "$tag" in
     AX)
-      if [ "$f" = "$AXIOMS_FILE" ]; then continue; fi
       if [ "$tracked" -eq 1 ]; then stray_axioms+="$hit"$'\n'; else warn_axioms+="$hit"$'\n'; fi
       ;;
     SORRY)
@@ -183,11 +172,11 @@ EOF
 
 # -- 1. axiom placement ------------------------------------------------------
 if [ -n "${stray_axioms//$'\n'/}" ]; then
-  echo "FAIL: axiom declarations outside ${AXIOMS_FILE}:"
+  echo "FAIL: axiom declarations in the library (the census is ${EXPECTED_AXIOMS}; none is allowed):"
   printf '%s' "$stray_axioms"
   fail=1
 else
-  echo "OK:   all axiom declarations live in ${AXIOMS_FILE}"
+  echo "OK:   no axiom declarations in the library"
 fi
 
 # -- 2. sorry allowlist ------------------------------------------------------
@@ -201,11 +190,9 @@ else
 fi
 
 # -- 3. axiom census ---------------------------------------------------------
-count=$(strip_comments "$AXIOMS_FILE" | grep -cE '^[[:space:]]*axiom[[:space:]]' || true)
+count=$(printf '%s' "$stray_axioms" | sed '/^$/d' | wc -l | tr -d ' ')
 if [ "$count" -ne "$EXPECTED_AXIOMS" ]; then
-  echo "FAIL: ${AXIOMS_FILE} declares ${count} axioms, expected ${EXPECTED_AXIOMS}."
-  echo "      If a new B-leaf landed intentionally, bump EXPECTED_AXIOMS in this script"
-  echo "      (same commit) and record the leaf in docs/literature-axioms.md."
+  echo "FAIL: the library declares ${count} axioms, expected ${EXPECTED_AXIOMS}."
   fail=1
 else
   echo "OK:   axiom census: ${count} (= expected)"
@@ -323,7 +310,7 @@ EOF
 
   if [ "$audit_ok" -eq 1 ]; then
     echo "OK:   terminal-theorem axiom audit: ${audited} capstone(s) at the expected census set"
-    echo "      (std-3 + ${EXPECTED_AXIOMS} literature axioms, no sorryAx), ${paired} twin pair(s) identical,"
+    echo "      (std-3, census ${EXPECTED_AXIOMS}, no sorryAx), ${paired} twin pair(s) identical,"
     echo "      ${std3} Tau Ceti capstone(s) at exactly the standard three"
   else
     fail=1

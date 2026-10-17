@@ -17,11 +17,12 @@ public import GQ2.EvensKahnDerived
 @[expose] public section
 
 /-!
-# Discharged and derived interfaces over the literature axioms
+# Discharged and derived interfaces over the literature inputs
 
-Companion to `GQ2/Foundations/Axioms.lean` — the census file, which since 2026-07-27 contains
-the nine `axiom` declarations and nothing else.  This file hosts the *derived* layer that
-shares the axioms' public interface:
+Companion to `GQ2/Foundations/TauCetiInstance.lean`, which holds the nine literature inputs under
+their legacy names — `axiom` declarations in `GQ2/Foundations/Axioms.lean` until the Tau Ceti
+discharge (ticket C2, 2026-10-17), theorems/definitions proved from Tau Ceti since.  This file hosts
+the *derived* layer that shares their public interface, over the generic `LiteratureInputs`:
 
 * the formerly-axiom interfaces discharged by in-repository proofs, under their original
   names — `HilbertSymbol.hilbertSymbol_dyadic` (B7′), `unramifiedQuadratic_units_are_norms`
@@ -32,12 +33,10 @@ shares the axioms' public interface:
 * the `HasEqualNormValueGroups` convention `def`, its negative stress test, and the combined
   `dyadicNormCriterion`.
 
-Every name is unchanged from when these declarations lived in `Axioms.lean`, so consumers
-needed no migration; importers of the old combined file now import this one (a strict API
-superset, since `GQ2.Foundations.Axioms` is a `public import` above).  The split exists for
-auditability: the *proofs* collected here are what pulled the proof layer into the axiom
-file's transitive imports, and after the split the axiom file's import closure is its
-statement vocabulary only.  Census history and citations remain with the axioms and in
+Every name is unchanged from when these declarations lived in the former `Axioms.lean`, so
+consumers needed no migration.  The 2026-07-27 split from that file existed for auditability (it
+kept the axiom file's import closure to its statement vocabulary); since ticket C2 there is no axiom
+file.  Census history and citations are in `GQ2/Foundations/TauCetiInstance.lean` and
 `docs/literature-axioms.md`.
 -/
 
@@ -91,8 +90,9 @@ noncomputable def tateDuality [lit : LiteratureInputs] (n : ℕ) [NeZero n] : Ta
 
 /-! ## The B11 convention layer and the discharged B11b
 
-The full B11 conventions and citations are with the B11a axiom in
-`GQ2/Foundations/Axioms.lean`; this section holds the pieces that are not axioms. -/
+The full B11 conventions and citations are with B11a in
+`GQ2/Foundations/TauCetiInstance.lean` (an axiom until ticket C2); this section holds the derived
+pieces. -/
 
 /-- **Equal norm value groups for `k(δa)/k` — the project's unramifiedness criterion.**  Every
 nonzero `z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k`,

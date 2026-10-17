@@ -16,13 +16,16 @@ Instantiating them at `GQ2.TauCetiBridge.tauCetiInputs` (`GQ2/TauCeti/Instance.l
 input is proved from Tau Ceti, gives the four capstones below with no literature hypothesis and no
 literature axiom: each prints exactly `propext`, `Classical.choice`, `Quot.sound`
 (`GQ2/TauCetiAxiomAudit.lean`, `scripts/check_axioms.sh` check 5). Their statements are those of
-the legacy axiom-backed capstones `GQ2.main_presentation_literal`,
+the legacy capstones `GQ2.main_presentation_literal`,
 `GQ2.main_presentation_literal_roe_unconditional`, `GQ2.SectionTen.main_surjection_count'` and
 `GQ2.main_surjection_count_R` (the last with its Labute hypothesis discharged by
-`GQ2.Roe.Labute.bLab`, as in `main_presentation_literal_roe_unconditional`).
+`GQ2.Roe.Labute.bLab`, as in `main_presentation_literal_roe_unconditional`). Since ticket C2 the
+legacy capstones select the same bundle through the instance of
+`GQ2/Foundations/TauCetiInstance.lean`; these four keep the Tau Ceti route independent of instance
+selection and of the legacy names.
 
 This file uses plain imports because the capstone files it instantiates are not `module` files.
-It imports neither `GQ2.Foundations.Axioms` nor `GQ2.Foundations.AxiomInstance`.
+It does not import `GQ2.Foundations.TauCetiInstance` (the legacy-name layer).
 -/
 
 namespace GQ2
