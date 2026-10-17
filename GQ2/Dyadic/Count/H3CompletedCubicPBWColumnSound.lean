@@ -187,7 +187,9 @@ theorem sqCompletedQuadraticNormalEval_leftXWord_sub_mem (h : ℕ)
   rcases w with ⟨l, hl⟩
   induction l with
   | nil =>
-      rw [sqNormalLeftXWord_nil, sqCompletedQuadraticNormalEval_single]
+      rw [sqNormalLeftXWord_nil]
+      refine (congrArg (fun z => z - _ ∈ _)
+        (sqCompletedQuadraticNormalEval_single h _ 1)).mpr ?_
       simp [quadraticWordEval]
   | cons a l ih =>
       by_cases ha : a = 0
@@ -255,8 +257,9 @@ theorem sqCompletedQuadraticNormalEval_leftXWord_sub_mem (h : ℕ)
             (sqCompletedGeneratorDifference h a *
               quadraticWordEval (ModTwoCompletedGroupAlgebra (DSq h : Type))
                 (sqCompletedGeneratorDifference h) l) ∈ _
-        rw [sqNormalLeftXList.eq_2, dif_neg ha,
-          sqCompletedQuadraticNormalEval_single, one_smul]
+        rw [sqNormalLeftXList.eq_2, dif_neg ha]
+        refine (congrArg (fun z => z - _ ∈ _)
+          ((sqCompletedQuadraticNormalEval_single h _ 1).trans (one_smul _ _))).mpr ?_
         simp only [quadraticWordEval, List.map_cons, List.prod_cons]
         rw [sub_self]
         exact Ideal.zero_mem _
