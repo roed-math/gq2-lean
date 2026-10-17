@@ -102,17 +102,17 @@ theorem modTwoGroupAlgebra_sub_augmentation_mem_marked
         (modTwoFiniteAugmentation Q x) ∈
       modTwoMarkedAugmentationIdeal m := by
   induction x using MonoidAlgebra.induction_on with
-  | hM q =>
+  | of q =>
       have haug : modTwoFiniteAugmentation Q
           (MonoidAlgebra.of (ZMod 2) Q q) = 1 := by
         simp [modTwoFiniteAugmentation]
       rw [haug, map_one]
       exact modTwoGroupDifference_mem_markedAugmentationIdeal m hgen q
-  | hadd x y hx hy =>
+  | add x y hx hy =>
       simp only [map_add]
       convert (modTwoMarkedAugmentationIdeal m).add_mem hx hy using 1
       abel
-  | hsmul a x hx =>
+  | smul a x hx =>
       simp only [map_smul]
       have hm := (modTwoMarkedAugmentationIdeal m).mul_mem_left
         (algebraMap (ZMod 2) (MonoidAlgebra (ZMod 2) Q) a) hx
@@ -154,9 +154,9 @@ theorem modTwoFiniteAugmentation_transition
         (modTwoGroupAlgebraTransition G hUV z) =
       modTwoFiniteAugmentation (G ⧸ U.toSubgroup) z := by
   induction z using MonoidAlgebra.induction_on with
-  | hM q => simp
-  | hadd z w hz hw => simp only [map_add, hz, hw]
-  | hsmul a z hz => simp only [map_smul, hz]
+  | of q => simp
+  | add z w hz hw => simp only [map_add, hz, hw]
+  | smul a z hz => simp only [map_smul, hz]
 
 /-- All finite coordinates of a completed element have the same augmentation. -/
 theorem modTwoCompletedAugmentationCoordinate_eq
@@ -250,7 +250,8 @@ instance sqCompletedAugmentationCoefficientFiber_finite
     Finite (SqCompletedAugmentationCoefficientFiber h x U) := by
   letI : Fintype ((DSq h : Type) ⧸ U.toSubgroup) := Fintype.ofFinite _
   letI : DecidableEq ((DSq h : Type) ⧸ U.toSubgroup) := Classical.decEq _
-  letI : Fintype (ModTwoGroupAlgebraLevel (DSq h : Type) U) := Finsupp.fintype
+  letI : Fintype (ModTwoGroupAlgebraLevel (DSq h : Type) U) :=
+    Fintype.ofEquiv _ MonoidAlgebra.coeffEquiv.symm
   exact Finite.of_injective Subtype.val Subtype.val_injective
 
 /-- Augmentation zero at one coordinate makes every finite affine solution fiber nonempty. -/
