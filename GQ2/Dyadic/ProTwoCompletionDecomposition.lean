@@ -112,9 +112,9 @@ def proTwoCompletionMultiplicativeIntEquivPadic :
 theorem isMulTorsionFree_proTwoCompletion_multiplicativeInt :
     IsMulTorsionFree (proPCompletion 2 (Multiplicative ℤ)) := by
   constructor
-  intro n hn x y hxy
+  intro n hn x y _ hxy
   apply (proTwoCompletionMultiplicativeIntEquivPadic).injective
-  apply IsMulTorsionFree.pow_left_injective hn
+  apply (Commute.all _ _).eq_of_pow_eq_pow hn
   simpa only [map_pow] using congrArg proTwoCompletionMultiplicativeIntEquivPadic hxy
 
 /-- A torsion point in `(K×)^(2)` has trivial valuation coordinate. -/
@@ -124,7 +124,7 @@ theorem proTwoCompletionUnitsEquiv_snd_eq_one_of_isOfFinOrder
   rw [isOfFinOrder_iff_pow_eq_one] at hx
   obtain ⟨n, hn, hxn⟩ := hx
   letI := isMulTorsionFree_proTwoCompletion_multiplicativeInt
-  apply IsMulTorsionFree.pow_left_injective (Nat.ne_of_gt hn)
+  apply (Commute.one_right _).eq_of_pow_eq_pow (Nat.ne_of_gt hn)
   have hmap := congrArg Prod.snd
     (map_pow (proTwoCompletionUnitsEquiv (K := K)) x n)
   change (proTwoCompletionUnitsEquiv (K := K) (x ^ n)).2 =

@@ -606,6 +606,7 @@ end Phi
 
 /-! ## §7 The deliverable, the sharp `α`-boundary, and the unlocks -/
 
+set_option synthInstance.maxSize 256 in
 /-- **The coordinate isomorphism** `φ_N : D_N^{ab} ≃ₜ* ℤ/2 × ℤ₂³ × ℤ₂^{2h}`, the `N` twin of
 `mFrameExists_phiEquiv`. -/
 noncomputable def nFrameExists_phiEquiv {α : ℕ} (hα : 2 ≤ α) (h : ℕ) :

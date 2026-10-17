@@ -40,6 +40,7 @@ theorem nFullFrameStageSet_antitone {alpha h : ℕ} (ha : 2 ≤ alpha)
   exact ⟨hm.1, hm.2.1, hm.2.2.1,
     twoCentralSeries_antitone (G := (DN alpha h : Type)) hkl hm.2.2.2⟩
 
+set_option synthInstance.maxSize 256 in
 theorem isClosed_nFullFrameStageSet {alpha h : ℕ} (ha : 2 ≤ alpha)
     (mark : Fin (coreRank h) → NFrameModel h) (k : ℕ) :
     IsClosed (nFullFrameStageSet ha mark k) := by

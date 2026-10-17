@@ -150,8 +150,8 @@ def dnCharacterEquivFun (α h : ℕ) (hα : 1 ≤ α) :
   toFun f i := f (dnGen α h i)
   invFun m :=
     nLiftHom α h isProPTwo_multiplicativeZModTwo m ((markedRelator_DN α h hα).frattini m)
-  left_inv f := dn_hom_ext _ _ fun i => by simp
-  right_inv m := funext fun i => by simp
+  left_inv f := dn_hom_ext _ _ fun i => nLiftHom_gen _ _ _ _ _ _
+  right_inv m := funext fun i => nLiftHom_gen _ _ _ _ _ _
 
 /-- The mod-two character with prescribed values on the `N_α` generators. -/
 def dnCoordinateCharacter (α h : ℕ) (hα : 1 ≤ α) (v : Fin (coreRank h) → ZMod 2) :
@@ -236,8 +236,8 @@ def dmCharacterEquivFun (α h : ℕ) (hα : 1 ≤ α) :
   toFun f i := f (dmGen α h i)
   invFun m :=
     mLiftHom α h isProPTwo_multiplicativeZModTwo m ((markedRelator_DM α h hα).frattini m)
-  left_inv f := dm_hom_ext _ _ fun i => by simp
-  right_inv m := funext fun i => by simp
+  left_inv f := dm_hom_ext _ _ fun i => mLiftHom_gen _ _ _ _ _ _
+  right_inv m := funext fun i => mLiftHom_gen _ _ _ _ _ _
 
 /-- The mod-two character with prescribed values on the `M_α` generators. -/
 def dmCoordinateCharacter (α h : ℕ) (hα : 1 ≤ α) (v : Fin (coreRank h) → ZMod 2) :

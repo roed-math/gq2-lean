@@ -514,10 +514,12 @@ def nSigmaIdx (h : ℕ) : Fin (coreRank h) := ⟨2, by simp only [coreRank]; ome
 @[simp] theorem nIdx_nWildIdx (h : ℕ) (j : Fin (2 + 2 * h + 1)) :
     nIdx h (nWildIdx h j) = .wild j := by
   have hj := j.isLt
-  simp only [nIdx, nWildIdx]
-  rw [if_neg (by split <;> omega)]
+  have h2 : ((nWildIdx h j : Fin (coreRank h)) : ℕ) ≠ 2 := by
+    simp only [nWildIdx]; split <;> omega
+  simp only [nIdx]
+  rw [if_neg h2]
   congr 1
-  exact Fin.ext (by simp only; split_ifs <;> omega)
+  exact Fin.ext (by simp only [nWildIdx]; split_ifs <;> omega)
 
 /-- **The compact-`N` dictionary.** -/
 noncomputable def nReindex (h : ℕ) : CoreReindex (2 + 2 * h) (Fin (coreRank h)) where

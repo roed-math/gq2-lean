@@ -224,6 +224,7 @@ def mStageFrameHom {alpha : ℕ} (ha : 1 ≤ alpha) (h : ℕ) :
 theorem mStageFrameHom_apply {alpha : ℕ} (ha : 1 ≤ alpha) (h : ℕ) (x : DM alpha h) :
     mStageFrameHom ha h x = mPhiHom ha h (abMk x) := rfl
 
+set_option synthInstance.maxSize 256 in
 /-- **Full M-frame stabilizer lifting over the three named interfaces.** The
 hypotheses are exactly the sibling obligations, named here so that the
 composition was settled in advance of their producers. Each of them is now
