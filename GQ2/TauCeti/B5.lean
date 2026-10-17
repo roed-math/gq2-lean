@@ -14,6 +14,7 @@ public import TauCeti.NumberTheory.LocalField.Unramified.Coordinate
 public import TauCeti.NumberTheory.LocalField.Padic
 public import TauCeti.Topology.Algebra.Group.Profinite.ZHat.Component
 public import GQ2.Reciprocity
+public import GQ2.TauCeti.GaloisDict
 
 @[expose] public section
 
@@ -208,12 +209,6 @@ theorem v2_uniformizer : v2 uniformizer = 1 := by
   simp [v2, uniformizer]
 
 /-! ## The cyclotomic clauses -/
-
-/-- gq2's `chiCyc` (Mathlib's `cyclotomicCharacter` on `ℚ̄₂`) is Tau Ceti's
-`localCyclotomicCharacter 2 ℚ_[2]`, pointwise. -/
-theorem chiCyc_eq_localCyclotomicCharacter (g : AbsGalQ2) :
-    chiCyc g = TauCeti.localCyclotomicCharacter 2 ℚ_[2] g :=
-  (TauCeti.localCyclotomicCharacter_apply 2 ℚ_[2] g).symm
 
 /-- **Clause (c), units**, for `recip = artinMap ℚ_[2]`: `χ_cyc(rec u) = u⁻¹` for `u ∈ ℤ₂ˣ`. -/
 theorem chiCycAb_artinMap_unitEmbed (u : ℤ_[2]ˣ) :
