@@ -198,13 +198,19 @@ private def refMark (h : ℕ) (j : Fin h) (a b : DihedralGroup 4) :
 private theorem refMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     refMark h j a b (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [refMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [refMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 private theorem refMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     refMark h j a b (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [refMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [refMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- Every handle but the `j`-th contributes nothing. -/
@@ -765,13 +771,19 @@ private def uvMark (h : ℕ) (j : Fin h) : Fin (sqRank h) → DihedralGroup 8 :=
 private theorem uvMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     uvMark h j (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [uvMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [uvMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 private theorem uvMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     uvMark h j (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [uvMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [uvMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- **The `D₈` marking kills the relator**: `sqWord (r 1) 1 (r 2) = r 4` and `[sr 0, sr 2] = r 4`

@@ -469,13 +469,19 @@ noncomputable def sqArbFrame (a : Fin (sqRank h) → (DSq h : Type)) :
 theorem sqArbBase_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     sqArbBase h nu' j (sqHandleIdxU j') = sqGen h (sqHandleIdxU j') := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [sqArbBase, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqArbBase]
   rw [if_neg (by omega), if_neg (by omega)]
 
 theorem sqArbBase_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     sqArbBase h nu' j (sqHandleIdxV j') = sqGen h (sqHandleIdxV j') := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [sqArbBase, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqArbBase]
   rw [if_neg (by omega), if_neg (by omega)]
 
 /-- The undressed frame carries the standard `λ`-row: both cleared letters are `λ`-trivial, as
