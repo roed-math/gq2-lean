@@ -581,6 +581,7 @@ end Phi
 
 /-! ## §7 The frame, its existence, and the `q`-invariant -/
 
+set_option synthInstance.maxSize 256 in
 /-- **The `α = 1` coordinate isomorphism** `φ_N^{(4)} : D_N^{ab} ≃ₜ* ℤ/4 × ℤ₂³ × ℤ₂^{2h}`. -/
 noncomputable def nFrame4Exists_phiEquiv (h : ℕ) :
     ContinuousMulEquiv (topAbelianization (DN 1 h : Type)) (NFrameModel4 h) :=

@@ -357,7 +357,7 @@ theorem z_eq_of_restriction_eq (D : MuNFiniteDescentData K z)
       D.layer.L.fixingSubgroup := by
     letI := D.layer.normal
     rw [← D.layer.L.restrictNormalHom_ker]
-    simpa [restriction] using hker
+    exact hker
   have hU : g⁻¹ * h ∈ D.U := by
     simpa using D.ambient_mem_U_of_mem_fixingSubgroup hfix
   have hcross := (mem_Z1_iff.mp z.2).2 g (g⁻¹ * h)

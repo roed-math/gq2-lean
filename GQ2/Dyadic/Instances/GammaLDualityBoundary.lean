@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Codex
 -/
 import GQ2.Dyadic.Instances.LExact
 import GQ2.Dyadic.LiftingDualityG
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The truth-side boundary for Euler characteristic and Tate duality on `GammaL`

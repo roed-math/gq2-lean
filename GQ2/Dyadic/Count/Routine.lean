@@ -303,10 +303,10 @@ theorem oddBase_tameRelatorGen (n q : ℕ) :
     (oddBase n).hom.toMonoidHom (tameRelatorGen n q) = 1 := by
   simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, oddBase_of, oddMarking_sigma,
     oddMarking_tau]
-  -- `group` normalizes at the `ProfiniteGrp`-carrier instance, where `simp`'s `one_pow` does not
-  -- match; it leaves the single `zpow` obligation.
-  group
-  exact one_zpow _
+  -- The goal mixes the `ProfiniteGrp`-carrier and `ZmodThree` instances, where `simp`'s `one_pow`
+  -- does not match; state it at `ZmodThree` and close it by defeq.
+  have h : (1 : ZmodThree)⁻¹ * 1 * 1 * ((1 : ZmodThree) ^ q)⁻¹ = 1 := by simp
+  exact h
 
 /-- **The odd quotient of `Γ_1^bare`.**  `σ, τ ↦ 1` and `x_i ↦ 1 ∈ ℤ/3`: the tame relator dies
 because `τ ↦ 1`, and the wild relator is the empty word.
@@ -318,8 +318,8 @@ noncomputable def oddHom (n q : ℕ) :
   presentationLift (gammaRelators n q .one) (oddBase n).hom <| by
     rintro r (rfl | rfl)
     · exact oddBase_tameRelatorGen n q
-    · rw [show (freeMarking n).eval (PWord.one : PWord (Generator n)) = 1 from Marking.eval_one _,
-        map_one]
+    · rw [show (freeMarking n).eval (PWord.one : PWord (Generator n)) = 1 from Marking.eval_one _]
+      exact map_one (oddBase n).hom
 
 /-- A generator of `ℤ/3` has order `3` — kernel `decide` on a three-element group. -/
 theorem orderOf_ofAdd_one_zmodThree : orderOf (Multiplicative.ofAdd (1 : ZMod 3)) = 3 := by

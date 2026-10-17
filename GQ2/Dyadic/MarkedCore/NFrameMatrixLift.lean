@@ -131,6 +131,7 @@ theorem nFrameLiftHom_projection_gen {α : ℕ} (ha : 2 ≤ α) (h : ℕ)
   rw [freeTwoMatrixHom_gen, freeNAbProjection_coordinateWord]
   exact nPhiHom_coordinateSection ha h _
 
+set_option synthInstance.maxSize 256 in
 theorem nFrameLiftHom_projection {α : ℕ} (ha : 2 ≤ α) (h : ℕ)
     (φ : ContinuousMulEquiv (NFrameModel h) (NFrameModel h))
     (x : FreeTwoRank (coreRank h)) :
@@ -268,7 +269,7 @@ def nFrameLiftInverseMatrix {α : ℕ} (ha : 2 ≤ α) (h : ℕ)
 theorem nFrameLiftMatrix_mul_inverse {α : ℕ} (ha : 2 ≤ α) (h : ℕ)
     (φ : ContinuousMulEquiv (NFrameModel h) (NFrameModel h)) :
     nFrameLiftMatrix ha h φ * nFrameLiftInverseMatrix ha h φ = 1 := by
-  ext j i
+  refine Matrix.ext fun j i => ?_
   have hc := freeTwoMatrixHom_coordinate (coreRank h) (nFrameLiftMatrix ha h φ)
     ((nFrameLiftEquiv ha h φ).symm (freeTwoRankGen (coreRank h) i)) j
   change toAdd (freeTwoCoordinate (coreRank h) j

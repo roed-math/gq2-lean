@@ -71,7 +71,7 @@ theorem localEulerChar_galK_of_finrank {n : ℕ}
     LiftingDualityG.LocalEulerChar (GalK K) n := by
   have h := LiftingDualityG.localEulerChar_galK K
   have hidx : (GalKsub K).index = n :=
-    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm.trans hdeg
+    (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm.trans hdeg
   rwa [hidx] at h
 
 /-- **The complete Stokes-duality certificate at `G_K`.**

@@ -74,7 +74,7 @@ theorem heisD1_zmod2_apply_eq_eps (c : iota → C) (w : rel → FreeGroup iota)
         ∑ i, Multiplicative.toAdd (heisEps i r) * x i := by
     intro r
     induction r using FreeGroup.induction_on with
-    | C1 => simp [heisEps]
+    | one => simp [heisEps]
     | of j => simp [FreeGroup.lift_apply_of, heisEps]
     | inv_of r ih =>
         rw [map_inv, HeisLift.inv_a, heisWord_g, ih, smul_zmod2]

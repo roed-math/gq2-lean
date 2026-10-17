@@ -516,6 +516,7 @@ theorem mFrameModel_isProP {α : ℕ} (hα : 2 ≤ α) (h : ℕ) : IsProP 2 (MFr
   isProP_of_surjective (mPhiHom (mStageOneLe hα) h) (continuous_mPhiHom _ h)
     (mPhiHom_surjective _ h) (mIsProP_two_topAb_DM α h)
 
+set_option synthInstance.maxSize 256 in
 /-- The frame projection of an arbitrary free element in the original coordinates. -/
 theorem mFrameProjection_coordinate {α : ℕ} (hα : 2 ≤ α) (h : ℕ) (x : FreeTwoRank (coreRank h)) :
     mFrameProjection hα h x =
@@ -746,6 +747,7 @@ theorem mFrameLiftHom_projection_gen (i : Fin (coreRank h)) :
     rw [← ht, ← hA, map_mul, map_pow, mul_inv_cancel_right]
   · rw [mFrameLiftHom_gen_of_ne hα h φ hi, mFrameProjection_liftWord]
 
+set_option synthInstance.maxSize 256 in
 theorem mFrameLiftHom_projection (x : FreeTwoRank (coreRank h)) :
     mFrameProjection hα h (mFrameLiftHom hα h φ x) = φ (mFrameProjection hα h x) := by
   have he : (mFrameProjection hα h).comp (mFrameLiftHom hα h φ) =
