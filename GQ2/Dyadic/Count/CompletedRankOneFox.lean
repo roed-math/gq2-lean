@@ -85,7 +85,7 @@ theorem regularUnitGroupAlgebraEquiv_symm_single
 @[simp]
 theorem regularUnitGroupAlgebraEquiv_apply
     (Q : Type) [Group Q] (c : RegularModTwoRelationModule Q Unit) (q : Q) :
-    regularUnitGroupAlgebraEquiv Q c q = c (q, ()) :=
+    (regularUnitGroupAlgebraEquiv Q c).coeff q = c (q, ()) :=
   rfl
 
 variable (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
@@ -218,7 +218,7 @@ theorem regularModTwoComponent_single
 @[simp]
 theorem regularModTwoComponent_apply
     (j : J) (c : RegularModTwoRelationModule Q J) (q : Q) :
-    regularModTwoComponent (Q := Q) j c q = c (q, j) := by
+    (regularModTwoComponent (Q := Q) j c).coeff q = c (q, j) := by
   classical
   induction c using Finsupp.induction with
   | zero => rfl
@@ -355,12 +355,12 @@ theorem ModTwoCompletedRegularModule.component_jointly_injective
   rcases p with ⟨q, j⟩
   have h := congrArg
     (fun a : ModTwoCompletedGroupAlgebra G =>
-      ModTwoCompletedGroupAlgebra.coordinate G U a q)
+      (ModTwoCompletedGroupAlgebra.coordinate G U a).coeff q)
     (congrFun hxy j)
-  change regularModTwoComponent j
-      (ModTwoCompletedRegularModule.coordinate G J U x) q =
-    regularModTwoComponent j
-      (ModTwoCompletedRegularModule.coordinate G J U y) q at h
+  change (regularModTwoComponent j
+      (ModTwoCompletedRegularModule.coordinate G J U x)).coeff q =
+    (regularModTwoComponent j
+      (ModTwoCompletedRegularModule.coordinate G J U y)).coeff q at h
   simpa only [regularModTwoComponent_apply] using h
 
 /-- Component extraction is equivariant for the completed regular actions. -/

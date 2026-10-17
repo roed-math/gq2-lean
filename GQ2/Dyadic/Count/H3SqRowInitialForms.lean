@@ -266,7 +266,7 @@ def sqFreeMagnusLinearInitial (h : ℕ) (i : Fin (sqRank h)) :
 /-- The free-Magnus row represents exactly the formal coefficient table above. -/
 theorem sqFreeMagnusLinearInitial_coefficient (h : ℕ)
     (i a : Fin (sqRank h)) :
-    sqFreeMagnusLinearInitial h i (FreeMonoid.of a) =
+    (sqFreeMagnusLinearInitial h i).coeff (FreeMonoid.of a) =
       sqQuadraticFoxLinearInitialCoefficient h i a := by
   rw [sqFreeMagnusLinearInitial, sqQuadraticFoxLinearInitialCoefficient_eq]
   by_cases e : a = sqInitialPartner h i
