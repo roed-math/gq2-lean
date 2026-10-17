@@ -114,26 +114,41 @@ private theorem hyperUV_pointwise_zero
 private theorem hyperXU_bidual
     (t : Marking (2 + 2 * h) C) (j : Fin h) (a : A) :
     (fun g ↦ dualEval A (hyperXU t j a g)) = hyperYU t j (dualEval A a) := by
+  -- Name both sides at the bidual type, so the simp lemmas stated there apply.
+  obtain ⟨f, hf⟩ : ∃ f : Generator (2 + 2 * h) → ElemDual (ElemDual A),
+      f = fun g ↦ dualEval A (hyperXU t j a g) := ⟨_, rfl⟩
+  obtain ⟨lam, hlam⟩ : ∃ lam : ElemDual (ElemDual A), lam = dualEval A a := ⟨_, rfl⟩
+  rw [← hf, ← hlam]
   apply (EvenCore.coreHandleAddEquiv h (ElemDual (ElemDual A))).injective
   apply Prod.ext
   · funext g
     cases g with
-    | sigma => simp [hyperXU, hyperYU]; rfl
-    | tau => simp [hyperXU, hyperYU]; rfl
-    | wild i => fin_cases i <;> simp [hyperXU, hyperYU, pairUSlot] <;> rfl
+    | sigma => simp [hyperYU]; subst hf; simp [hyperXU]; rfl
+    | tau => simp [hyperYU]; subst hf; simp [hyperXU]; rfl
+    | wild i =>
+      fin_cases i <;> simp [hyperYU, pairUSlot] <;> subst hf <;> simp [hyperXU, pairUSlot] <;> rfl
   · funext kl
     rcases kl with ⟨k, l⟩
     fin_cases l
     · by_cases hkj : k = j
       · subst k
-        simp [hyperXU, hyperYU, pairUSlot]
-      · simp [hyperXU, hyperYU, pairUSlot, hkj]
+        simp [hyperYU, pairUSlot]
+        subst hf hlam
+        simp [hyperXU, pairUSlot]
+        rfl
+      · simp [hyperYU, pairUSlot, hkj]
+        subst hf
+        simp [hyperXU, pairUSlot, hkj]
         rfl
     · by_cases hkj : k = j
       · subst k
-        simp [hyperXU, hyperYU, pairUSlot]
+        simp [hyperYU, pairUSlot]
+        subst hf
+        simp [hyperXU, pairUSlot]
         rfl
-      · simp [hyperXU, hyperYU, headHandlePairRamNormal_handleV_of_ne, hkj, pairUSlot]
+      · simp [hyperYU, headHandlePairRamNormal_handleV_of_ne, hkj, pairUSlot]
+        subst hf
+        simp [hyperXU, headHandlePairRamNormal_handleV_of_ne, hkj, pairUSlot]
         rfl
 
 /-- The promoted UV cross term, without a sigma-triviality hypothesis. -/
