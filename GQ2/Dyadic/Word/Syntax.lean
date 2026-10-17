@@ -153,6 +153,7 @@ theorem padicOmega2Exp_one (N : ℕ) : padicOmega2Exp 1 N = omega2Exp N := by
       Nat.one_lt_two_pow_iff.mpr hα
     rw [map_one, ZMod.val_one_eq_one_mod, Nat.mod_eq_of_lt h1, one_mul]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **The canonical splitting `ℤ₂ ↪ ℤ̂`**, `z ↦ z·ω₂`: the element of `ℤ̂` whose `2`-component is
 `z` and whose odd-primary components vanish.  Constructed componentwise from `padicOmega2Exp`,
 exactly as `GQ2.omega2 = padicOmega2 1` is constructed from `GQ2.omega2Exp`; compatibility of the
