@@ -40,6 +40,7 @@ theorem oneHandleC7StandardNeutralitySubgroup_eq_balanced :
   unfold oneHandleStandardRelativeRelaxedCoordinateSpan
   rw [standardRelativeCoordinateSpan_eq_balanced]
 
+set_option backward.isDefEq.respectTransparency false in
 noncomputable def oneHandleC7StandardNeutralityCokernelEquivBalanced :
     OneHandleC7StandardNeutralityCokernel ≃*
       OneHandleBalancedCoreNeutralityCokernel
