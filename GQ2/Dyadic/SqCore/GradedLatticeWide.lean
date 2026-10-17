@@ -440,8 +440,8 @@ contains the whole wave-54 census generating set and everything it generates, qu
 and triple commutators included. -/
 def selGaTwoIm (h : ℕ) (j : Fin h) (A B C D E F T S P Q R : gr3R) : Subgroup (SqU5 gr3R) :=
   rowGaTwoOf (Subgroup.closure (Set.range (selLiftWit h j A B C D E F T S P Q R)))
-    ⊔ Subgroup.closure {selLiftWit h j A B C D E F T S P Q R 2
-        * selLiftWit h j A B C D E F T S P Q R 2}
+    ⊔ Subgroup.closure {(selLiftWit h j A B C D E F T S P Q R 2
+        * selLiftWit h j A B C D E F T S P Q R 2)}
 
 /-- ⭐⭐ **The containment**: the whole honest `γ₂(im Φ)` lands in `selWideSub`, i.e. every
 `γ₂`-level dressing of the class-four witness is `γ₂`-shaped with an even `g`-column and pairs

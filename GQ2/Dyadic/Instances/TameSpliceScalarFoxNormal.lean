@@ -32,7 +32,7 @@ private theorem free_word_trivial_action
     (c : X → C) (htriv : ∀ (i : X) (a : A), c i • a = a)
     (w : FreeGroup X) (a : A) : FreeGroup.lift c w • a = a := by
   induction w using FreeGroup.induction_on generalizing a with
-  | C1 => simp
+  | one => simp
   | of i => simpa using htriv i a
   | inv_of w ih =>
       rw [map_inv]
@@ -46,7 +46,7 @@ private theorem scalar_jet_lift
     lam ((FreeGroup.lift (heisGen c x 0) w).a) =
       Multiplicative.toAdd (FreeGroup.lift (fun i => Multiplicative.ofAdd (lam (x i))) w) := by
   induction w using FreeGroup.induction_on with
-  | C1 => simp
+  | one => simp
   | of i => simp [heisGen]
   | inv_of w ih =>
       rw [map_inv, HeisLift.inv_a, heisWord_g,

@@ -121,7 +121,6 @@ theorem tqFourPin_surjective : Function.Surjective tqFourPin := by
   intro x
   refine ⟨tqTau 4 ^ (Multiplicative.toAdd x).val, ?_⟩
   rw [map_pow, tqFourPin_tqTau]
-  change (Multiplicative.ofAdd (1 : ZMod 3)) ^ (Multiplicative.toAdd x).val = x
   revert x
   decide
 
@@ -139,7 +138,6 @@ theorem tqFourPin_tqTau_pow_ne_sq :
 
 /-- This cyclic quotient is genuinely ramified on the existing irreducible `F2²` module. -/
 theorem tqFourPin_ramified : ∃ v : PinV, tqFourPin (tqTau 4) • v ≠ v := by
-  refine ⟨((1, 0) : PinV), ?_⟩
   rw [tqFourPin_tqTau]
   decide
 
