@@ -163,6 +163,7 @@ private theorem dmForgetHandles_clearModTwoHandles (x : DM 2 1) :
     dmForgetHandles 2 1 (clearModTwoHandles x) = dmForgetHandles 2 1 x := by
   simp [clearModTwoHandles, dmForgetHandles_handleU, dmForgetHandles_handleV]
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem modTwoCoordinate_clearModTwoHandles
     (x : DM 2 1) (i : Fin (coreRank 1)) :
     modTwoCoordinate 1 (clearModTwoHandles x) i =
@@ -187,6 +188,7 @@ private theorem modTwoCoordinate_clearModTwoHandles
 private def coreCast (i : Fin (coreRank 0)) : Fin (coreRank 1) :=
   Fin.castLE (by simp [coreRank]) i
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem dmCoordinateCharacter_core_comp_forget
     (i : Fin (coreRank 0)) :
     dmCoordinateCharacter 2 1 one_le_two (Pi.single (coreCast i) 1) =
@@ -355,10 +357,10 @@ private theorem standardHandleMark_cupAdapted_of_core_zero
   rw [hca, hcb, hcc, hcd, hea, heb, hec, hed]
   have hcg (i : Fin (coreRank 0)) :
       toAdd (c0 (dmGen 2 0 i)) = toAdd (c (dmGen 2 1 (coreCast i))) := by
-    simp [c0, coreCharacter, dmCoordinateCharacter_gen]
+    exact congrArg toAdd (dmCoordinateCharacter_gen 2 0 one_le_two _ i)
   have heg (i : Fin (coreRank 0)) :
       toAdd (e0 (dmGen 2 0 i)) = toAdd (e (dmGen 2 1 (coreCast i))) := by
-    simp [e0, coreCharacter, dmCoordinateCharacter_gen]
+    exact congrArg toAdd (dmCoordinateCharacter_gen 2 0 one_le_two _ i)
   simp only [ContinuousMonoidHom.coe_comp, Function.comp_apply, autHom_apply,
     Finset.univ_eq_empty, Finset.sum_empty, add_zero] at hcompact
   simp_rw [hcg, heg] at hcompact
