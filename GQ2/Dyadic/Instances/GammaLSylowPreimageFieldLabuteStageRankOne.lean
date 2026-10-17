@@ -7,6 +7,7 @@ import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteStage
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldCoreRankOne
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldRigidity
 import GQ2.Roe.Labute.StageLemma.StageTwo
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Rank-one regression for the variable-rank Labute stage
@@ -195,8 +196,9 @@ theorem stageSL1R2_sqRawDefectReachable (k : ℕ) (hk : 3 ≤ k)
         k hk _ w hw
     _ = (defectR2 k T)⁻¹ := hshift
     _ = (sqStageDefect (D0 : Type) 0 k T)⁻¹ := by
-      rw [sqStageDefect, SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord]
-      rfl
+      have hb := SqCore.sqRelWord_zero (G := levelQuot (D0 : Type) (k + 1))
+        (fun i ↦ canonLift (D0 : Type) k (T i))
+      exact congrArg (·⁻¹) hb.symm
 
 /-- The existing rank-three `SL1` and `SL2` calculations compose to a single correction
 of the original canonical lift.  That correction has the depth required by the general
@@ -245,10 +247,10 @@ theorem stageSL12R2_truncatedCorrection (k : ℕ) (hk : 3 ≤ k)
     simpa only [correction, base, next, map_mul, map_inv, levelProj_canonLift,
       T₁, mul_assoc, inv_mul_cancel_left] using hprod
   refine ⟨correction, hdepth, ?_, ?_⟩
-  · have hnextrel : SqCore.sqRelWord (h := 0) next = 1 := by
-      rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord]
-      exact hnext.1.1
-    rw [SqCyclotomicStageTuple.stageShift, hmodified, hnextrel, mul_one]
+  · have hnextrel : SqCore.sqRelWord (h := 0) next = 1 :=
+      (SqCore.sqRelWord_zero (G := levelQuot (D0 : Type) (k + 1)) next).trans hnext.1.1
+    unfold SqCyclotomicStageTuple.stageShift
+    rw [hmodified, hnextrel, mul_one]
     rfl
   · rw [hmodified]
     exact hnext
@@ -316,10 +318,10 @@ theorem stageSL12R2_sharpCorrection (k : ℕ) (hk : 3 ≤ k)
   have hnext : next ∈ sPR2 (k + 1) := by
     simpa only [next] using sPR2_levelProj hdeep
   refine ⟨correction, hdepth, ?_, ?_⟩
-  · have hnextrel : SqCore.sqRelWord (h := 0) next = 1 := by
-      rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord]
-      exact hnext.1.1
-    rw [SqCyclotomicStageTuple.stageShift, hmodified, hnextrel, mul_one]
+  · have hnextrel : SqCore.sqRelWord (h := 0) next = 1 :=
+      (SqCore.sqRelWord_zero (G := levelQuot (D0 : Type) (k + 1)) next).trans hnext.1.1
+    unfold SqCyclotomicStageTuple.stageShift
+    rw [hmodified, hnextrel, mul_one]
     rfl
   · intro i
     rw [congrFun hmodified i]
@@ -364,8 +366,7 @@ theorem sqCyclotomicStageTuple_bot_sharpDefectReachable
         exact E.apply_symm_apply (T.generators i)
       _ = 1 := T.relation
   have hpullRel : drWord (pull 0) (pull 1) (pull 2) = 1 := by
-    rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord] at hpullRelSq
-    exact hpullRelSq
+    exact (SqCore.sqRelWord_zero (G := levelQuot (D0 : Type) k) pull).symm.trans hpullRelSq
   have hpullGen : Subgroup.closure (Set.range pull) = ⊤ := by
     have hinj : Function.Injective (Subgroup.map E.toMonoidHom) :=
       Subgroup.map_injective E.injective
@@ -438,8 +439,7 @@ theorem sqCyclotomicStageTuple_bot_sharpDefectReachable
         (G := (D0 : Type)) (h := 0) (k := k) baseD cD from rfl,
       SqCyclotomicStageTuple.sqRelWord_stageModified
         (G := (D0 : Type)) (h := 0) (k := k) baseD cD,
-      hkillD, sqStageDefect]
-    dsimp only [baseD]
+      hkillD]
     exact mul_inv_cancel _
   have hnextFrel : SqCore.sqRelWord (h := 0) nextF = 1 := by
     rw [SqCore.sqRelWord_zero, SqCore.sqWord_eq_drWord] at hnextDrel ⊢

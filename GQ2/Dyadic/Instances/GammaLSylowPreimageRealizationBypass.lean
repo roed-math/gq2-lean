@@ -83,7 +83,7 @@ theorem ztwoIota_lNu (h : ℕ) (x : (DSq h : Type)) :
     ztwoIota (Instances.LSquareCore.lNu h x) = nuSq h x := by
   have hgen : ∀ i, Instances.LSquareCore.lNu h (sqGen h i)
       = SqCore.sqMark ztwoOne 1 1 i := fun i => by
-    rw [Instances.LSquareCore.lNu, SqCore.sqLiftHom_gen]
+    exact SqCore.sqLiftHom_gen _ _ _ _ _
   have hext : (⟨ztwoIota.toMulEquiv.toMonoidHom, ztwoIota.continuous_toFun⟩ :
       ContinuousMonoidHom Ztwo (Multiplicative ℤ_[2])).comp (Instances.LSquareCore.lNu h)
       = nuSq h := by

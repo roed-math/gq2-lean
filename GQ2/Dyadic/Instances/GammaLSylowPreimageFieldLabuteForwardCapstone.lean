@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteVariableStageTwo
 import GQ2.Dyadic.Instances.GammaLSylowPreimageFieldLabuteLevelThreeBase
+import GQ2.Foundations.Axioms
 
 /-!
 # The forward presentation capstone over the kernel-adapted supply
