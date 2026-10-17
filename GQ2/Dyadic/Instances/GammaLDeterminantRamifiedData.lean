@@ -612,8 +612,11 @@ theorem wordPhaseResidueK_ramified_lSq
         = SectionNine.blockProjF T Blk
             (powOmega2 (rho0 DD rhoM (gammaGen (2 * h + 1) q (lSqW h) .tau))) • v :=
       SectionNine.blockProjF_compat T Blk _ v
-    rw [hstep, powOmega2_map (SectionNine.blockProjF T Blk), htauHead,
-      powOmega2_eq_one_of_odd hoddHV, one_smul]
+    have h1 : SectionNine.blockProjF T Blk
+        (powOmega2 (rho0 DD rhoM (gammaGen (2 * h + 1) q (lSqW h) .tau))) = 1 :=
+      (powOmega2_map (SectionNine.blockProjF T Blk) _).trans
+        (by rw [htauHead]; exact powOmega2_eq_one_of_odd hoddHV)
+    rw [hstep, h1, one_smul]
   exact lSqRamifiedPhaseModel_of_headData rhoM
     (blockDatHVK T Blk hq0 hqe F l hl') (blockDatHV_specK T Blk hq0 hqe F l hl')
     (SectionNine.blockProjF T Blk) (SectionNine.blockProjF_compat T Blk)

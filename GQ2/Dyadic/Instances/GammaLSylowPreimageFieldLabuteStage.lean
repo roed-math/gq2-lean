@@ -755,7 +755,9 @@ theorem stageShift_zero_eq_dbarWordR2
     (hdepth : ∀ i, correction i ∈ lambdaImage G (k - 1) (k + 1)) :
     stageShift (h := 0) (k := k) base correction =
       dbarWordR2 (base 0) (base 1) (base 2) correction := by
-  rw [stageShift, SqCore.sqRelWord_zero, SqCore.sqRelWord_zero,
+  unfold stageShift
+  have hb := SqCore.sqRelWord_zero (G := levelQuot G (k + 1)) base
+  rw [SqCore.sqRelWord_zero (stageModified base correction), hb,
     SqCore.sqWord_eq_drWord, SqCore.sqWord_eq_drWord]
   change (drWord (base 0) (base 1) (base 2))⁻¹ *
       drWord (base 0 * correction 0) (base 1 * correction 1)

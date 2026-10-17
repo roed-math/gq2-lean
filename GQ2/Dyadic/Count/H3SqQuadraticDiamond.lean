@@ -161,17 +161,14 @@ def sqNormalLeftXWord (h : ℕ) (w : SqQuadraticNormalWord h) :
 @[simp] theorem sqNormalLeftXWord_nil (h : ℕ) :
     sqNormalLeftXWord h ⟨[], trivial⟩ =
       Finsupp.single ⟨[1], trivial⟩ 1 :=
-  by rw [sqNormalLeftXWord, sqNormalLeftXList]
+  rfl
 
 @[simp] theorem sqNormalLeftXWord_cons_S (h : ℕ) (w : SqQuadraticNormalWord h) :
     sqNormalLeftXWord h (w.prependNonleading 0 (sqFin_zero_ne_one h)) =
       sqNormalReductionExtras h w +
         quadraticNormalPrependLinear (ZMod 2) 0 (sqFin_zero_ne_one h)
           (sqNormalLeftXWord h w) := by
-  change sqNormalLeftXList h (0 :: w.1) _ = _
-  rw [sqNormalLeftXList.eq_2, dif_pos rfl, sqNormalLeftXWord]
-  have ht : (⟨w.1, _⟩ : SqQuadraticNormalWord h) = w := Subtype.ext rfl
-  rw [ht]
+  exact (sqNormalLeftXList.eq_2 h 0 w.1 _).trans (dif_pos rfl)
 
 /-! ## Linear left-letter operators -/
 
@@ -333,8 +330,6 @@ def sqQuadraticNormalRepresentation (h : ℕ) :
     sqQuadraticNormalRepresentation h
         (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a) =
       sqQuadraticFreeNormalRepresentation h a := by
-  rw [sqQuadraticNormalRepresentation, Ideal.Quotient.liftₐ_apply,
-    Ideal.Quotient.mkₐ_eq_mk, Ideal.Quotient.lift_mk]
   rfl
 
 @[simp] theorem sqQuadraticNormalRepresentation_letter (h : ℕ)
@@ -354,6 +349,7 @@ def sqQuadraticNormalEmpty (h : ℕ) : SqQuadraticNormalWord h :=
 def sqQuadraticNormalEmptyVector (h : ℕ) : SqQuadraticNormalSpace h :=
   Finsupp.single (sqQuadraticNormalEmpty h) 1
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A marked letter acting on a normal tail produces the expected longer basis word whenever
 the longer word is normal. -/
 theorem sqNormalLeftLetter_single_tail (h : ℕ)
@@ -527,6 +523,7 @@ theorem sqQuadraticNormalEval_reductionExtras (h : ℕ)
     sqQuadraticNormalEval_single, one_smul, sqNormalPrependPair_val]
   simp only [quadraticWordEval, List.map_cons, List.prod_cons, mul_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Normalization of `X w` is sound in the quadratic quotient. -/
 theorem sqQuadraticNormalEval_leftXWord (h : ℕ)
     (w : SqQuadraticNormalWord h) :
@@ -614,8 +611,9 @@ theorem sqQuadraticNormalEval_repr_word (h : ℕ)
         (sqQuadraticQuotientLetter h) w := by
   induction w with
   | nil =>
-      simp [sqQuadraticNormalRepr, sqQuadraticNormalEmptyVector,
-        sqQuadraticNormalEmpty, sqQuadraticNormalEval, quadraticWordEval]
+      exact (congrArg (sqQuadraticNormalEval h)
+        (sqQuadraticNormalRepr_word h (sqQuadraticNormalEmpty h))).trans
+          ((sqQuadraticNormalEval_single h _ 1).trans (one_smul _ _))
   | cons i w ih =>
       change sqQuadraticNormalEval h
           (sqQuadraticNormalRepr h
@@ -662,7 +660,7 @@ theorem sqQuadraticFreeWord_equiv_symm_single (h : ℕ)
   rw [FreeAlgebra.equivMonoidAlgebraFreeMonoid.apply_symm_apply,
     map_smul, sqQuadraticFreeWord_equiv,
     FreeMonoid.ofList_toList]
-  exact (Finsupp.smul_single_one w a).symm
+  rw [MonoidAlgebra.smul_single', mul_one]
 
 /-- The quotient map carries a free word to the same word in the marked quotient letters. -/
 theorem sqQuadraticFreeWord_mk (h : ℕ)
@@ -690,11 +688,11 @@ theorem sqQuadraticNormalEval_repr_mk (h : ℕ)
         (sqQuadraticNormalRepr h
           (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a)) =
       Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h) a := by
-  let c : FreeMonoid (Fin (sqRank h)) →₀ ZMod 2 :=
+  let c : MonoidAlgebra (ZMod 2) (FreeMonoid (Fin (sqRank h))) :=
     FreeAlgebra.equivMonoidAlgebraFreeMonoid a
   have ha : a = FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm c := by simp [c]
   rw [ha]
-  induction c using Finsupp.induction with
+  induction c using MonoidAlgebra.induction with
   | zero =>
       have hz : FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
           (0 : MonoidAlgebra (ZMod 2) (FreeMonoid (Fin (sqRank h)))) = 0 :=
@@ -714,18 +712,18 @@ theorem sqQuadraticNormalEval_repr_mk (h : ℕ)
             (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm 0) := by rw [hz]
   | single_add w r c hw hr ih =>
       have hadd : FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
-          (Finsupp.single w r + c) =
-        FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm (Finsupp.single w r) +
+          (MonoidAlgebra.single w r + c) =
+        FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm (MonoidAlgebra.single w r) +
           FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm c := map_add _ _ _
       rw [hadd, map_add, map_add, map_add]
       have hs : sqQuadraticNormalEval h
           (sqQuadraticNormalRepr h
             (Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
               (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
-                (Finsupp.single w r)))) =
+                (MonoidAlgebra.single w r)))) =
           Ideal.Quotient.mkₐ (ZMod 2) (sqQuadraticRelationIdeal h)
             (FreeAlgebra.equivMonoidAlgebraFreeMonoid.symm
-              (Finsupp.single w r)) := by
+              (MonoidAlgebra.single w r)) := by
         rw [sqQuadraticFreeWord_equiv_symm_single,
           map_smul, map_smul, map_smul,
           sqQuadraticFreeWord_mk, sqQuadraticNormalEval_repr_word]

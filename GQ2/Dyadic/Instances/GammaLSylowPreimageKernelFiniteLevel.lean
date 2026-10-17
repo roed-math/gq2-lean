@@ -275,7 +275,7 @@ theorem le_galKMaxProTwoFixedField : K ≤ galKMaxProTwoFixedField (K := K) := b
   intro x hx
   change x ∈ IntermediateField.fixedField
     (galKMaxProTwoKernelAmbientSubgroup (K := K))
-  rw [IntermediateField.mem_fixedField_iff]
+  refine (IntermediateField.mem_fixedField_iff _ _).mpr ?_
   intro g hg
   obtain ⟨n, hn, rfl⟩ := hg
   exact n.2 ⟨x, hx⟩
@@ -344,9 +344,9 @@ theorem galKMaxProTwoKernelScalarH2Vanishes_of_fixedField_cupGenerated
     intro x
     obtain ⟨z, rfl⟩ := H1mk_surjective
       (G := proPKernel 2 (GalK K)) (M := ZMod 2) x
-    simpa using congrArg (H1mk (proPKernel 2 (GalK K)) (ZMod 2))
+    exact (congrArg (H1mk (proPKernel 2 (GalK K)) (ZMod 2))
       (maxProTwoKernel_intrinsicH1CocyclesVanish
-        (G := GalK K) (M := ZMod 2) (by decide) (fun _ _ ↦ rfl) z)
+        (G := GalK K) (M := ZMod 2) (by decide) (fun _ _ ↦ rfl) z)).trans (map_zero _)
   have hH1target :
       ∀ x : H1 (GalK (galKMaxProTwoFixedField (K := K))) (ZMod 2), x = 0 := by
     intro x

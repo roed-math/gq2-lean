@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using OpenAI Codex
 import GQ2.Dyadic.Instances.GammaLSylowPreimageKernelFiniteLevel
 import GQ2.Dyadic.Instances.GammaLDualityBoundary
 import GQ2.Dyadic.LocalGauss.PairingK
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The open-neighbourhood reduction for the maximal pro-two kernel
