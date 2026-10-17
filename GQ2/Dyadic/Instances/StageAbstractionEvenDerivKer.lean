@@ -640,6 +640,7 @@ theorem evenDeriv_rawDepthCorrection_eq_prod (V : EvenRawDepthCorrection G h k) 
     { toFun := fun U ↦ U.correction j
       map_one' := rfl
       map_mul' := fun _ _ ↦ rfl }
+  have hev : ∀ W, ev W = W.correction j := fun _ ↦ rfl
   change ev V = ev (((List.finRange (MarkedCore.coreRank h)).map fun i ↦
     evenRawDepthCoordinateCorrection i
       (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))).prod)
@@ -650,8 +651,8 @@ theorem evenDeriv_rawDepthCorrection_eq_prod (V : EvenRawDepthCorrection G h k) 
       (⟨V.correction i, V.depth i⟩ : lambdaImage G (k - 1) (k + 1))))
     (by simp) (List.nodup_finRange _) (by
       intro i _ hij
-      simp [ev, evenRawDepthCoordinateCorrection_apply, Ne.symm hij])
-  simpa [List.map_map, Function.comp_def, ev, evenRawDepthCoordinateCorrection_apply] using
+      simp [hev, evenRawDepthCoordinateCorrection_apply, Ne.symm hij])
+  simpa [List.map_map, Function.comp_def, hev, evenRawDepthCoordinateCorrection_apply] using
     hsingle.symm
 
 variable [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
