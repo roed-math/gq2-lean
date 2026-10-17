@@ -35,23 +35,23 @@ until the orchestrator re-plans Wave 2.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| A1 | Galois-group dictionary | fable | `GQ2/TauCeti/GaloisDict.lean` | T2 | open |
-| A2 | cohomology, cup and Kummer dictionary | fable | `GQ2/TauCeti/CohomologyDict.lean` | T2 | open |
-| P1 | pro-p, free, presentation, `ℤ̂` dictionary | fable | `GQ2/TauCeti/ProPDict.lean` | T2 | open |
+| A1 | Galois-group dictionary | fable | `GQ2/TauCeti/GaloisDict.lean` | T2 | done `90c2284c` |
+| A2 | cohomology, cup and Kummer dictionary | fable | `GQ2/TauCeti/CohomologyDict.lean` | T2 | in progress |
+| P1 | pro-p, free, presentation, `ℤ̂` dictionary | fable | `GQ2/TauCeti/ProPDict.lean` | T2 | in progress |
 
 ## Wave 2: the nine inputs (parallel within the dependency order)
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| B1 | topological finite generation | opus | `GQ2/TauCeti/B1.lean` | A1 | open |
+| B1 | topological finite generation | opus | `GQ2/TauCeti/B1.lean` | A1 | done `a5ccd575` |
 | B11a | Hilbert-symbol norm criterion | opus | `GQ2/TauCeti/B11a.lean` | A1, A2 | open |
 | B7 | local Euler characteristic | fable | `GQ2/TauCeti/B7.lean` | A2 | open |
-| B5 | local reciprocity bundle | fable | `GQ2/TauCeti/B5.lean` | A1 | open |
+| B5 | local reciprocity bundle | fable | `GQ2/TauCeti/B5.lean` | A1 | done `a395ed6b`, `8a6d969b` |
 | B8 | peripheral cyclotomic action | fable | `GQ2/TauCeti/B8.lean` | P1 | open |
 | B9 | relative Stiefel-Whitney identity | fable | `GQ2/TauCeti/B9.lean`, `GQ2/TauCeti/StiefelWhitneyDict.lean` | A1, A2 | open |
 | B6 | local Tate duality at finite `k/ℚ₂` | fable | `GQ2/TauCeti/B6.lean`, `GQ2/TauCeti/DualizingGroup.lean` | A1, A2 | open |
-| B10 | oriented tame quotient | fable | `GQ2/TauCeti/B10.lean` | B5, P1 | open |
-| B3c | dyadic orientation | fable | `GQ2/TauCeti/B3c.lean` | P1, A1 | open |
+| B10 | oriented tame quotient | fable | `GQ2/TauCeti/B10.lean` | B5, P1 | in progress (B5 only) |
+| B3c | dyadic orientation | fable | `GQ2/TauCeti/B3c.lean` | P1, A1 | in progress (self-contained) |
 
 ## Wave 3: assembly, flip, docs (sequential)
 
