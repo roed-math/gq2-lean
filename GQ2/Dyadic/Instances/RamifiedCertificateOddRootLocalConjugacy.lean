@@ -211,6 +211,8 @@ theorem primitiveOddRoot_isConjRoot_square {m : ℕ} (hm : Odd m)
   have hP₀x2 : P₀.eval₂ (algebraMap k₀ k̄₂) (x ^ 2) = 0 := by
     rw [absoluteResidue_eval_square, hP₀x, zero_pow (by norm_num)]
   have hp₀dvd : p₀ ∣ X ^ m - 1 := by
+    haveI : Module.IsTorsionFree BaseInteger ℚ̄₂ :=
+      Module.IsTorsionFree.trans_faithfulSMul BaseInteger ℚ_[2] ℚ̄₂
     apply minpoly.isIntegrallyClosed_dvd (Algebra.IsIntegral.isIntegral zetaI)
     apply Subtype.ext
     simpa [zetaI, sub_eq_zero] using hzpow
@@ -274,7 +276,7 @@ theorem primitiveOddRoot_isConjRoot_square {m : ℕ} (hm : Odd m)
   apply (isConjRoot_iff_aeval_eq_zero (Algebra.IsIntegral.isIntegral zeta)).mpr
   have hminpoly :
       p₀.map (algebraMap BaseInteger ℚ_[2]) = minpoly ℚ_[2] zeta := by
-    simpa [p₀, zetaI] using minpoly.ofSubring (A := BaseInteger) zetaI
+    exact minpoly.ofSubring (A := BaseInteger) zetaI
   have hymin : (minpoly ℚ_[2] zeta).eval₂
       (algebraMap ℚ_[2] ℚ̄₂) (y : ℚ̄₂) = 0 := by
     rw [← hminpoly, eval₂_map]

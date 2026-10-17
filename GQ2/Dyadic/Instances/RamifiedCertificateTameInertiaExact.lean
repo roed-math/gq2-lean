@@ -101,7 +101,7 @@ theorem fullTameInertia_comap_eq_absoluteInertiaK_of_forward
     exact t.toMonoidHom.liftOfRightInverse_comp_apply (Function.surjInv hsurj)
       (Function.rightInverse_surjInv hsurj) ⟨a.toMonoidHom, hker⟩ g
   have hfcont : Continuous fHom := by
-    apply (IsQuotientMap.of_surjective_continuous hsurj t.continuous_toFun).continuous_iff.mpr
+    apply (Topology.IsQuotientMap.of_surjective_continuous hsurj t.continuous_toFun).continuous_iff.mpr
     have heq : (fun g : GalK K ↦ fHom (t g)) = a := funext hf
     change Continuous (fun g : GalK K ↦ fHom (t g))
     rw [heq]
