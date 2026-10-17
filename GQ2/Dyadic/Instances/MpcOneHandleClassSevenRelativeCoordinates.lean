@@ -72,10 +72,13 @@ theorem oneHandleRelativeCorrection_eq_coords
         oneHandleRelativeCoordB F.corrB *
         oneHandleRelativeCoordC F.corrC *
         oneHandleRelativeCoordD F.corrD := by
+  have hA : ∀ y, oneHandleRelativeCoordA y = ⟨y, 1, 1, 1⟩ := fun _ ↦ rfl
+  have hB : ∀ y, oneHandleRelativeCoordB y = ⟨1, y, 1, 1⟩ := fun _ ↦ rfl
+  have hC : ∀ y, oneHandleRelativeCoordC y = ⟨1, 1, y, 1⟩ := fun _ ↦ rfl
+  have hD : ∀ y, oneHandleRelativeCoordD y = ⟨1, 1, 1, y⟩ := fun _ ↦ rfl
   cases F
   apply OneHandleBalancedCoreLevelCorrection.ext <;>
-    simp [oneHandleRelativeCoordA, oneHandleRelativeCoordB,
-      oneHandleRelativeCoordC, oneHandleRelativeCoordD]
+    simp [hA, hB, hC, hD]
 
 noncomputable def oneHandleStandardRelativeShiftA :
     oneHandleRelativeLambdaImage 5 7 →* oneHandleRelativeZLayer 6 :=
@@ -170,8 +173,9 @@ private theorem relativeCoreToDirect_coordD
     (relativeCoreToDirect (oneHandleRelativeCoordA x)) = _
   rw [relativeCoreToDirect_coordA]
   rw [← oneHandleDirectLevelShiftHom_apply]
+  have hc : ∀ y, oneHandleRelativeCoordA y = ⟨y, 1, 1, 1⟩ := fun _ ↦ rfl
   simpa [oneHandleDirectShiftA, relativeCoreToDirect,
-    oneHandleRelativeCoordA, dmA, dmB] using
+    hc, dmA, dmB] using
       oneHandleDirectShiftA_apply (dmGen 2 1) 6 (by omega)
         (relativeCoreToDirect (oneHandleRelativeCoordA x)).1
 
@@ -186,8 +190,9 @@ private theorem relativeCoreToDirect_coordD
     (relativeCoreToDirect (oneHandleRelativeCoordB x)) = _
   rw [relativeCoreToDirect_coordB]
   rw [← oneHandleDirectLevelShiftHom_apply]
+  have hc : ∀ y, oneHandleRelativeCoordB y = ⟨1, y, 1, 1⟩ := fun _ ↦ rfl
   simpa [oneHandleDirectShiftB, relativeCoreToDirect,
-    oneHandleRelativeCoordB, dmA] using
+    hc, dmA] using
       oneHandleDirectShiftB_apply (dmGen 2 1) 6 (by omega)
         (relativeCoreToDirect (oneHandleRelativeCoordB x)).2.1
 
@@ -202,8 +207,9 @@ private theorem relativeCoreToDirect_coordD
     (relativeCoreToDirect (oneHandleRelativeCoordC x)) = _
   rw [relativeCoreToDirect_coordC]
   rw [← oneHandleDirectLevelShiftHom_apply]
+  have hc : ∀ y, oneHandleRelativeCoordC y = ⟨1, 1, y, 1⟩ := fun _ ↦ rfl
   simpa [oneHandleDirectShiftC, relativeCoreToDirect,
-    oneHandleRelativeCoordC, dmD] using
+    hc, dmD] using
       oneHandleDirectShiftC_apply (dmGen 2 1) 6 (by omega)
         (relativeCoreToDirect (oneHandleRelativeCoordC x)).2.2.1
 
@@ -218,8 +224,9 @@ private theorem relativeCoreToDirect_coordD
     (relativeCoreToDirect (oneHandleRelativeCoordD x)) = _
   rw [relativeCoreToDirect_coordD]
   rw [← oneHandleDirectLevelShiftHom_apply]
+  have hc : ∀ y, oneHandleRelativeCoordD y = ⟨1, 1, 1, y⟩ := fun _ ↦ rfl
   simpa [oneHandleDirectShiftD, relativeCoreToDirect,
-    oneHandleRelativeCoordD, dmC] using
+    hc, dmC] using
       oneHandleDirectShiftD_apply (dmGen 2 1) 6 (by omega)
         (relativeCoreToDirect (oneHandleRelativeCoordD x)).2.2.2
 
