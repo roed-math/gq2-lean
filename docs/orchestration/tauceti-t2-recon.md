@@ -19,11 +19,12 @@ lake build GQ2.TauCeti.Smoke
 get` against it needs `--repo=TauCetiProject/TauCeti`.)
 
 **Scratch evidence.** The recon ran one agent per lane group; each probed in scratch `module` files.
-The files cited below as `artifacts/<lane>/…` are kept outside the repository, on mimir at
-`/scratch/claudeM/tauceti-t2-artifacts/<lane>/`. Every one of them elaborates with `lake env lean`,
-contains no `sorry`, and every `#print axioms` in them is within `propext, Classical.choice,
-Quot.sound` (re-checked when this memo was assembled). They are prototypes, not tickets: the
-adapter tickets still own their files and must re-do the work under the board protocol.
+The files cited below as `tauceti-t2-evidence/<lane>/…` are committed in
+[`tauceti-t2-evidence/`](tauceti-t2-evidence/README.md) (outside every `lean_lib`). Every one of them
+elaborates with `lake env lean`, contains no `sorry`, and every `#print axioms` in them is within
+`propext, Classical.choice, Quot.sound` (re-checked when committed; `prop/defeq_module_FAILS.lean`
+fails on purpose). They are prototypes, not tickets: the adapter tickets still own their files and
+must re-do the work under the board protocol.
 
 | lane | scratch status | prototype |
 |---|---|---|
@@ -176,7 +177,7 @@ adapter tickets still own their files and must re-do the work under the board pr
 ## A1: Galois-group dictionary
 
 Scratch evidence (lane `galois`, all elaborate with `lake env lean`, no `sorry`): `GQ2/TauCeti/Smoke.lean`
-(64 `#check`s, 11 pinned examples; output in the `#check` output of `Smoke.lean`), `artifacts/galois/a1_b11a_prototype.lean` (the A1
+(64 `#check`s, 11 pinned examples; output in the `#check` output of `Smoke.lean`), `tauceti-t2-evidence/galois/a1_b11a_prototype.lean` (the A1
 equivalences and the Tau Ceti half of B11a; `#print axioms` = standard three).
 Tau Ceti paths below are relative to `.lake/packages/TauCeti/TauCeti/`.
 
@@ -261,7 +262,7 @@ succeeds), and `isTopologicallyFinitelyGenerated_absoluteGaloisGroup 2 k` applie
   IsTopologicalGroup`, so it is not reducible: `g : ↥k.fixingSubgroup` is not coerced to `Field.absoluteGaloisGroup ℚ_[2]`
   automatically (error observed); write `(g : GQ2.Kummer.GaloisGroup ℚ_[2])` and pass that. A subgroup of
   `Kummer.GaloisGroup ℚ_[2]` is accepted where `Subgroup (Field.absoluteGaloisGroup ℚ_[2])` is expected (tested).
-- `G_k`: proved in `artifacts/galois/a1_b11a_prototype.lean`, all sorry-free:
+- `G_k`: proved in `tauceti-t2-evidence/galois/a1_b11a_prototype.lean`, all sorry-free:
   `kEmb k : ↥k →ₐ[ℚ_[2]] SeparableClosure ℚ_[2] := IntermediateField.inclusion (… Algebra.IsSeparable.isSeparable …)`;
   `range_extend_kEmb : (absoluteGaloisGroupExtend ℚ_[2] k (kEmb k)).range = k.fixingSubgroup` (the Shapiro proof verbatim);
   `galEquivFixing k : Field.absoluteGaloisGroup k ≃ₜ* ↥(k.fixingSubgroup : Subgroup (GQ2.Kummer.GaloisGroup ℚ_[2]))`
@@ -410,7 +411,7 @@ Kummer (`TauCeti.FieldTheory.GaloisCohomology.MuTwo.Basic`, `…/MuTwo/Basic.lea
   ```lean
   TauCeti.kummerClass_eq_kummerCocycleModTwoClass_of_sq_eq : ∀ (K : Type u_1) [inst : Field K] [inst_1 : Invertible 2] (a : Kˣ) (α : (SeparableClosure K)ˣ) (hα : α ^ 2 = (Units.map ↑(algebraMap K (SeparableClosure K))) a), TauCeti.kummerClass a = (TopModuleCat.Hom.hom (CategoryTheory.eqToHom ⋯)) ((TauCeti.ContCohomology.explicitH1AddEquivContinuousCohomology (TauCeti.AbsoluteGaloisGroup K) ↑(TauCeti.trivialF2 (TauCeti.AbsoluteGaloisGroup K))) (TauCeti.kummerCocycleModTwoClass K hα))
   ```
-All 87 `#check`s (verbatim, unwrapped) are in `artifacts/cohom/sigs.txt`; wrapped output in the `#check` output of `Smoke.lean`.
+All 87 `#check`s (verbatim, unwrapped) are in `tauceti-t2-evidence/cohom/sigs.txt`; wrapped output in the `#check` output of `Smoke.lean`.
 
 Instances (tested): `CompactSpace (Field.absoluteGaloisGroup ℚ_[2])` = `TauCeti.instCompactSpaceAbsoluteGaloisGroup_tauCeti`,
 also found for `GQ2.AbsGalQ2` and `GQ2.Kummer.GaloisGroup ℚ_[2]` (`instCompactSpaceAlgEquiv_tauCeti`); `LocallyCompactSpace`
@@ -425,12 +426,12 @@ from it; `TotallyDisconnectedSpace` found. `[Invertible (2 : ↥k)]` and `[Inver
   `C1/C2/d0/d1/d2/Z1/Z2/B1/B2/H1/H2` Lean reports "definition is not exposed" (tested). Three working routes, all tested:
   (a) **propositional** (recommended, protocol-compliant, ~60 lines): `Z1_eq`, `B1_eq`, `Z2_eq`, `B2_eq` as `AddSubgroup`
   equalities via the two `mem_*_iff`s, then `QuotientAddGroup.congr _ _ (AddEquiv.addSubgroupCongr hZ) _`; the
-  class-map rule `h1Equiv (H1mk z) = H1pi ⟨z.1, Z1_eq ▸ z.2⟩` is `rfl` (`artifacts/cohom/evidence/a2_dict_propositional.lean`);
+  class-map rule `h1Equiv (H1mk z) = H1pi ⟨z.1, Z1_eq ▸ z.2⟩` is `rfl` (`tauceti-t2-evidence/cohom/evidence/a2_dict_propositional.lean`);
   (b) `import all TauCeti.RepresentationTheory.Homological.ContCohomology.LowDegree` (+ `ExplicitFunctoriality`,
   `Cup.Product`) in a `module` file: Lake v4.35.0 has the cross-package `import all` check commented out
   (`~/.elan/toolchains/leanprover--lean4---v4.35.0/src/lean/lake/Lake/Build/Module.lean:431`; TauCeti sets no `allowImportAll`), and then `H1`, `H2`, `AddEquiv.refl`, `res1 = explicitRes1`,
-  `res2 = explicitRes2`, `cup11 = explicitCup11` are `rfl` (`artifacts/cohom/evidence/a2_importall.lean`) — fragile, depends on Tau Ceti internals;
-  (c) a non-`module` file: everything incl. instances is `rfl` (`artifacts/cohom/evidence/a2_nonmodule.lean`), but violates the board's module rule.
+  `res2 = explicitRes2`, `cup11 = explicitCup11` are `rfl` (`tauceti-t2-evidence/cohom/evidence/a2_importall.lean`) — fragile, depends on Tau Ceti internals;
+  (c) a non-`module` file: everything incl. instances is `rfl` (`tauceti-t2-evidence/cohom/evidence/a2_nonmodule.lean`), but violates the board's module rule.
 - `explicitH{1,2}AddEquivContinuousCohomology` land in `continuousCohomology i (ofDiscreteModule ℤ G M)` (ℤ scalars), not in
   `continuousCohomology i A` for a `GalRep`; for `A : TopRep k G` use `TopRep.explicitH{1,2}AddEquivContinuousCohomologyOfDiscrete A`
   and in degree 0 `explicitH0IsoContinuousCohomology … ≪≫ ofDiscreteModuleRestrictScalarsIntEquiv A 0`. `G` and `M` must share a
@@ -446,7 +447,7 @@ from it; `TotallyDisconnectedSpace` found. `[Invertible (2 : ↥k)]` and `[Inver
   `[ContinuousMul G] [ContinuousMul ↥S]`.
 - Cups: the `(1,1)` cochain formulas agree verbatim (no order/sign issue): `h2Equiv (cup11 μ hμ x y) = explicitCup11 … (h1Equiv x) (h1Equiv y)`
   proved (route (a)); `cup02` agrees by `rfl` per element (route b); `cup20` needs `explicitCup20_mk` (Tau Ceti's is the coefficient
-  map `μ (a q) n`). **Proved in scratch** (`artifacts/cohom/evidence/a2_cup.lean`, std-3 axioms): for `[LocallyCompactSpace G]` and trivial `htriv`,
+  map `μ (a q) n`). **Proved in scratch** (`tauceti-t2-evidence/cohom/evidence/a2_cup.lean`, std-3 axioms): for `[LocallyCompactSpace G]` and trivial `htriv`,
   `cont2 (trivialCupPairing 2 G htriv x y) = (trivialF2TopPairing G).cup 1 1 (cont1 x) (cont1 y)` with
   `cont1 x := (eqToHom (congrArg (continuousCohomology 1) (ofDiscreteModule_trivialF2 G))).hom (explicitH1AddEquivContinuousCohomology G (trivialF2 G).V (toF2 (h1Equiv G _ x)))`,
   `toF2 := explicitMap1Equiv G (ZMod 2) G (trivialF2 G).V (ContinuousMulEquiv.refl G) (trivialF2Equiv G).symm …`; proof = 
@@ -467,12 +468,12 @@ from it; `TotallyDisconnectedSpace` found. `[Invertible (2 : ↥k)]` and `[Inver
 
 ## P1: pro-p, free, presentation and ℤ̂ dictionary
 
-Scratch evidence (all in `artifacts/prop/`, each
+Scratch evidence (all in `tauceti-t2-evidence/prop/`, each
 elaborates with `lake env lean`, `#print axioms` = `propext, Classical.choice, Quot.sound`):
-`GQ2/TauCeti/Smoke.lean` (117 `#check`s, output in the `#check` output of `Smoke.lean`), `artifacts/prop/proto_p1.lean` (kernel, `maxProPQuotient`, `Delta`,
+`GQ2/TauCeti/Smoke.lean` (117 `#check`s, output in the `#check` output of `Smoke.lean`), `tauceti-t2-evidence/prop/proto_p1.lean` (kernel, `maxProPQuotient`, `Delta`,
 `zpowZtwo = padicPow`, generic pro-p presentation equivalence, `GQ2.D0 ≃ₜ* demushkinD0`),
-`artifacts/prop/proto_zhat.lean` (`Zhat ≃ₜ* zHat.{0}`, `zhatProjTwo = component 2`), `artifacts/prop/proto_absgal.lean`,
-`artifacts/prop/defeq_nonmodule.lean`, `artifacts/prop/defeq_importall.lean`, `artifacts/prop/defeq_module_FAILS.lean` (the failing `rfl`s, kept on purpose).
+`tauceti-t2-evidence/prop/proto_zhat.lean` (`Zhat ≃ₜ* zHat.{0}`, `zhatProjTwo = component 2`), `tauceti-t2-evidence/prop/proto_absgal.lean`,
+`tauceti-t2-evidence/prop/defeq_nonmodule.lean`, `tauceti-t2-evidence/prop/defeq_importall.lean`, `tauceti-t2-evidence/prop/defeq_module_FAILS.lean` (the failing `rfl`s, kept on purpose).
 
 ### gq2 side
 No `LiteratureInputs` field; the dictionary objects (all `@[expose]`, all `module` files):
@@ -565,14 +566,14 @@ Confirmed (all tested in a `module` file, no `import all`):
 - `maxProPEquiv p G : GQ2.maxProPQuotient p G ≃ₜ* TauCeti.maximalProPQuotient p G := (ContinuousMulEquiv.refl G).quotientCongr _ _ (by rw [proPKernel_eq]; exact Subgroup.map_id _)`, with `maxProPMk ↦ maximalProPQuotient.mk` by `quotientCongr_mk` (not `rfl`). At `G = AbsGalQ2` this is the plan's `maxProPQuotient 2 AbsGalQ2 ≃ₜ* absoluteGaloisGroupProP 2 ℚ_[2]` verbatim.
 - `deltaEquiv : GQ2.Delta ≃ₜ* TauCeti.freeProP 2 (Fin 2) := maxProPEquiv 2 (GQ2.FreeProfiniteGroup (Fin 2))`, with `deltaEquiv deltaP = freeProP.of 0`, `deltaEquiv deltaT = freeProP.of 1`.
 - `zpowZtwo hP x u = ((isProP_iff 2 P).1 hP).padicPow x u := TauCeti.IsProP.eq_padicPow_of_continuous _ (GQ2.continuous_zpowZtwo hP x) (GQ2.zpowZtwo_natCast hP x) u` (one line, as the plan says).
-- `Zhat ≃ₜ* TauCeti.zHat.{0}`: forward `(GQ2.zpowHatHom (G := zHat.{0}) zHat.gen).hom`, backward `zHat.lift (Zhat.ofInt 1)`, inverses by `Zhat.funext_ofInt` and `zHat.hom_ext`; `e (Zhat.ofInt n) = zHat.ofInt (ofAdd n)`; then `zhatProjTwo γ = ofAdd (zHat.component 2 (ofMul (e γ)))` (by `funext_ofInt`, `ofMul_ofInt`, `map_intCast`). About 45 lines, `artifacts/prop/proto_zhat.lean`.
+- `Zhat ≃ₜ* TauCeti.zHat.{0}`: forward `(GQ2.zpowHatHom (G := zHat.{0}) zHat.gen).hom`, backward `zHat.lift (Zhat.ofInt 1)`, inverses by `Zhat.funext_ofInt` and `zHat.hom_ext`; `e (Zhat.ofInt n) = zHat.ofInt (ofAdd n)`; then `zhatProjTwo γ = ofAdd (zHat.component 2 (ofMul (e γ)))` (by `funext_ofInt`, `ofMul_ofInt`, `map_intCast`). About 45 lines, `tauceti-t2-evidence/prop/proto_zhat.lean`.
 
 Corrections to the plan:
 - "same predicate word for word" is true of the source text, but `TauCeti.IsProP`, `proPKernel`, `freeProfiniteGroup.of`, `presentedProfiniteGroup.mk`, `quotientCongr`, `Peripheral.periphP` etc. are **not exposed** (Tau Ceti uses `public section` without `@[expose]`). So `Iff.rfl`/`rfl` fail from a `module` adapter ("definition is not exposed"). They succeed in a non-`module` file, and in a `module` file after `import all TauCeti.Topology.Algebra.Group.Profinite.MaximalProP` (+ `…ProP.Basic`). `import all` across packages is accepted, but every downstream file that unfolds the result needs it too. Use the propositional bridges above.
 - `TauCeti.maximalProPQuotient`, `freeProP`, `presentedProP`, `absoluteGaloisGroupProP` are `Type`s with instances, not `ProfiniteGrp` objects. gq2's are `ProfiniteGrp` objects, so the equivalences are between `↥(gq2 obj)` and a Tau Ceti type.
 - `GQ2.Zhat` is not `zHat.{0}`: Tau Ceti completes `ULift.{u} (Multiplicative ℤ)`, and `ULift.{0}` is still a structure (`rfl` fails). Build the equivalence from the universal properties (done).
 - The ℤ₂-component is in `ZHat/Component.lean`, not `Decomposition.lean` (see answer 6).
-- Tau Ceti has **no** `maximalProPQuotient p (presentedProfiniteGroup X rels) ≃ₜ* presentedProP p X (fromFreeProfiniteGroup p X '' rels)`. It only has `toPresentedProP` (a surjection). gq2's pro-2 presentations are `maxProPQuotient 2 (profinitePresentation rels)`, so P1 must prove this. Done in `artifacts/prop/proto_p1.lean` (about 60 lines: `lift` both ways, inverses by `mk_surjective`). With it, `GQ2.D0 ≃ₜ* TauCeti.demushkinD0` elaborates as `(maxProPEquiv 2 D0Full).trans (maxProPPresentedEquiv 2 {d0RelatorT}) |>.trans (presentedProP.congrOfClosureEq …)`. The relator image is computed by `fromFree_d0Relator`. The commutator conventions agree: gq2 `commP x y = x⁻¹y⁻¹xy`, Tau Ceti `(S,Y) = S⁻¹Y⁻¹SY` (`Demushkin/D0/Basic.lean:77`).
+- Tau Ceti has **no** `maximalProPQuotient p (presentedProfiniteGroup X rels) ≃ₜ* presentedProP p X (fromFreeProfiniteGroup p X '' rels)`. It only has `toPresentedProP` (a surjection). gq2's pro-2 presentations are `maxProPQuotient 2 (profinitePresentation rels)`, so P1 must prove this. Done in `tauceti-t2-evidence/prop/proto_p1.lean` (about 60 lines: `lift` both ways, inverses by `mk_surjective`). With it, `GQ2.D0 ≃ₜ* TauCeti.demushkinD0` elaborates as `(maxProPEquiv 2 D0Full).trans (maxProPPresentedEquiv 2 {d0RelatorT}) |>.trans (presentedProP.congrOfClosureEq …)`. The relator image is computed by `fromFree_d0Relator`. The commutator conventions agree: gq2 `commP x y = x⁻¹y⁻¹xy`, Tau Ceti `(S,Y) = S⁻¹Y⁻¹SY` (`Demushkin/D0/Basic.lean:77`).
 - Universes: free/presentation objects are `Type u → … Type u` on both sides, with no ULift. `GQ2.zpowZtwo`/`zpowHatHom` are `Type`-only, while Tau Ceti's `padicPow`/`zHat.lift` are polymorphic. That is harmless at `Delta`, `AbsGalQ2` and `ℤ_[2]`.
 
 **Hardest seam: spelling, not mathematics.** `GQ2.FreeProfiniteGroup X` (a plain `def`) and
@@ -600,12 +601,12 @@ succeeds in a `module` file (in `GQ2/TauCeti/Smoke.lean`), because Tau Ceti's is
 The generators are **not** `rfl` from a `module` file:
 - `GQ2.FreeProfiniteGroup.of x = TauCeti.freeProfiniteGroup.of x := rfl` fails with "not unfolded … `TauCeti.freeProfiniteGroup.of` not exposed".
 - The propositional proof `rw [← TauCeti.freeProfiniteGroup.fromFreeGroup_of, TauCeti.freeProfiniteGroup.coe_fromFreeGroup]; rfl` succeeds.
-- In a non-`module` file (`artifacts/prop/defeq_nonmodule.lean`) the `of` equation is `rfl`. So are `(GQ2.Delta : Type) = TauCeti.freeProP 2 (Fin 2)` and `GQ2.deltaP = TauCeti.freeProP.of 0`.
+- In a non-`module` file (`tauceti-t2-evidence/prop/defeq_nonmodule.lean`) the `of` equation is `rfl`. So are `(GQ2.Delta : Type) = TauCeti.freeProP 2 (Fin 2)` and `GQ2.deltaP = TauCeti.freeProP.of 0`.
 
 **(2) Do the two `proPKernel`s agree?** The definitions are textually identical (`⨅ U : {U : OpenNormalSubgroup G // IsPGroup p (G ⧸ U.toSubgroup)}, U.1.toSubgroup`,
 `GQ2/MaxProP.lean:132` vs `Profinite/MaximalProP.lean:97`), so they are definitionally equal. But
 `rfl` fails from a `module` file ("`TauCeti.proPKernel` not exposed"). `rfl` succeeds in a non-module
-file and with `import all TauCeti.Topology.Algebra.Group.Profinite.MaximalProP` (`artifacts/prop/defeq_importall.lean`).
+file and with `import all TauCeti.Topology.Algebra.Group.Profinite.MaximalProP` (`tauceti-t2-evidence/prop/defeq_importall.lean`).
 Propositionally: `TauCeti.mem_proPKernel_iff` + `Subgroup.mem_iInf`, a 3-line proof (in `GQ2/TauCeti/Smoke.lean`).
 `IsProP` behaves the same way: `TauCeti.isProP_iff.symm` works, `Iff.rfl` does not.
 
@@ -713,7 +714,7 @@ Instances at `F = ℚ_[2]` (all tested by `#synth`): `Fact (Nat.Prime 2)` = `Nat
 `ContinuousSMul (ZMod n) M` synthesize (`smulCommClass'`, `continuousSMul_of_discreteTopology`).
 
 ### Translation
-- **B7 closes in scratch** (`artifacts/cohom/evidence/b7_proof.lean`, ~45 lines on top of A2's propositional `h1Equiv`/`h2Equiv`; the field's
+- **B7 closes in scratch** (`tauceti-t2-evidence/cohom/evidence/b7_proof.lean`, ~45 lines on top of A2's propositional `h1Equiv`/`h2Equiv`; the field's
   exact statement; `#print axioms` = `propext, Classical.choice, Quot.sound`): `A := TauCeti.ofDiscreteModule (ZMod (Nat.card M))
   (Field.absoluteGaloisGroup ℚ_[2]) M`; `A.V = M` and `TopRep.distribMulAction A = ‹DistribMulAction AbsGalQ2 M›` are `rfl`, so
   `H1 AbsGalQ2 A.V` is `H1 AbsGalQ2 M`; `e1 := h1Equiv.trans A.explicitH1AddEquivContinuousCohomologyOfDiscrete`, `e2` likewise,
@@ -729,7 +730,7 @@ Instances at `F = ℚ_[2]` (all tested by `#synth`): `Fact (Nat.Prime 2)` = `Nat
   `StrongRankCondition ℚ_[2]` time out (also at 100k heartbeats, 100 s) through the loop
   `IsLocalRing → HenselianLocalRing → TauCeti.IsAdicComplete.henselianLocalRing → IsLocalRing …` (`RingTheory/Henselian/Basic.lean:88`),
   so `Module.finrank_self ℚ_[2]` fails. Fix: `attribute [-instance] TauCeti.IsAdicComplete.henselianLocalRing in` or
-  `@Module.finrank_self ℚ_[2] _ (@commRing_strongRankCondition ℚ_[2] _ DivisionRing.toNontrivial)` (`artifacts/cohom/evidence/b7_finrank_workaround.lean`).
+  `@Module.finrank_self ℚ_[2] _ (@commRing_strongRankCondition ℚ_[2] _ DivisionRing.toNontrivial)` (`tauceti-t2-evidence/cohom/evidence/b7_finrank_workaround.lean`).
 - Universes: `eulerCharacteristic_mixed` fixes `F : Type`, `GalRep n F = TopRep.{0}`, and the explicit comparisons need `G M` in one
   universe, so the adapter covers `M : Type` only (matches `LiteratureInputs`). C2's restatement with `M : Type*` would need an
   extra transport of `M` to a `Type`-sized copy (e.g. along `Finite.equivFin`), which Tau Ceti does not provide.
@@ -741,8 +742,8 @@ Instances at `F = ℚ_[2]` (all tested by `#synth`): `Fact (Nat.Prime 2)` = `Nat
 ## B6: local Tate duality at every finite `k/ℚ₂`
 
 Scratch evidence: `GQ2/TauCeti/Smoke.lean` (77 `#check`s + 6 `rfl`/`Iff.rfl` pins, elaborates clean; output in
-the `#check` output of `Smoke.lean`) and `artifacts/tate/b6check.lean` (the Q4 reconstruction and the instance-package test, elaborates
-clean, `#print axioms` = `propext, Classical.choice, Quot.sound`), both in `artifacts/tate/`.
+the `#check` output of `Smoke.lean`) and `tauceti-t2-evidence/tate/b6check.lean` (the Q4 reconstruction and the instance-package test, elaborates
+clean, `#print axioms` = `propext, Classical.choice, Quot.sound`), both in `tauceti-t2-evidence/tate/`.
 
 ### gq2 side
 
@@ -796,7 +797,7 @@ All under `.lake/packages/TauCeti/TauCeti/`; `CFT/` = `NumberTheory/ClassFieldTh
   `TauCeti.finiteIntermediateFieldValuativeRel/Topology ℚ_[2] (AlgebraicClosure ℚ_[2]) K` and
   `finiteIntermediateField_isNonarchimedeanLocalField` (`NumberTheory/LocalField/FiniteExtension/IntermediateField.lean:69,75,97`);
   `Finite`, `DiscreteTopology`, `Fact IsSmoothDiscrete` come from building `A` (below). **Tested**
-  (`artifacts/tate/b6check.lean`, all three `(i,j)`).
+  (`tauceti-t2-evidence/tate/b6check.lean`, all three `(i,j)`).
 - `TauCeti.ClassFieldTheory.tateDualityPairing` — `…Local.Duality.Basic` (`CFT/Local/Duality/Basic.lean:385`), `= tr (hij ▸ (tateEvaluationPairing A).cup i j x y)` (`tateDualityPairing_def`)
   ```lean
   @TauCeti.ClassFieldTheory.tateDualityPairing : {n : ℕ} →
@@ -846,7 +847,7 @@ All under `.lake/packages/TauCeti/TauCeti/`; `CFT/` = `NumberTheory/ClassFieldTh
   ```
   The only `range_absoluteGaloisGroupExtend_*` lemma in Shapiro.lean (plus
   `index_eq_finrank_of_range_absoluteGaloisGroupExtend_eq_comap`, `:114`). Its 12-line proof works
-  verbatim for any finite `E : IntermediateField ℚ_[2] ℚ̄₂` (`T2Tate.range_absoluteGaloisGroupExtend_sepEmb` in `artifacts/tate/b6check.lean`).
+  verbatim for any finite `E : IntermediateField ℚ_[2] ℚ̄₂` (`T2Tate.range_absoluteGaloisGroupExtend_sepEmb` in `tauceti-t2-evidence/tate/b6check.lean`).
 - `TauCeti.absoluteGaloisGroupExtend` / `absoluteGaloisGroupExtendEquiv` / `coe_absoluteGaloisGroupExtendEquiv_apply`
   (`FieldTheory/Galois/AbsoluteGaloisGroup/FiniteExtension.lean:247,325,337`)
   ```lean
@@ -872,7 +873,7 @@ All under `.lake/packages/TauCeti/TauCeti/`; `CFT/` = `NumberTheory/ClassFieldTh
 
 ### Translation
 
-1. **Group** (Q4, done in `artifacts/tate/b6check.lean`): `K := fixedField ι.range`, `K.fixingSubgroup = ι.range`,
+1. **Group** (Q4, done in `tauceti-t2-evidence/tate/b6check.lean`): `K := fixedField ι.range`, `K.fixingSubgroup = ι.range`,
    `FiniteDimensional ℚ_[2] K`, `e : G ≃ₜ* Field.absoluteGaloisGroup K` with
    `absoluteGaloisGroupExtend ℚ_[2] K (sepEmb K) (e g) = ι g`. Offer `range_absoluteGaloisGroupExtend_sepEmb` to A1:
    with `absoluteGaloisGroupExtendEquiv` it *is* A1's `k.fixingSubgroup ≃ₜ* Field.absoluteGaloisGroup ↥k`.
@@ -921,7 +922,7 @@ then cup naturality across `e` and the two coefficient isos in three bidegrees).
 surjectivity of `x ↦ Φ x · : Hⁱ(A') → Hom(Hʲ(A), ZMod n)`, which is exactly gq2's direction (dual in the left
 slot). `tateDualityPairing_flip_perfect` (`:220`) gives the same for `y ↦ Φ · y`. So this is not just
 two-sided nondegeneracy: (b) is the surjectivity half. It is not packaged as `Function.Bijective` of a
-bundled hom; the packaging is 3 lines, checked: `T2Tate.bijective_of_perfect` in `artifacts/tate/b6check.lean`
+bundled hom; the packaging is 3 lines, checked: `T2Tate.bijective_of_perfect` in `tauceti-t2-evidence/tate/b6check.lean`
 (`(Φ : X →+ Y →+ ZMod n) → (h.1 ∧ h.2) → Function.Bijective Φ`, via `injective_iff_map_eq_zero` +
 `AddMonoidHom.ext`). No counting is needed in the adapter (Tau Ceti did it internally with
 `TauCeti.forall_eq_zero_and_exists_eq_of_bijective_flip`, `Algebra/Module/ZMod/Dual.lean:99`). If only two-sided
@@ -953,7 +954,7 @@ plus `Subgroup.isClosed_of_isOpen` (open ⇒ closed). Tau Ceti's analogues
 `Subgroup (ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂)` without friction). `IsGalois ℚ_[2] ℚ̄₂` is required (see item 7).
 What `IsLocalDualizingGroup G n` provides: `ι : G →* AbsGalQ2`, `hι : IsOpenEmbedding ι`, `ι.range.FiniteIndex`
 (redundant), and `∀ g x, g • x = ι g • x` on `MuN n`. Reconstruction, **checked**
-(`T2Tate.exists_absoluteGaloisGroup_equiv`, `artifacts/tate/b6check.lean`, standard three axioms):
+(`T2Tate.exists_absoluteGaloisGroup_equiv`, `tauceti-t2-evidence/tate/b6check.lean`, standard three axioms):
 `U := ι.range` open by `hι.isOpen_range`; `K := fixedField U`; `K.fixingSubgroup = U` by
 `fixingSubgroup_fixedField ⟨U, Subgroup.isClosed_of_isOpen _ hUopen⟩`; `FiniteDimensional ℚ_[2] K` by
 `(InfiniteGalois.isOpen_iff_finite K).mp` (or degree `= U.index` by `finrank_eq_fixingSubgroup_index`);
@@ -1016,7 +1017,7 @@ hilbertSymbol_normCriterion_finiteDyadic
   `[LocallyCompactSpace G]`); `trivialF2 G` has carrier `ULift.{u} (ZMod 2)` (`TrivialF2.lean:92-96`).
 
 ### Translation
-- Tau Ceti half done (`artifacts/galois/a1_b11a_prototype.lean`, sorry-free, standard axioms). With `G := ↥k.fixingSubgroup` and
+- Tau Ceti half done (`tauceti-t2-evidence/galois/a1_b11a_prototype.lean`, sorry-free, standard axioms). With `G := ↥k.fixingSubgroup` and
   `gq2KummerChar k a : G →* Multiplicative (ZMod 2)`, `g ↦ ofAdd (kummerCocycleFun (sqrtCl ↑↑a) ↑g)`:
   ```lean
   theorem cup_gq2KummerChar_eq_zero_iff (a b : (↥k)ˣ) :
@@ -1198,7 +1199,7 @@ The adapter must supply:
 
 Result: **closed in scratch.** A complete `localReciprocity_tauceti : GQ2.LocalReciprocity`, with
 all ten fields including `norm_reciprocity`, elaborates with `#print axioms` = `[propext,
-Classical.choice, Quot.sound]` (`artifacts/recip/draft_b5_b10.lean`, lines 26-139, about 115
+Classical.choice, Quot.sound]` (`tauceti-t2-evidence/recip/draft_b5_b10.lean`, lines 26-139, about 115
 lines). It imports only Tau Ceti modules and `GQ2.Reciprocity`, and uses none of A1, A2 or P1.
 
 ### gq2 side
@@ -1319,7 +1320,7 @@ the `#check` output of `Smoke.lean`.
   for `Algebra.IsSeparable ℚ_[2] ↥L` hits a deterministic timeout at 20000 heartbeats, so supply
   `haveI := IsGalois.to_isSeparable` (tested).
 
-### Translation (all tested in `artifacts/recip/draft_b5_b10.lean`)
+### Translation (all tested in `tauceti-t2-evidence/recip/draft_b5_b10.lean`)
 - **`recip := TauCeti.ClassFieldTheory.artinMap ℚ_[2]`**, with no cast. Continuity and density
   are the two Tau Ceti theorems verbatim. Both sides are arithmetic: `localArtinMap_uniformizer`
   sends a uniformizer to arithmetic Frobenius, and gq2's docstring fixes `rec(2)` as arithmetic.
@@ -1393,7 +1394,7 @@ the `#check` output of `Smoke.lean`.
 ## B10: oriented tame quotient
 
 Result: **closed in scratch.** A complete `tameQuotient_tauceti : OrientedTameQuotient localReciprocity_tauceti`
-elaborates at the standard three axioms (`artifacts/recip/draft_b5_b10.lean`, lines 142-330, about 190 lines,
+elaborates at the standard three axioms (`tauceti-t2-evidence/recip/draft_b5_b10.lean`, lines 142-330, about 190 lines,
 including the `Ttame` equivalence). It does **not** need P1.
 
 ### gq2 side
@@ -1490,7 +1491,7 @@ with `Topology/`.
 - Alternatives, not needed: `isArithFrobeniusLift_of_mk_eq_artinMap_uniformizer` and
   `mem_inertiaSubgroup_of_mk_eq_artinMap` (`ClassFieldTheory/Local/Unramified.lean:464, :456`).
 
-### Translation (all tested in `artifacts/recip/draft_b5_b10.lean`)
+### Translation (all tested in `tauceti-t2-evidence/recip/draft_b5_b10.lean`)
 - **Fields other than `equiv`:**
   - `W := TauCeti.wildInertiaSubgroup ℚ_[2]`.
   - `normal := TauCeti.wildInertiaSubgroup_normal ℚ_[2]`.
@@ -1652,7 +1653,7 @@ dischargeable. On `absoluteGaloisGroupProP 2 ℚ_[2]` and `demushkinD0`: `Quotie
 nothing by hand except the `IsProP` proofs passed explicitly to `d0Lift`/`proPKernel_le_ker`.
 
 ### Translation
-**Tested end to end**: `artifacts/orient/adapter_sketch.lean` (186 lines, `module` with `public import` of 4 Tau Ceti modules + `GQ2.Orientation` + `GQ2.Prop32`)
+**Tested end to end**: `tauceti-t2-evidence/orient/adapter_sketch.lean` (186 lines, `module` with `public import` of 4 Tau Ceti modules + `GQ2.Orientation` + `GQ2.Prop32`)
 builds `dyadicOrientation_tauceti [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] : GQ2.DyadicOrientation`; `#print axioms` gives
 `[propext, Classical.choice, Quot.sound]`; the field shape matches. What it does:
 1. **Tau Ceti bodies are not exposed** (none of the B3c files has `@[expose]`). Every `rfl` bridge fails with "definitions were not unfolded because their
@@ -1772,7 +1773,7 @@ Plan claims confirmed:
 - `deltaP ^ᶻ ι u = padicPow deltaP u`, by `zpowHat_eq_zpowZtwo`, `hι_proj` and P1's `zpowZtwo_eq_padicPow`.
 - `cP = 1` is available but not needed.
 
-**The whole bundle elaborates in scratch** (`artifacts/prop/proto_b8.lean`, `Scratch.b8 : GQ2.PeripheralCyclotomicAction`,
+**The whole bundle elaborates in scratch** (`tauceti-t2-evidence/prop/proto_b8.lean`, `Scratch.b8 : GQ2.PeripheralCyclotomicAction`,
 `#print axioms` = standard three, about 230 lines including the P1 pieces it needs). The pattern:
 1. Prove an `autSpec u : ∃ φ cP cT cC, φ deltaP = conjP (deltaP ^ᶻ iota u) cP ∧ …` by `obtain` from the Tau Ceti theorem, rewriting `periph* deltaEquiv` before choosing.
 2. Take `aut u := (autSpec u).choose`, etc.
