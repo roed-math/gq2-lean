@@ -89,6 +89,7 @@ local instance : (NormedField.valuation (K := K)).HasExtension
 local instance : Algebra (finiteNormInteger K) (finiteNormInteger L) :=
   Valuation.HasExtension.instAlgebra_valuationSubring
     (NormedField.valuation (K := K)) (NormedField.valuation (K := L))
+set_option synthInstance.maxHeartbeats 40000 in
 local instance : IsLocalHom (algebraMap (finiteNormInteger K) (finiteNormInteger L)) :=
   Valuation.HasExtension.instIsLocalHomValuationInteger
 

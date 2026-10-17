@@ -126,7 +126,7 @@ theorem relE_mul_val_relativeNorm
   let Ny : (↥K)ˣ := Units.map (Algebra.norm (↥K) (S := E)) y
   have hN : ‖(((Ny : (↥K)ˣ) : ↥K) : ℚ̄₂)‖ =
       ‖((yL : ↥L) : ℚ̄₂)‖ ^ Module.finrank (↥K) E := by
-    simpa [Ny, yL] using relative_norm_val E (y : E)
+    exact relative_norm_val E (y : E)
   have hright : ‖(((Ny : (↥K)ˣ) : ↥K) : ℚ̄₂)‖ =
       ‖FL.π‖ ^
         ((Module.finrank (↥K) E : ℤ) * dyadicValuation FL yL) := by
