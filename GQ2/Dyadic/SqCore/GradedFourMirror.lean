@@ -270,14 +270,20 @@ variable {S X Y U V : SqU5 R}
 theorem mirTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     mirTuple R h j S X Y U V (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [mirTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [mirTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega)]
 
 theorem mirTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     mirTuple R h j S X Y U V (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [mirTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [mirTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega)]
 
@@ -555,14 +561,20 @@ theorem nuSel_handleU_ne {t s : ℤ_[2]} {j' : Fin h} (hne : j' ≠ j) :
     nuSel h j t s (sqGen h (sqHandleIdxU j')) = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   rw [nuSel, sqLiftHom_gen]
-  simp only [sqSelMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqSelMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 theorem nuSel_handleV_ne {t s : ℤ_[2]} {j' : Fin h} (hne : j' ≠ j) :
     nuSel h j t s (sqGen h (sqHandleIdxV j')) = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
   rw [nuSel, sqLiftHom_gen]
-  simp only [sqSelMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [sqSelMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- ⭐ **The `b`-column of a test hom of this shape is the selected row**, reduced mod `8`, at

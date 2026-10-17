@@ -1837,7 +1837,12 @@ theorem twoTuple_handleU_ne {j' : Fin h} (h1 : j' ≠ j₁) (h2 : j' ≠ j₂) :
     twoTuple G h j₁ j₂ S X Y U₁ V₁ U₂ V₂ (sqHandleIdxU j') = 1 := by
   have hv1 : (j' : ℕ) ≠ (j₁ : ℕ) := fun hc => h1 (Fin.val_injective hc)
   have hv2 : (j' : ℕ) ≠ (j₂ : ℕ) := fun hc => h2 (Fin.val_injective hc)
-  simp only [twoTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have e0 := sqHandleIdxU_val j'
+  have e1 := sqHandleIdxU_val j₁
+  have e2 := sqHandleIdxV_val j₁
+  have e3 := sqHandleIdxU_val j₂
+  have e4 := sqHandleIdxV_val j₂
+  simp only [twoTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
@@ -1845,7 +1850,12 @@ theorem twoTuple_handleV_ne {j' : Fin h} (h1 : j' ≠ j₁) (h2 : j' ≠ j₂) :
     twoTuple G h j₁ j₂ S X Y U₁ V₁ U₂ V₂ (sqHandleIdxV j') = 1 := by
   have hv1 : (j' : ℕ) ≠ (j₁ : ℕ) := fun hc => h1 (Fin.val_injective hc)
   have hv2 : (j' : ℕ) ≠ (j₂ : ℕ) := fun hc => h2 (Fin.val_injective hc)
-  simp only [twoTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have e0 := sqHandleIdxV_val j'
+  have e1 := sqHandleIdxU_val j₁
+  have e2 := sqHandleIdxV_val j₁
+  have e3 := sqHandleIdxU_val j₂
+  have e4 := sqHandleIdxV_val j₂
+  simp only [twoTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 

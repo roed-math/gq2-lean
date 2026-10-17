@@ -304,7 +304,8 @@ private theorem lift_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHan
 @[simp] theorem selLift_handleU {j' : Fin h} :
     selLift j m w₁ w₂ z₃ z₄ (sqHandleIdxU j')
       = if j' = j then m (sqHandleIdxU j') * z₃ else m (sqHandleIdxU j') := by
-  simp only [selLift, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [selLift]
   rw [if_neg (by omega), if_neg (by omega),
     if_neg (lift_handleU_ne_handleV j')]
   by_cases hj : j' = j
@@ -318,7 +319,8 @@ private theorem lift_handleU_ne_handleV (j' : Fin h) : sqHandleIdxU j' ≠ sqHan
 @[simp] theorem selLift_handleV {j' : Fin h} :
     selLift j m w₁ w₂ z₃ z₄ (sqHandleIdxV j')
       = if j' = j then m (sqHandleIdxV j') * z₄ else m (sqHandleIdxV j') := by
-  simp only [selLift, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [selLift]
   rw [if_neg (by omega), if_neg (by omega), if_neg (lift_handleV_ne_handleU j')]
   by_cases hj : j' = j
   · subst hj

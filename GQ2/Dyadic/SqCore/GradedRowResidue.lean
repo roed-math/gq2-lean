@@ -996,12 +996,14 @@ noncomputable def gRsdTuple (h : ℕ) (e₀ e₁ e₂ : (DSq h : Type)) :
 
 @[simp] theorem gRsdTuple_handleU (e₀ e₁ e₂ : (DSq h : Type)) (j : Fin h) :
     gRsdTuple h e₀ e₁ e₂ (sqHandleIdxU j) = 1 := by
-  simp only [gRsdTuple, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j
+  simp only [gRsdTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem gRsdTuple_handleV (e₀ e₁ e₂ : (DSq h : Type)) (j : Fin h) :
     gRsdTuple h e₀ e₁ e₂ (sqHandleIdxV j) = 1 := by
-  simp only [gRsdTuple, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j
+  simp only [gRsdTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- Carrier membership of the tuple, slotwise. -/

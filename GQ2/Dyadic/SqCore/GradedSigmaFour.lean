@@ -203,13 +203,15 @@ variable {m : Fin (sqRank h) → SqU5 R} {z₀ w₁ w₂ z₃ z₄ : SqU5 R}
 @[simp] theorem sigLift_handleU {j' : Fin h} :
     sigLift j m z₀ w₁ w₂ z₃ z₄ (sqHandleIdxU j')
       = if j' = j then m (sqHandleIdxU j') * z₃ else m (sqHandleIdxU j') := by
-  simp only [sigLift, sqHandleIdxU_val]
+  have hv := sqHandleIdxU_val j'
+  simp only [sigLift]
   rw [if_neg (by omega), selLift_handleU]
 
 @[simp] theorem sigLift_handleV {j' : Fin h} :
     sigLift j m z₀ w₁ w₂ z₃ z₄ (sqHandleIdxV j')
       = if j' = j then m (sqHandleIdxV j') * z₄ else m (sqHandleIdxV j') := by
-  simp only [sigLift, sqHandleIdxV_val]
+  have hv := sqHandleIdxV_val j'
+  simp only [sigLift]
   rw [if_neg (by omega), selLift_handleV]
 
 /-- ⭐⭐ **The five-slot translation identity at class four**: the refinement translates the

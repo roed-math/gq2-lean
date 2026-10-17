@@ -248,7 +248,7 @@ theorem affineDeterminant_galK_compatible
     ⟨Continuous.comp (continuous_smul (M := AbsGalQ2) (X := MuN 2))
       ((continuous_subtype_val.comp continuous_fst).prodMk continuous_snd)⟩
   have hidx : (GalKsub K).index = params.n :=
-    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm.trans hdeg
+    (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm.trans hdeg
   constructor
   · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt
       m hm hcard l h hunram

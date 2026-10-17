@@ -670,10 +670,12 @@ theorem gExt_dress_full (hk : 2 ≤ k) {n : ℕ} (m m' : Fin (sqRank n) → leve
     · simp only [sqVal_two]
       norm_num
     · intro i
-      simp only [sqHandleIdxU_val]
+      have hv := sqHandleIdxU_val i
+      dsimp only
       rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
     · intro i
-      simp only [sqHandleIdxV_val]
+      have hv := sqHandleIdxV_val i
+      dsimp only
       rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
   have hcore := gTower_dress_core hk m mA hc0 hc1 hc2 hA0 hA1 hA2 hAU hAV
   have hhand := gExt_dress_handles hk mA m' hcU hcV (by rw [h0, hA0]) (by rw [h1, hA1])

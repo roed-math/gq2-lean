@@ -239,12 +239,14 @@ noncomputable def gRowExp (A B : ℤ_[2]) {h : ℕ} (i : Fin (sqRank h)) : ℤ_[
 
 @[simp] theorem gRowExp_handleU (A B : ℤ_[2]) (j : Fin h) :
     gRowExp A B (sqHandleIdxU j) = 0 := by
-  simp only [gRowExp, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j
+  simp only [gRowExp]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem gRowExp_handleV (A B : ℤ_[2]) (j : Fin h) :
     gRowExp A B (sqHandleIdxV j) = 0 := by
-  simp only [gRowExp, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j
+  simp only [gRowExp]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- **The row-move ansatz**: slot `i` is `gen_i * w^{e_i} * c_i`, with `w` the chi-trivial

@@ -1387,14 +1387,20 @@ variable {S X Y U V : SqU6 R}
 theorem fiveTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     fiveTuple R h j S X Y U V (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [fiveTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [fiveTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega)]
 
 theorem fiveTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     fiveTuple R h j S X Y U V (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [fiveTuple, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [fiveTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (by omega)]
 

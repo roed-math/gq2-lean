@@ -15042,7 +15042,7 @@ private def checkedPrefixChain : Deriv :=
     checkedPrefixBlock9, checkedPrefixBlock10, checkedPrefixBlock11]
 
 
-private theorem checkedPrefixChain_checked : checkedPrefixChain.check = true := by decide
+private theorem checkedPrefixChain_checked : checkedPrefixChain.check = true := by decide +kernel
 
 private theorem checkedPrefixChain_noRel : checkedPrefixChain.noRel = true := by decide
 

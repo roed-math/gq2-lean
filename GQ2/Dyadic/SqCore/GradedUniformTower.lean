@@ -812,10 +812,12 @@ theorem gTower_dress_core {n : ℕ} (hk : 2 ≤ k) (m m' : Fin (sqRank n) → le
     · simp only [sqVal_two]
       norm_num
     · intro i
-      simp only [sqHandleIdxU_val]
+      have hv := sqHandleIdxU_val i
+      dsimp only
       rw [if_neg (by omega)]
     · intro i
-      simp only [sqHandleIdxV_val]
+      have hv := sqHandleIdxV_val i
+      dsimp only
       rw [if_neg (by omega)]
   obtain ⟨mB, hB0, hB1, hB2, hBU, hBV⟩ :
       ∃ mB : Fin (sqRank n) → levelQuot G (k + 2),
@@ -829,10 +831,12 @@ theorem gTower_dress_core {n : ℕ} (hk : 2 ≤ k) (m m' : Fin (sqRank n) → le
     · simp only [sqVal_two]
       norm_num
     · intro i
-      simp only [sqHandleIdxU_val]
+      have hv := sqHandleIdxU_val i
+      dsimp only
       rw [if_neg (by omega)]
     · intro i
-      simp only [sqHandleIdxV_val]
+      have hv := sqHandleIdxV_val i
+      dsimp only
       rw [if_neg (by omega)]
   have step0 := gTower_dress_zero m mA hc0 hA0 hA1 hA2 hAU hAV
   have step1 := gTower_dress_one mA mB hc1 hB0 hB1 hB2 hBU hBV
