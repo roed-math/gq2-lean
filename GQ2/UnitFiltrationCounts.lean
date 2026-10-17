@@ -214,7 +214,7 @@ private theorem gradeZeroHom_surjective : Function.Surjective (gradeZeroHom k) :
   rw [gradeZeroHom_val, ← ha]; congr 1
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
-private theorem card_gradeZero {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) :
+theorem card_gradeZero {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) :
     Nat.card (↥(normUnits k) ⧸ (depthUnits k (π : ℚ̄₂) 1).subgroupOf (normUnits k))
       = Nat.card (ResidueField k)ˣ := by
   rw [← gradeZeroHom_ker k hπlt hπmax]
