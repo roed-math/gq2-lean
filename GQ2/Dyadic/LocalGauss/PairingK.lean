@@ -7,6 +7,7 @@ module
 
 public import GQ2.Dyadic.LocalGauss.Q0
 public import GQ2.LocalLiftingDuality
+public import GQ2.Foundations.TauCetiInstance
 
 @[expose] public section
 

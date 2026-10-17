@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, and OpenAI Codex
 -/
 import GQ2.Dyadic.FiniteTwoLocalReciprocityKummer
 import GQ2.Dyadic.FieldData
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The local Tate--Kummer--Artin compatibility seam

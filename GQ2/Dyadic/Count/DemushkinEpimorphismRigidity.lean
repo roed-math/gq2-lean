@@ -721,7 +721,7 @@ private theorem exists_kernelCharacter_transgressionCocycle
     obtain ⟨h, rfl⟩ := hf y
     exact ⟨(g, h), rfl⟩
   have hq : Topology.IsQuotientMap f2 :=
-    IsQuotientMap.of_surjective_continuous hf2 f2.continuous
+    Topology.IsQuotientMap.of_surjective_continuous hf2 f2.continuous
   let db : C(G × G, ZMod 2) :=
     ⟨dOne G (ZMod 2) b,
       ((continuous_fst.smul (hbcont.comp continuous_snd)).sub

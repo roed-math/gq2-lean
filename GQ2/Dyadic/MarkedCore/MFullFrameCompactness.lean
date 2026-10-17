@@ -179,6 +179,7 @@ theorem mStageFullFrameRealizes_abMk_eq {alpha h : ℕ} (ha : 1 ≤ alpha)
     abMk (Psi (dmGen alpha h i)) = abMk (Psi' (dmGen alpha h i)) :=
   mPhiHom_injective ha h ((hPsi.2 i).trans (hPsi'.2 i).symm)
 
+set_option synthInstance.maxSize 256 in
 theorem isClosed_mStageFullFrameStageSet {alpha h : ℕ} (ha : 1 ≤ alpha)
     (mark : Fin (coreRank h) → MFrameModel h) (k : ℕ) :
     IsClosed (mStageFullFrameStageSet ha mark k) := by

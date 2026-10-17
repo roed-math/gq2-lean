@@ -384,9 +384,8 @@ theorem pObsFam_inflation (W : ρ → PWord ι) (gen : ι → Γ) (H : Continuou
   have hfact : ∀ x y : Γ, WordCoh.normalizeCochain φ.1 (x, y)
       = (κ.comap Hbar).κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y) := by
     intro x y
-    rw [WordCoh.TwoCocycle.comap_κ, hHbarmk, hHbarmk, ← hφ]
-    show φ.1 (x, y) - φ.1 (1, 1) = φ.1 (x, y)
-    rw [hnorm, sub_zero]
+    show φ.1 (x, y) - φ.1 (1, 1) = κ.κ (H x) (H y)
+    rw [hnorm, sub_zero, hφ]
   show pObsFun W gen φ = _
   rw [pObsFun_eq W gen φ ⟨V, κ.comap Hbar, hfact⟩]
   show (fun k => pRelZ (W k) (fun i => QuotientGroup.mk' V.toSubgroup (gen i)) (κ.comap Hbar)) = _

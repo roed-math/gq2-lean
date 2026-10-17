@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 import GQ2.Dyadic.SqCore.Cores
 import GQ2.Roe.MarkedPro2
 import GQ2.Roe.Labute.Assembly
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # `marked_square_core_rank3`: the rank-three marked core of the `L_sq` family

@@ -1,5 +1,6 @@
 import GQ2.Dyadic.CyclotomicKummerBridge
 import GQ2.HilbertSymbolDyadic
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The independent mod-eight cyclotomic row is the Kummer class of two

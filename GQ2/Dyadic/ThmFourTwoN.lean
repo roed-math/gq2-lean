@@ -449,12 +449,12 @@ private theorem rStage_laneN (S₁ S₂ : SourceDataN n q P hP nuP SN) (F : Boun
     -- the chief-factor structure of the enrichment module
     have hSimp := SectionNine.blockHsimple T Blk
     have hsimple : ∀ W : AddSubgroup (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod,
-        (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
+        (∀ g : (SectionNine.blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
       hSimp.2
     have hVne : ∃ v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod, v ≠ 0 := by
       haveI : Nontrivial (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod := hSimp.1
       exact exists_ne 0
-    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
+    have hnt : ∃ (g : (SectionNine.blockFrame T Blk hE2).YC)
         (v : (blockEnrichmentDK T Blk hE2 hq0 hqe F).Vmod), g • v ≠ v :=
       SectionNine.blockHnt T Blk
     -- the Gauss-`Z` residues at the shared `G0`, each side contributing its record leaf

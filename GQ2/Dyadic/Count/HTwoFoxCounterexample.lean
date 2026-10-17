@@ -47,14 +47,15 @@ theorem modTwoFoxDerivative_punit_apply (f : FreeGroup I) (i : I) :
       map_add' := fun _ _ => rfl }
   let lhs : FreeGroup I →* Multiplicative (ZMod 2) :=
     (AddMonoidHom.toMultiplicative coord).comp ((modTwoRelationFoxMap m).comp ker)
+  have hcoord : ∀ c, coord c = c ((1 : PUnit), i) := fun _ => rfl
   have hlhs : lhs = heisEps i := by
     apply FreeGroup.ext_hom
     intro j
     by_cases hji : j = i <;>
-      simp [lhs, ker, coord, m, modTwoRelationFoxMap, modTwoFoxGenerator, heisEps, hji]
+      simp [lhs, ker, hcoord, m, modTwoRelationFoxMap, modTwoFoxGenerator, heisEps, hji]
   have hf := DFunLike.congr_fun hlhs f
   apply Multiplicative.ofAdd.injective
-  simpa [lhs, coord, ker, m, modTwoRelationFoxMap] using hf
+  simpa [lhs, hcoord, ker, m, modTwoRelationFoxMap] using hf
 
 variable {w : Fin 2 → FreeGroup I}
 

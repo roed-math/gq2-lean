@@ -197,7 +197,7 @@ theorem ker_heisD0_eq_fixedPts {c : ι → C} (hgen : Subgroup.closure (Set.rang
 theorem card_ker_heisD0_eq_card_fixedPts {c : ι → C}
     (hgen : Subgroup.closure (Set.range c) = ⊤) :
     Nat.card ↥(heisD0 (A := A) c).ker = Nat.card (fixedPts C A) :=
-  Nat.card_congr (Equiv.setCongr (ker_heisD0_eq_fixedPts hgen))
+  Nat.card_congr (Set.equivOfEq (ker_heisD0_eq_fixedPts hgen))
 
 end Generation
 

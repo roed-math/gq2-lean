@@ -127,6 +127,7 @@ theorem initialFormTarget_sq_fibB (q : InitialFormTarget) :
 theorem sqWord_initialCoreMark :
     sqWord (initialCoreMark 0) (initialCoreMark 1) (initialCoreMark 2) =
       ((1, 1, 1) : InitialFormTarget) := by
+  show _ = @id InitialFormTarget (1, 1, 1)
   decide
 
 /-- No square in the finite test group is the central vector `(1,1)`. -/
@@ -171,19 +172,13 @@ def initialFormMark (h : ℕ) : Fin (sqRank h) → InitialFormTarget := fun i =>
 
 @[simp] theorem initialFormMark_handleU {h : ℕ} (j : Fin h) :
     initialFormMark h (sqHandleIdxU j) = 1 := by
-  rw [initialFormMark]
-  simp only [sqHandleIdxU]
-  split
-  · omega
-  · rfl
+  rw [initialFormMark, dif_neg (show ¬ (sqHandleIdxU j).1 < 3 from fun hlt => by
+    simp only [sqHandleIdxU] at hlt; omega)]
 
 @[simp] theorem initialFormMark_handleV {h : ℕ} (j : Fin h) :
     initialFormMark h (sqHandleIdxV j) = 1 := by
-  rw [initialFormMark]
-  simp only [sqHandleIdxV]
-  split
-  · omega
-  · rfl
+  rw [initialFormMark, dif_neg (show ¬ (sqHandleIdxV j).1 < 3 from fun hlt => by
+    simp only [sqHandleIdxV] at hlt; omega)]
 
 /-- Every stabilized relator evaluates to the same central vector `(1,1)`: the handles die. -/
 theorem sqRelWord_initialFormMark (h : ℕ) :
@@ -195,7 +190,8 @@ theorem sqRelWord_initialFormMark (h : ℕ) :
       (fun j => initialFormMark h (sqHandleIdxV j)) = 1 := by
     exact handleWord_of_one _ _ (fun j => initialFormMark_handleU j)
       (fun j => initialFormMark_handleV j)
-  rw [hh, mul_one]
+  rw [hh]
+  exact mul_one _
 
 /-- The classified finite quotient sends `sqRelator h` to the central vector `(1,1)`. -/
 theorem freeHomFin_sqRelator_initialFormMark (h : ℕ) :

@@ -289,7 +289,7 @@ noncomputable def sylowPreimageMaxProTwoHom
     (rho : ContinuousMonoidHom G C) (P : Sylow 2 C) :
     ContinuousMonoidHom
       (maxProPQuotient 2 (sylowTwoPreimage rho P)) P :=
-  (maxProPHomEquiv (isProP_of_isPGroup P.2)).symm
+  (maxProPHomEquiv (isProP_of_isPGroup P.isPGroup)).symm
     (sylowTwoPreimageHom rho P)
 
 /-- The maximal-pro-2 factor agrees with the original action map on `U`. -/
@@ -300,7 +300,7 @@ noncomputable def sylowPreimageMaxProTwoHom
         (maxProPMk 2 (sylowTwoPreimage rho P) u) =
       sylowTwoPreimageHom rho P u := by
   exact DFunLike.congr_fun
-    ((maxProPHomEquiv (isProP_of_isPGroup P.2)).apply_symm_apply
+    ((maxProPHomEquiv (isProP_of_isPGroup P.isPGroup)).apply_symm_apply
       (sylowTwoPreimageHom rho P)) u
 
 /-- Because `U → P` is onto, its factor `U(2) → P` is onto as well.  Hence the entire

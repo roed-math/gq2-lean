@@ -704,8 +704,7 @@ theorem card_liftsOverK_eq_card_Z1 (RF : RecursionFrame T Blk)
       left_inv := ?_
       right_inv := ?_ }
   · -- forward lands in `Z¹`
-    rw [mem_Z1_iff]
-    refine ⟨?_, ?_⟩
+    refine mem_Z1_iff.mpr ⟨?_, ?_⟩
     · have hg : Continuous (fun γ : Γ => f.1 γ * (f₀.1 γ)⁻¹) :=
         (continuous_of_discreteTopology (f := fun p : RF.YB × RF.YB => p.1 * p.2⁻¹)).comp
           (f.1.continuous_toFun.prodMk f₀.1.continuous_toFun)
@@ -747,9 +746,9 @@ theorem card_liftsOverK_eq_card_Z1 (RF : RecursionFrame T Blk)
     apply Subtype.ext; funext γ
     show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
         : ↥RF.MB) = c.1 γ
-    rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥RF.MB)
-        = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
-    rfl
+    exact congrArg Additive.ofMul
+      (show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥RF.MB)
+        = Additive.toMul (c.1 γ) from Subtype.ext (by group))
 
 end Torsor
 

@@ -733,6 +733,7 @@ end Phi
 
 /-! ## §7 The deliverable: `Nonempty (MFrame α h)` -/
 
+set_option synthInstance.maxSize 256 in
 /-- **The coordinate isomorphism** `φ_M : D_M^{ab} ≃ₜ* ℤ/2 × ℤ₂³ × ℤ₂^{2h}`, the general-rank
 `phiEquivR`.  A continuous bijective hom from a compact group to a Hausdorff group is a
 topological isomorphism (`continuousMulEquivOfBijective`). -/

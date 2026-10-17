@@ -236,14 +236,15 @@ theorem graphPullback_sub_mem_B2 {q : V → ZMod 2} (dat : FactorSet C V)
   have hb1 : ∀ g' : Γ, s * φb g' * s⁻¹ = ((b.1 g' + (g' • w₀ - w₀), ρ g') : SectionSix.SemiProd C V) := by
     intro g'
     rw [hρ g' w₀]
-    simp only [hφ, hs, SectionSix.SemiProd.mul_def, SectionSix.SemiProd.inv_def, one_smul, one_mul, mul_one,
-      inv_one, neg_neg]
+    rw [SectionSix.SemiProd.mul_def, SectionSix.SemiProd.mul_def, SectionSix.SemiProd.inv_def]
+    simp only [hφ, hs, one_smul, one_mul, mul_one, inv_one, neg_neg]
     show ((-w₀ + b.1 g' + ρ g' • w₀, ρ g') : V × C) = (b.1 g' + (ρ g' • w₀ - w₀), ρ g')
     rw [Prod.mk.injEq]
     exact ⟨by abel, rfl⟩
   have hmul : ∀ g' h' : Γ, φb (g' * h') = φb g' * φb h' := by
     intro g' h'
-    simp only [hφ, SectionSix.SemiProd.mul_def]
+    simp only [SectionSix.SemiProd.mul_def]
+    simp only [hφ]
     rw [hb g' h', map_mul ρ g' h', hρ g' (b.1 h')]
   refine (AddSubgroup.mem_map).mpr ⟨fun g => RepIndependence.etaS dat s (φb g), ?_, ?_⟩
   · -- continuity: `η_s ∘ (g ↦ (b g, ρ g))`, factoring through the discrete `V × C`

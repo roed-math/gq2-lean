@@ -72,8 +72,8 @@ theorem topologicallyFG_of_isOpen {G : Type*} [Group G] [TopologicalSpace G]
   set D := Subgroup.closure (s : Set G) with hD
   have hDdense : Dense (D : Set G) := by
     rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, hs, Subgroup.coe_top]
-  haveI hDfg : Group.FG ↥D := (Group.fg_iff_subgroup_fg D).mpr ⟨s, hD.symm⟩
-  obtain ⟨S, hS⟩ := hDfg.1
+  haveI hDfg : Group.FG ↥D := Subgroup.isMulFG_iff.mpr ⟨s, hD.symm⟩
+  obtain ⟨S, hS⟩ := Group.isMulFG_iff.mp hDfg
   obtain ⟨T, -, hT⟩ := Subgroup.exists_finset_card_le_mul (H.subgroupOf D) hS
   let φ : ↥(H.subgroupOf D) →* ↥H :=
     { toFun := fun x => ⟨((x : ↥D) : G), x.2⟩

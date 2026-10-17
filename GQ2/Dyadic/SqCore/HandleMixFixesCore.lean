@@ -175,12 +175,14 @@ noncomputable def sqWitnessMark (h : ℕ) : Fin (sqRank h) → Multiplicative �
 
 @[simp] theorem sqWitnessMark_handleU {h : ℕ} (j : Fin h) :
     sqWitnessMark h (sqHandleIdxU j) = ofAdd (1 : ℤ_[2]) := by
-  simp only [sqWitnessMark, sqHandleIdxU_val]
+  have hv := sqHandleIdxU_val j
+  simp only [sqWitnessMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
 
 @[simp] theorem sqWitnessMark_handleV {h : ℕ} (j : Fin h) :
     sqWitnessMark h (sqHandleIdxV j) = 1 := by
-  simp only [sqWitnessMark, sqHandleIdxV_val]
+  have hv := sqHandleIdxV_val j
+  simp only [sqWitnessMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- The witness marking kills the relator: the abelian collapse is `(x₀⁴)⁻¹x₁²`, i.e.

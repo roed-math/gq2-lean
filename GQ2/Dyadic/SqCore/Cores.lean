@@ -291,8 +291,8 @@ private theorem sqFull_relation (h : ℕ) :
 theorem dsq_relation (h : ℕ) : sqRelWord (sqGen h) = 1 := by
   have key := map_sqRelWord (maxProPMk 2 (profinitePresentation {sqRelator h}))
     (fun i => quotientMk (relatorSubgroup {sqRelator h}) (FreeProfiniteGroup.of i))
-  rw [sqFull_relation, map_one] at key
-  exact key.symm
+  rw [sqFull_relation] at key
+  exact key.symm.trans (map_one _)
 
 /-- **Topological generation of `D_sq`** (the `dr_topGen`/`dm_topGen` pattern). -/
 theorem dsq_topGen (h : ℕ) :
@@ -444,11 +444,13 @@ variable {G : Type*} [Group G] {h : ℕ} (a b c : G)
   norm_num
 
 @[simp] theorem sqMark_handleU (j : Fin h) : sqMark a b c (sqHandleIdxU j) = 1 := by
-  simp only [sqMark, sqHandleIdxU_val]
+  have hv := sqHandleIdxU_val j
+  simp only [sqMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem sqMark_handleV (j : Fin h) : sqMark a b c (sqHandleIdxV j) = 1 := by
-  simp only [sqMark, sqHandleIdxV_val]
+  have hv := sqHandleIdxV_val j
+  simp only [sqMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- The full relator on a standard marking is the bare core word: the handles are trivial. -/

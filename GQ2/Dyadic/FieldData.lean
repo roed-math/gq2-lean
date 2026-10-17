@@ -7,6 +7,7 @@ import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.LocalGauss.EulerShapiro
 import GQ2.Dyadic.LocalGauss.PairingK
 import GQ2.HilbertLedger
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # Dyadic campaign, ticket FD1: the field-side data of `H¹(G_K, 𝔽₂)`
@@ -107,7 +108,7 @@ section Probes
 -- `ℚ̄₂/ℚ₂` is Galois (char 0), which is what makes `index = degree` available below
 example : IsGalois ℚ_[2] ℚ̄₂ := inferInstance
 example : Module.finrank ℚ_[2] K = K.fixingSubgroup.index :=
-  IntermediateField.finrank_eq_fixingSubgroup_index K
+  IntermediateField.finrank_eq_fixingSubgroup_index _ K
 
 end Probes
 
@@ -182,7 +183,7 @@ theorem card_H1_zmodTwo :
   have h := (absGalK_localEulerCharacteristic K (ZMod 2)).2.2.2
   rw [card_H0_zmodTwo, card_H2_zmodTwo, Nat.card_zmod,
     show padicValNat 2 2 = 1 from padicValNat.self one_lt_two, mul_one,
-    ← IntermediateField.finrank_eq_fixingSubgroup_index K] at h
+    ← IntermediateField.finrank_eq_fixingSubgroup_index _ K] at h
   rw [h, pow_add]
   ring
 

@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.LocalGauss.DeepPackage
 import GQ2.InvolutionSplice
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The involution `hvanish` over a general local source (LG4c, part 3)

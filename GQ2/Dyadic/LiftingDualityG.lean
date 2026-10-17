@@ -9,6 +9,7 @@ public import GQ2.LocalLiftingDuality
 public import GQ2.Dyadic.LocalGauss.EulerShapiro
 public import GQ2.Dyadic.LocalGauss.Q0
 public import GQ2.Dyadic.MarkedRecipBundle
+public import GQ2.Foundations.TauCetiInstance
 
 @[expose] public section
 
@@ -731,7 +732,7 @@ theorem prop_5_16_galK_of {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTo
   -- `GalKsub K` and `K.fixingSubgroup` are the same subgroup through two instance paths, so the
   -- degree identity is `exact`-elaborated into the `GalKsub` spelling before being rewritten.
   have hidx : (GalKsub K).index = Module.finrank ℚ_[2] K :=
-    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm
+    (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm
   rwa [hidx] at h
 
 /-- **Prop 5.16 at `G_K`** — the full instantiation, building the duality bundle from **B6**.
@@ -776,7 +777,7 @@ theorem card_Z1_zmod2_galK :
     Nat.card (Z1 (GalK K) (ZMod 2)) = 2 ^ (Module.finrank ℚ_[2] K + 2) := by
   have h := card_Z1_zmod2G (tateDualityGalK K) (localEulerChar_galK K) (fun _ _ => rfl)
   have hidx : (GalKsub K).index = Module.finrank ℚ_[2] K :=
-    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm
+    (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm
   rwa [hidx] at h
 
 /-- **A `ℚ₂`-clone of clause (ii) would be false at `K`.**  The `ℚ₂` value `#A² · #fixedPts = 8`

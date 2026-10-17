@@ -468,7 +468,8 @@ and a marking at which its two sides are computed and nonzero. -/
 theorem npc_cross_operators_pin_value :
     ((npcMarking pinDat pinHdat pinG pinG ((1, 0) : PinV) ((1, 0) : PinV)).eval
       (npcWord 2 1 1)).fib = 1 := by
-  rw [npc_cross_operators_pin_module 2 le_rfl 1 1, pin_lcOp, pin_npcQ0]
+  refine (npc_cross_operators_pin_module 2 le_rfl 1 1 _ _).trans ?_
+  refine (congrArg₂ (· + ·) (pin_npcQ0 1 _) (congrArg (polar pinQ _) (pin_lcOp 1 _))).trans ?_
   decide
 
 /-- The genus-`1` offsets used by the handled pin: `c₀ = c₁ = (1,0)`, boundary `0`, and one handle

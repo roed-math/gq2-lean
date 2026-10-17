@@ -1189,7 +1189,7 @@ dichotomy, and the reason the word row carries `r ≥ 1`. -/
 theorem not_isUnit_lcOpEnd_pin_zero (η : ℤ_[2]) : ¬ IsUnit (lcOpEnd (V := PinV) pinG η 0) := by
   intro hu
   have h := (isUnit_lcOpEnd_iff pinG η 0).mp hu ((1, 0) : PinV) (pin_lcOp_zero η _)
-  exact absurd h (by decide)
+  exact absurd h (show ((1, 0) : PinV) ≠ 0 by decide)
 
 /-- The two-sided inverse of `L_c` on the battery at `r = 1`, in the shape the certificate's
 change of variables consumes. -/

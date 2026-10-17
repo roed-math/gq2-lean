@@ -7,6 +7,7 @@ module
 
 public import GQ2.Shapiro.Finiteness
 public import GQ2.EulerCharacteristic
+public import GQ2.Foundations.TauCetiInstance
 public import Mathlib.FieldTheory.Galois.Profinite
 
 @[expose] public section
@@ -730,9 +731,8 @@ theorem localEulerCharacteristic_open (U : Subgroup AbsGalQ2)
   haveI := IndMod.continuousSMul (U := U) (V := V) hU
   obtain ⟨hfin0, hfin1, hfin2, hcard⟩ :=
     Foundations.absGalQ2_localEulerCharacteristic (IndMod U V)
-  have hVne : Nat.card V ≠ 0 := Nat.card_ne_zero.mpr ⟨inferInstance, inferInstance⟩
   have hexp : padicValNat 2 (Nat.card (IndMod U V)) = U.index * padicValNat 2 (Nat.card V) := by
-    rw [card_indMod, padicValNat.pow _ hVne]
+    rw [card_indMod, padicValNat.pow]
   refine ⟨Finite.of_equiv _ (h0Equiv U V).toEquiv,
     Finite.of_equiv _ (Equiv.ofBijective _ (theta1_bijective (V := V) hU)),
     Finite.of_equiv _ (Equiv.ofBijective _ (theta2_bijective (V := V) hU)), ?_⟩

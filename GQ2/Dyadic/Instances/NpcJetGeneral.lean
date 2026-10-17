@@ -162,9 +162,10 @@ omit [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C] in
 theorem fib_mul_hessSlice_zero (x : WordCoh.CentExt (kappa0Cocycle dat hdat)) (T : ZMod 2) :
     (x * hessSlice dat hdat 0 T).fib = x.fib + T := by
   rw [WordCoh.CentExt.mul_fib, hessSlice_fib]
-  have hκ : (kappa0Cocycle dat hdat).κ x.base ((0 : V), (1 : C)) = 0 := by
-    simp [kappa0Cocycle_κ, hdat.f_zero_right, factorSet_m_zero dat hdat]
-  rw [show ((hessSlice dat hdat 0 T).base) = ((0 : V), (1 : C)) from rfl, hκ, add_zero]
+  have hκ : (kappa0Cocycle dat hdat).κ x.base (hessSlice dat hdat 0 T).base = 0 := by
+    show dat.f x.base.1 (x.base.2 • (0 : V)) + dat.m x.base.2 (0 : V) = 0
+    rw [smul_zero, hdat.f_zero_right, factorSet_m_zero dat hdat, add_zero]
+  rw [hκ, add_zero]
 
 /-! ## §3. The headline at every handle count -/
 

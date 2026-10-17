@@ -11,6 +11,7 @@ import GQ2.RStage.Local
 import GQ2.Phase140.Local
 import GQ2.GaussZ.FinalD
 import GQ2.Roe.Main
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The two-sided degree-`n` source record: `SourceDataN`  (dyadic campaign, ticket SD2)
