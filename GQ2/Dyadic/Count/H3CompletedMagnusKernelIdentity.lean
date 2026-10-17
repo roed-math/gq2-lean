@@ -189,13 +189,14 @@ theorem sqQuadraticHomogeneousLetter_injective (h : ℕ) :
   ext v
   by_cases hv : v = sqQuadraticHomogeneousEmpty h
   · subst v
-    simp [sqQuadraticHomogeneousProject, sqQuadraticHomogeneousEmpty,
-      sqQuadraticNormalEmpty]
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp [sqQuadraticHomogeneousEmpty]
   · have hv' : v.1 ≠ sqQuadraticNormalEmpty h := by
       intro e
       apply hv
       exact Subtype.ext e
-    simp [sqQuadraticHomogeneousProject, hv, hv']
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp [hv, hv']
 
 @[simp] theorem sqQuadraticWordPBWNormal_one (h : ℕ)
     (i : Fin (sqRank h)) :
@@ -214,12 +215,14 @@ theorem sqQuadraticHomogeneousLetter_injective (h : ℕ) :
   ext v
   by_cases hv : v = sqQuadraticHomogeneousLetter h i
   · subst v
-    simp [sqQuadraticHomogeneousProject]
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp
   · have hv' : v.1 ≠ (sqQuadraticHomogeneousLetter h i).1 := by
       intro e
       apply hv
       exact Subtype.ext e
-    simp [sqQuadraticHomogeneousProject, hv]
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp [hv, hv']
 
 /-- Every homogeneous normal basis word occurs among the normalized recursive words. -/
 theorem sqQuadraticWordPBWNormal_hits_single (h n : ℕ)
@@ -233,12 +236,14 @@ theorem sqQuadraticWordPBWNormal_hits_single (h n : ℕ)
   ext u
   by_cases hu : u = v
   · subst u
-    simp [sqQuadraticHomogeneousProject]
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp
   · have hu' : u.1 ≠ v.1 := by
       intro e
       apply hu
       exact Subtype.ext e
-    simp [sqQuadraticHomogeneousProject, hu]
+    rw [sqQuadraticHomogeneousProject_apply]
+    simp [hu, hu']
 
 /-- The explicit PBW-normal map on completed monomial coefficients is onto. -/
 theorem sqCompletedMonomialPBWNormalMap_surjective (h n : ℕ) :
@@ -413,7 +418,6 @@ theorem sqNormalLeftXWord_supported (h : ℕ) (w : SqQuadraticNormalWord h) :
         apply SqQuadraticNormalSupportedInDegree.add
         · convert sqNormalReductionExtras_supported h
             ⟨l, AvoidsQuadraticLeadingPair.tail hl⟩ using 1
-          simp
         · have ht := ih (AvoidsQuadraticLeadingPair.tail hl)
           have hzero : (0 : Fin (sqRank h)) ≠ 1 := by
             intro e
@@ -428,9 +432,8 @@ theorem sqNormalLeftXWord_supported (h : ℕ) (w : SqQuadraticNormalWord h) :
           have hp := sqQuadraticNormalSupported_prepend h (l.length + 1) 0
             hzero ht
           convert hp using 1
-          · simp
-          · unfold sqNormalLeftXWord
-            congr
+          unfold sqNormalLeftXWord
+          congr
       · change SqQuadraticNormalSupportedInDegree h ((a :: l).length + 1)
           (sqNormalLeftXList h (a :: l) hl)
         rw [sqNormalLeftXList.eq_2, dif_neg ha]
@@ -498,8 +501,9 @@ theorem sqQuadraticHomogeneousInclude_project_of_supported (h n : ℕ)
         (Finsupp.comapDomain
           (fun u : SqQuadraticHomogeneousNormalWord h n => u.1) f _)
         ((fun u : SqQuadraticHomogeneousNormalWord h n => u.1) v) = f w
-    rw [Finsupp.mapDomain_apply (fun _ _ e => Subtype.ext e)]
-    rfl
+    exact Finsupp.mapDomain_apply_of_injective
+      (f := fun u : SqQuadraticHomogeneousNormalWord h n => u.1)
+      (fun _ _ e => Subtype.ext e) _ v
   · have hnotrange : w ∉ Set.range
         (fun u : SqQuadraticHomogeneousNormalWord h n => u.1) := by
       rintro ⟨u, rfl⟩
@@ -1023,7 +1027,7 @@ theorem sqCompletedMagnusNormalCoefficient_mul_foxRow
         sqCompletedMagnusNormalCoefficient h (n + 1) (H (n + 1)) y := by
     have hz := (sqCompletedMagnusNormalCoefficient_eq_zero_iff
       h (n + 1) (H (n + 1)) (x - y)).2 hxy
-    rw [map_sub] at hz
+    rw [LinearMap.map_sub] at hz
     exact sub_eq_zero.mp hz
   obtain ⟨c, hc⟩ :=
     sqCompletedGeneratorMonomialToAugmentationPower_surjective h n a
