@@ -169,7 +169,7 @@ theorem nNielsenGen_character_apply {alpha : ℕ} (ha : 2 ≤ alpha) (h : ℕ)
 
 theorem nNielsenGen_evenCup_eq (v w : Fin (coreRank 0) → ZMod 2) :
     evenCupForm v w = nCupForm v w := by
-  rw [evenCupForm, nCupForm]
+  unfold evenCupForm nCupForm
   simp only [Finset.univ_eq_empty, Finset.sum_empty, add_zero, ← add_assoc]
   rfl
 

@@ -414,11 +414,13 @@ noncomputable def cfourDefCorr : Fin (sqRank h) → (DSq h : Type) :=
   norm_num
 
 @[simp] theorem cfourDefCorr_handleU (i : Fin h) : cfourDefCorr nu' j (sqHandleIdxU i) = 1 := by
-  simp only [cfourDefCorr, sqHandleIdxU_val]
+  have hv := sqHandleIdxU_val i
+  simp only [cfourDefCorr]
   rw [if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem cfourDefCorr_handleV (i : Fin h) : cfourDefCorr nu' j (sqHandleIdxV i) = 1 := by
-  simp only [cfourDefCorr, sqHandleIdxV_val]
+  have hv := sqHandleIdxV_val i
+  simp only [cfourDefCorr]
   rw [if_neg (by omega), if_neg (by omega)]
 
 /-- **The correction is admissible**: `γ₂`-valued with both rows exactly trivial, slot by slot.

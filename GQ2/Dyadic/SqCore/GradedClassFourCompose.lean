@@ -163,10 +163,12 @@ theorem cfourCmp_dress_all {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4) (
     · simp only [sqVal_one]; norm_num
     · simp only [sqVal_two]; norm_num
     · intro i
-      simp only [sqHandleIdxU_val]
+      have hv := sqHandleIdxU_val i
+      dsimp only
       rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
     · intro i
-      simp only [sqHandleIdxV_val]
+      have hv := sqHandleIdxV_val i
+      dsimp only
       rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
   obtain ⟨mB, hB0, hB1, hB2, hBUj, hBUne, hBV⟩ :
       ∃ mB : Fin (sqRank n) → levelQuot G 4,

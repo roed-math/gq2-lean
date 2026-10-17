@@ -399,8 +399,8 @@ theorem cfourId_dress_core {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4)
     · simp only [sqVal_zero, if_pos]
     · simp only [sqVal_one]; norm_num
     · simp only [sqVal_two]; norm_num
-    · intro i; simp only [sqHandleIdxU_val]; rw [if_neg (by omega)]
-    · intro i; simp only [sqHandleIdxV_val]; rw [if_neg (by omega)]
+    · intro i; have hv := sqHandleIdxU_val i; exact if_neg (by omega)
+    · intro i; have hv := sqHandleIdxV_val i; exact if_neg (by omega)
   obtain ⟨mB, hB0, hB1, hB2, hBU, hBV⟩ :
       ∃ mB : Fin (sqRank n) → levelQuot G 4,
         mB 0 = mA 0 ∧ mB 1 = mA 1 * c1 ∧ mB 2 = mA 2 ∧
@@ -410,8 +410,8 @@ theorem cfourId_dress_core {n : ℕ} (m m' : Fin (sqRank n) → levelQuot G 4)
     · simp only [sqVal_zero]; norm_num
     · simp only [sqVal_one, if_pos]
     · simp only [sqVal_two]; norm_num
-    · intro i; simp only [sqHandleIdxU_val]; rw [if_neg (by omega)]
-    · intro i; simp only [sqHandleIdxV_val]; rw [if_neg (by omega)]
+    · intro i; have hv := sqHandleIdxU_val i; exact if_neg (by omega)
+    · intro i; have hv := sqHandleIdxV_val i; exact if_neg (by omega)
   have step0 := cfour_dress_zero m mA hc0 hA0 hA1 hA2 hAU hAV
   have step1 := cfour_dress_one mA mB hc1 hB0 hB1 hB2 hBU hBV
   have step2 := cfour_dress_two mB m' hc2 (by rw [h0, ← hA0, ← hB0])

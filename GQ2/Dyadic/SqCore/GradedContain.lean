@@ -224,13 +224,15 @@ variable {A B C D P Q T S : gr3R} {x₀ x₁ x₂ x₃ x₄ : SelConDress}
 
 theorem selConTuple_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxU j') = 1 := by
-  simp only [selConTuple, sqHandleIdxU_val]
+  have hv := sqHandleIdxU_val j'
+  simp only [selConTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (selCon_handleU_ne_handleU hne), if_neg (selCon_handleU_ne_handleV j')]
 
 theorem selConTuple_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     selConTuple h j A B C D P Q T S x₀ x₁ x₂ x₃ x₄ (sqHandleIdxV j') = 1 := by
-  simp only [selConTuple, sqHandleIdxV_val]
+  have hv := sqHandleIdxV_val j'
+  simp only [selConTuple]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega),
     if_neg (selCon_handleV_ne_handleU j'), if_neg (selCon_handleV_ne_handleV hne)]
 

@@ -145,13 +145,19 @@ variable {A B C D P Q : gr3R}
 theorem selMark_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     selMark h nu' j A B C D P Q (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [selMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 theorem selMark_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     selMark h nu' j A B C D P Q (sqHandleIdxV j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [selMark, sqHandleIdxU_val, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  have h3 := sqHandleIdxV_val j
+  simp only [selMark]
   rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
 
 /-- ⭐⭐ **The two adjacent-pair parities, and nothing else.**  The selection marking kills the
@@ -666,13 +672,15 @@ variable {m : Fin (sqRank h) → SqU4 R} {w₁ w₂ z₃ z₄ : SqU4 R}
 
 theorem selRefine_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxU j') = m (sqHandleIdxU j') := by
-  simp only [selRefine, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  simp only [selRefine]
   rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleU_ne_handleU hne),
     if_neg (sel_handleU_ne_handleV j')]
 
 theorem selRefine_handleV_ne {j' : Fin h} (hne : j' ≠ j) :
     selRefine j m w₁ w₂ z₃ z₄ (sqHandleIdxV j') = m (sqHandleIdxV j') := by
-  simp only [selRefine, sqHandleIdxV_val]
+  have h1 := sqHandleIdxV_val j'
+  simp only [selRefine]
   rw [if_neg (by omega), if_neg (by omega), if_neg (sel_handleV_ne_handleU j'),
     if_neg (sel_handleV_ne_handleV hne)]
 
@@ -1266,11 +1274,15 @@ noncomputable def selDressT : Fin (sqRank h) → (DSq h : Type) :=
 theorem selDressT_handleU_ne {j' : Fin h} (hne : j' ≠ j) :
     selDressT h nu' j (sqHandleIdxU j') = 1 := by
   have hv : (j' : ℕ) ≠ (j : ℕ) := fun hc => hne (Fin.val_injective hc)
-  simp only [selDressT, sqHandleIdxU_val]
+  have h1 := sqHandleIdxU_val j'
+  have h2 := sqHandleIdxU_val j
+  simp only [selDressT]
   rw [if_neg (by omega), if_neg (by omega)]
 
 @[simp] theorem selDressT_handleV (j' : Fin h) : selDressT h nu' j (sqHandleIdxV j') = 1 := by
-  simp only [selDressT, sqHandleIdxV_val, sqHandleIdxU_val]
+  have h1 := sqHandleIdxV_val j'
+  have h2 := sqHandleIdxU_val j
+  simp only [selDressT]
   rw [if_neg (by omega), if_neg (by omega)]
 
 /-- The `t`-dressed tuple is legal on the `λ`-row. -/

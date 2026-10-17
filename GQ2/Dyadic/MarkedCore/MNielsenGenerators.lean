@@ -319,9 +319,7 @@ theorem mNielsenGen_orientation {alpha : ℕ} (ha : 2 ≤ alpha) (p q : MStabPar
 
 private theorem mNielsenGen_sum_four (f : Fin (coreRank 0) → ZMod 2) :
     ∑ j, f j = f 0 + f 1 + f 2 + f 3 := by
-  show ∑ j : Fin 4, f j = _
-  rw [Fin.sum_univ_four]
-  rfl
+  exact Fin.sum_univ_four (f : Fin 4 → ZMod 2)
 
 theorem mNielsenGen_evenCup_zero (v w : Fin (coreRank 0) → ZMod 2) :
     evenCupForm v w = v 0 * w 0 + (v 0 * w 1 + v 1 * w 0) + (v 2 * w 3 + v 3 * w 2) := by
