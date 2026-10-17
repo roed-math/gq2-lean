@@ -286,8 +286,8 @@ theorem finiteRefinementModTwoHThreeExact_DSq_of_barFoxAssembly
     simpa using hboundary
   refine ⟨C.W, C.le, C.homotopyTwo c, ?_⟩
   have hreconstruct := C.reconstruct c
-  rw [hdThree, map_zero, hsyzygy, map_zero, map_zero, add_zero] at hreconstruct
-  simpa [finiteModTwoBarDTwo, sqFiniteModTwoBarRefineThree] using hreconstruct
+  rw [hdThree, map_zero, hsyzygy, map_zero, map_zero, add_zero, add_zero] at hreconstruct
+  exact hreconstruct
 
 /-- The preceding chain-level assembly, followed by continuous finite-quotient descent, gives
 scalar continuous `H³` exactness for the improved square core. -/

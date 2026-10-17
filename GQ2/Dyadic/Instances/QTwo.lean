@@ -7,6 +7,8 @@ import GQ2.Dyadic.CertificateMain
 import GQ2.Dyadic.Words.L
 import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Roe.Main
+import GQ2.PresentationLiteral
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # The `n = 1` wrapper: the L-word machinery recovers the `ℚ₂` theorem  (ticket AS4)

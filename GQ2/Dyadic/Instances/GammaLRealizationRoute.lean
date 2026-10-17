@@ -191,7 +191,7 @@ noncomputable def gammaLFieldRealization_of_reconstruction
   subgroup := GalKsub K
   isOpen_subgroup := isOpen_fixingSubgroup K
   equiv := (candidate_equiv_absoluteGalois W L hq2 hqe hnuP).some
-  index_eq := (IntermediateField.finrank_eq_fixingSubgroup_index K).symm.trans hdegree
+  index_eq := (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm.trans hdegree
 
 /-- Regression in the exact truth-side shape consumed by `GammaLDualityBoundary`: reconstruction
 data supplies a nonempty `GammaLFieldRealization`, without a carrier-equivalence hypothesis but

@@ -294,7 +294,7 @@ noncomputable def gammaLFieldRealization_of_wordCertificateRN_reconstruction
   equiv := (nonempty_continuousMulEquiv_of_sourcesRN (W.toSourceRN hq2 hqe) AK.source
     (q_ne_zero_of_two_le hq2) hqe (lNu_surjective h)
     W.htame W.hwild AK.tame_surjective AK.wild_isProP).some.trans AK.equivGalK
-  index_eq := (IntermediateField.finrank_eq_fixingSubgroup_index K).symm.trans AK.degree_eq
+  index_eq := (IntermediateField.finrank_eq_fixingSubgroup_index _ K).symm.trans AK.degree_eq
 
 /-- End-to-end realization from the proved action-image Stokes theorem, the three remaining
 candidate analytic bundles, and a corrected arithmetic source. -/

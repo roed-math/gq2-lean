@@ -68,7 +68,7 @@ theorem heisWord_mem_jetZero
     (p : X → HeisLift A C) (hp : ∀ i, p i ∈ heisJetZero A C) (r : FreeGroup X) :
     FreeGroup.lift p r ∈ heisJetZero A C := by
   induction r using FreeGroup.induction_on with
-  | C1 => simp
+  | one => simp
   | of i => simpa using hp i
   | inv_of r ih => simpa using inv_mem ih
   | mul r s hr hs => simpa using mul_mem hr hs

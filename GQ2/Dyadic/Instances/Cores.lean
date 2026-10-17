@@ -215,14 +215,15 @@ noncomputable def lNu (h : ℕ) :
 /-- The canonical `Ztwo` coordinate has the required sigma normalization. -/
 @[simp] theorem lNu_sigma (h : ℕ) :
     lNu h ((lCorePresentation h).mark .sigma) = ztwoOne := by
-  rw [lCorePresentation_mark_sigma, SqCore.dsqSigma, lNu, SqCore.sqLiftHom_gen,
-    SqCore.sqMark_zero]
+  rw [lCorePresentation_mark_sigma, SqCore.dsqSigma]
+  exact (SqCore.sqLiftHom_gen _ _ _ _ _).trans (SqCore.sqMark_zero _ _ _)
 
 /-- The canonical `Ztwo` coordinate kills every wild generator, uniformly including all
 stabilizing handle pairs. -/
 @[simp] theorem lNu_wild (h : ℕ) (j : Fin (2 * h + 1 + 1)) :
     lNu h ((lCorePresentation h).mark (.wild j)) = 1 := by
-  rw [lCorePresentation_mark_wild, lNu, SqCore.sqLiftHom_gen]
+  rw [lCorePresentation_mark_wild]
+  refine (SqCore.sqLiftHom_gen _ _ _ _ _).trans ?_
   simp only [SqCore.sqMark]
   rw [if_neg (by omega)]
   split_ifs <;> rfl

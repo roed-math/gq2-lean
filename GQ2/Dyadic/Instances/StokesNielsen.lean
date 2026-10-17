@@ -182,7 +182,7 @@ theorem heisWord_d0_a
       (heisGen c (heisD0 c a) (0 : ι → ElemDual A)) r).a =
       FreeGroup.lift c r • a - a := by
   induction r using FreeGroup.induction_on with
-  | C1 => simp
+  | one => simp
   | of i => simp [heisD0_apply, FreeGroup.lift_apply_of]
   | inv_of r ih =>
       rw [map_inv, HeisLift.inv_a, heisWord_g, ih, map_inv]

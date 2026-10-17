@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.GammaRHom
+import GQ2.Foundations.TauCetiInstance
 
 /-!
 # `SourceDataN` transport across an isomorphism  (dyadic campaign, ticket CB-TRN)

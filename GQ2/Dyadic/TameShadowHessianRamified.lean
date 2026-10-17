@@ -38,7 +38,8 @@ theorem centExtInclHom_comm {L : Type} [Group L] (c : WordCoh.TwoCocycle L)
     (z : Multiplicative (ZMod 2)) (p : WordCoh.CentExt c) :
     Commute (centExtInclHom c z) p := by
   apply WordCoh.CentExt.ext
-  · simp [centExtInclHom]
+  · change (1 : L) * p.base = p.base * 1
+    rw [one_mul, mul_one]
   · change z.toAdd+p.fib+c.κ 1 p.base=p.fib+z.toAdd+c.κ p.base 1
     rw [c.κ_one_left, c.κ_one_right, add_zero, add_zero, add_comm]
 

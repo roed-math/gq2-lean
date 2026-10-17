@@ -65,14 +65,18 @@ theorem modTwoGroupAlgebraTransition_single {U V : OpenNormalSubgroup G} (h : U 
 theorem modTwoGroupAlgebraTransition_refl (U : OpenNormalSubgroup G) :
     modTwoGroupAlgebraTransition G (le_refl U) = AlgHom.id (ZMod 2) _ := by
   ext x
+  obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
   simp [modTwoGroupAlgebraTransition, modTwoQuotientTransition]
+  rfl
 
 theorem modTwoGroupAlgebraTransition_comp {U V W : OpenNormalSubgroup G}
     (hUV : U ≤ V) (hVW : V ≤ W) :
     modTwoGroupAlgebraTransition G (hUV.trans hVW) =
       (modTwoGroupAlgebraTransition G hVW).comp (modTwoGroupAlgebraTransition G hUV) := by
   ext x
+  obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
   simp [modTwoGroupAlgebraTransition, modTwoQuotientTransition]
+  rfl
 
 /-- The inverse-limit subalgebra of compatible finite-level group-algebra coordinates. -/
 def modTwoCompletedGroupAlgebraSubalgebra :

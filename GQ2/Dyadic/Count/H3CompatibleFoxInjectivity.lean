@@ -58,7 +58,7 @@ theorem sqCompletedModTwoFoxBoundary_injective_of_refinementDetection
       (sqCompletedModTwoFoxBoundary h).map (a - b) =
           (sqCompletedModTwoFoxBoundary h).map a -
             (sqCompletedModTwoFoxBoundary h).map b :=
-        LinearMap.map_sub (sqCompletedModTwoFoxBoundary h).map a b
+        map_sub (sqCompletedModTwoFoxBoundary h).map a b
       _ = 0 := sub_eq_zero.mpr hab
   have hsubzero : a - b = 0 := by
     apply ModTwoCompletedRegularModule.ext (DSq h : Type) Unit
