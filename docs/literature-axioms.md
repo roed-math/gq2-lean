@@ -1,4 +1,4 @@
-# Literature axioms for Theorem 1.2 — reviewer's enumeration
+# Literature inputs for Theorem 1.2 — reviewer's enumeration
 
 **Purpose.** This document reduces the formalization of the paper *A Profinite Presentation of the
 Absolute Galois Group of `ℚ₂`* (D. C. Turturean, 2026) to a **minimal list of classical results that
@@ -6,10 +6,22 @@ already exist in the literature**, and enumerates them with precise statements a
 meant for a quick expert check: *does each "leaf" below correctly match a known
 theorem in the cited reference?*
 
-> **Update (T-20):** all leaves are now *stated in Lean* (current census: **nine** axioms) — see
-> [`review-packet.md`](orchestration/review-packet.md) for the Lean axiom name per leaf, the consolidated
-> deviations table, and mechanical verification instructions.  The citations and per-result
-> discussion below remain the authoritative literature reference.
+> **Status (2026-10-17): census 0; every input is proved via Tau Ceti.** The library contains no
+> `axiom` declaration.  Ticket C2 of the Tau Ceti discharge campaign (owner gate G1) deleted
+> `GQ2/Foundations/Axioms.lean` and `GQ2/Foundations/AxiomInstance.lean`.  Each of the nine leaves
+> that were axioms until then (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) is proved from the
+> [Tau Ceti](https://github.com/TauCetiProject/TauCeti) library at revision `706344c35` by an
+> adapter in `GQ2/TauCeti/`.  The nine legacy names are kept, with statements **byte-identical** to
+> the former axioms, as theorems or definitions in `GQ2/Foundations/TauCetiInstance.lean`, whose
+> docstrings keep the citations.  **The statements below did not change; what changed is why they
+> hold.**  The citations, faithfulness classes and encoding notes in §B still describe what each
+> Lean statement asserts and which published theorem it encodes.  Each §B entry now also records its
+> Tau Ceti source and gq2 adapter, and §T summarizes the new trust base.
+>
+> *Earlier status (T-20):* all leaves were *stated in Lean*, as nine axioms.
+> [`review-packet.md`](orchestration/review-packet.md), written in that period, gives the Lean name
+> per leaf, the consolidated deviations table, and mechanical verification instructions.  The
+> citations and per-result discussion below remain the authoritative literature reference.
 
 **Scope of the reduction.** The paper's *own* §§3–9 argument (its Propositions and Lemmas) is
 **granted** here — those are the paper's contribution, not literature, and are listed separately in
@@ -17,12 +29,93 @@ theorem in the cited reference?*
 foundations** the paper builds on. If every item in §B is a correct citation and every node in §C is
 faithful to the paper, then (modulo the routine profinite assembly noted in §A) Theorem 1.2 follows.
 
-**Lean status legend.**
-- ✅ **faithful** — stated as a typechecked Lean `axiom`/`theorem` against current Mathlib, in
-  `GQ2/Foundations/Axioms.lean` (or already *proved*, in which case it is not a leaf at all).
+**Lean status legend.**  The marks classify the *statement's encoding*; they say nothing about
+how it is proved.
+- ✅ **faithful** — stated as a typechecked Lean statement against current Mathlib.  Until
+  2026-10-17 the active leaves were `axiom`s in `GQ2/Foundations/Axioms.lean`; since then each is a
+  same-name theorem or definition in `GQ2/Foundations/TauCetiInstance.lean`, proved via Tau Ceti.
+  (A leaf already *proved* in-repo is not a leaf at all; those are marked as discharged.)
 - 🟡 **schematic** — the mathematical statement is precise (below) but a faithful Lean signature needs
   infrastructure Mathlib lacks (continuous Galois cohomology of a profinite group, Demushkin groups,
-  local Tate duality pairings, the Hilbert symbol), so it is documented here, not in Lean.
+  local Tate duality pairings, the Hilbert symbol), so it is documented here, not in Lean.  (This
+  was the state at the freeze.  Since T-20 every active 🟡 leaf has a Lean statement over the
+  repository's own encodings, such as the `GQ2.ContCoh` continuous cohomology, rather than
+  Mathlib-native notions; B3 appears in Lean only in its B3c form.)
+
+---
+
+## T. Trust base since the Tau Ceti discharge (2026-10-17)
+
+**What the theorem now rests on.** Lean's three standard axioms (`propext`, `Classical.choice`,
+`Quot.sound`) plus Tau Ceti's proofs at revision `706344c35426d3df6931a2457271dceb3f9ac507` (Tau
+Ceti `main`, 2026-10-16; <https://github.com/TauCetiProject/TauCeti>, required in `lakefile.toml`).
+Owner gate **G0** (2026-10-16) accepted this change of trust base: from "nine cited theorems, stated
+in this repository as axioms" to "Tau Ceti's proofs of them".  Tau Ceti is machine-written; its own
+CI enforces zero sorries and an axiom allowlist.  Owner gate **G1** (2026-10-17) approved the census
+flip.  Platform for the campaign: Lean `v4.35.0`, Mathlib `cfc55fc58`.  Campaign records:
+[`tauceti-proof-plan.md`](orchestration/tauceti-proof-plan.md),
+[`tauceti-tickets.md`](orchestration/tauceti-tickets.md) and the recon memo
+[`tauceti-t2-recon.md`](orchestration/tauceti-t2-recon.md), whose per-lane sections describe how
+each adapter bridges conventions.
+
+**Census history.** The census rose to its peak of 15 on 2026-07-06.  On 2026-07-09 it went
+15 → 13 (B12 discharged in-repo, B2 deleted) → 12 (B7′) → 11 (B13) → 10 (B11b).  On 2026-07-10 it
+went 10 → 9 (B4 deleted).  It stayed 9 through the B9 restatement (2026-07-24) and the B-Lab
+decision (2026-07-25/26, §B3 addendum).  On 2026-10-17 it went **9 → 0** (ticket C2): the nine
+were proved via Tau Ceti.
+
+**The map.** Each adapter lives in namespace `GQ2.TauCetiBridge` and prints exactly the standard
+three axioms.  Each legacy name is now a theorem or definition in
+`GQ2/Foundations/TauCetiInstance.lean` whose body is the adapter (for B7, a universe transport of
+the adapter).  Tau Ceti declarations are listed
+by their main names; modules and conventions are in each §B entry.
+
+| leaf | legacy name (now in `TauCetiInstance.lean`) | adapter, file | Tau Ceti source (main declarations) |
+|---|---|---|---|
+| B1 | `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated` | `absGalQ2_isTopologicallyFinitelyGenerated_tauceti`, `GQ2/TauCeti/B1.lean` | `TauCeti.isTopologicallyFinitelyGenerated_absoluteGaloisGroup` |
+| B3c | `GQ2.dyadicOrientation` | `dyadicOrientation_tauceti`, `GQ2/TauCeti/B3c.lean` | `TauCeti.absoluteGaloisGroupProP_two_ratPadic_marked`; `TauCeti.standardD0Orientation_d0A/_d0S/_d0Y` |
+| B5 | `GQ2.localReciprocity` | `localReciprocity_tauceti`, `GQ2/TauCeti/B5.lean` | `TauCeti.ClassFieldTheory.artinMap` with `continuous_artinMap`, `denseRange_artinMap`, `unramifiedCoordinate_artinMap`, `artinMap_restrict`, `localArtinMap_eq_zero_iff`, `localCyclotomicCharacter_artinMap_padic(_uniformizer)` |
+| B6 | `GQ2.tateDualityAt` | `tateDualityAt_tauceti`, `GQ2/TauCeti/B6.lean` + `DualizingGroup.lean` | `TauCeti.ClassFieldTheory.tateDualityPairing_perfect_mixed`, `h2MuEquivZMod_mixed` |
+| B7 | `GQ2.Foundations.absGalQ2_localEulerCharacteristic` | `absGalQ2_localEulerCharacteristic_tauceti` (`M : Type`), `GQ2/TauCeti/B7.lean`; universe transport `localEulerCharacteristic_of_type` in `TauCetiInstance.lean` | `TauCeti.ClassFieldTheory.eulerCharacteristic_mixed`, `finite_H` |
+| B8 | `GQ2.peripheralCyclotomicAction` | `peripheralCyclotomicAction_tauceti`, `GQ2/TauCeti/B8.lean` | `TauCeti.Peripheral.exists_peripheralPowerAutomorphism_two` |
+| B9 | `GQ2.relativeStiefelWhitney_dyadic` | `relativeStiefelWhitney_dyadic_tauceti`, `GQ2/TauCeti/B9.lean` + `StiefelWhitneyDict.lean` | `TauCeti.sw1_eq_add_galoisCor_of_equivalent_traceTransfer`, `TauCeti.sw2_eq_add_galoisEvens_add_cup_of_equivalent_traceTransfer` |
+| B10 | `GQ2.tameQuotient` | `tameQuotient_tauceti`, `GQ2/TauCeti/B10.lean` | `TauCeti.wildInertiaSubgroup`, `isProP_wildInertiaSubgroup`, `TauCeti.tameQuotientGeometricEquiv`, `iwasawaCoordinateGeometric` |
+| B11a | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `hilbertSymbol_normCriterion_finiteDyadic_tauceti`, `GQ2/TauCeti/B11a.lean` | `TauCeti.cup_kummerClass_eq_zero_iff` |
+
+**Shared dictionaries.** `GQ2/TauCeti/GaloisDict.lean` (A1: `k.fixingSubgroup ≃ₜ*` Tau Ceti's
+absolute Galois group, separable versus algebraic closure, Tau Ceti's local-field package on a
+finite `k`, gq2's `chiCyc` as Tau Ceti's `localCyclotomicCharacter`); `CohomologyDict.lean` (A2:
+gq2's explicit `H⁰/H¹/H²`, restriction, cups and Kummer classes versus Tau Ceti's continuous
+cohomology); `ProPDict.lean` (P1: pro-`p` groups, free profinite groups, presentations, `ℤ̂`, `D₀`,
+`Δ`).  B6 and B9 add `DualizingGroup.lean` and `StiefelWhitneyDict.lean`.
+
+**Assembly and capstones.** `GQ2.TauCetiBridge.tauCetiInputs : LiteratureInputs`
+(`GQ2/TauCeti/Instance.lean`) bundles the nine adapters; `GQ2.tauCetiLiteratureInputs` in
+`TauCetiInstance.lean` is the instance, replacing the axiom-backed one.  The legacy capstones keep
+their statements and now print exactly the standard three: `GQ2.main_presentation_literal` (Γ_A),
+`GQ2.main_presentation_literal_roe_unconditional` (Γ_R), `GQ2.main_presentation_literal_roe`,
+`GQ2.SectionTen.eq_154`, `GQ2.eq_154_R`, `GQ2.SectionTen.main_surjection_count'`,
+`GQ2.main_surjection_count_R`, `GQ2.admissibleCountR_eq_admissibleCount`.  Four further capstones
+in `GQ2/TauCeti/Main.lean` take the Tau Ceti bundle explicitly and do not depend on instance
+selection: `GQ2.main_presentation_literal_tauceti`, `GQ2.main_presentation_literal_roe_tauceti`,
+`GQ2.main_surjection_count_tauceti`, `GQ2.main_surjection_count_R_tauceti`.  The
+explicit-hypothesis (`_of_inputs`) capstones are unchanged.
+
+**Mechanical checks.** `scripts/check_axioms.sh` (census `EXPECTED_AXIOMS=0`; check 5 audits every
+legacy capstone at exactly the standard three, with twin pairs identical, plus the four Tau Ceti
+capstones; check 7 runs `GQ2/TauCetiAxiomAudit.lean`); `GQ2/AxiomLedger.lean` (at C2 it scanned
+7486 declarations under `GQ2`, all at the standard three, with empty gap map and ALARM and 12
+capstones certified); `GQ2/PalomarAxiomAudit.lean`; `GQ2/TauCetiAxiomAudit.lean`.  The legacy
+Comparator pair (`Challenge`/`Solution`, `comparator-config.json`) now permits only the standard
+three axioms.  The Palomar pair (`comparator-config-palomar.json`), which takes the literature
+inputs as an explicit hypothesis, is unchanged.
+
+**Still open.** Owner gate G2 decides whether to keep or retire the legacy `Challenge`/`Solution`
+pair (`Challenge.lean`'s docstring still mentions the nine axioms, pending G2).  The B3c adapter
+carries private copies of P1 dictionary pieces (dedupe pending).  `scripts/AxiomClosureProbe.lean`
+and `docs/axiom-closure.md` still describe the nine axioms.  Many gq2 source docstrings, including
+the per-declaration docstrings kept in `TauCetiInstance.lean` (for example "The B5 axiom"), still
+call the nine inputs axioms.
 
 ---
 
@@ -65,6 +158,11 @@ categorical wiring is deferred work, **not** an axiom.
 ## B. The classical foundations (the minimal literature list)
 
 Each is a published theorem. "Used at" points to the paper node in §C that consumes it.
+Since 2026-10-17 every active entry (B1, B3c, B5, B6, B7, B8, B9, B10, B11a) also has a **Proved
+via Tau Ceti** bullet: the Tau Ceti source declaration(s) and module, the gq2 adapter (namespace
+`GQ2.TauCetiBridge`) and its file and landing commit, and the conventions the adapter reconciles.
+In every case the legacy name now lives in `GQ2/Foundations/TauCetiInstance.lean`, with its
+statement unchanged.
 **Citation-confidence markers** (see §E for the status summary):
 `[✓ source-audited]` checked directly against the cited PDF (exact theorem number and statement;
 the audit copies are not vendored in this repository); `[quoted]` the paper itself cites this exact result; `[confirmed]`
@@ -79,7 +177,14 @@ not yet to hand.
   at `p=2`.  Jannsen, *Invent. Math.* 70 (1982), 53–69, Satz 3.2 + Lemma 3.3 gives the weaker
   `N+3` bound, which also implies the Lean statement.  NSW (7.5.14) is not the right direct
   citation here: its surrounding subsection assumes `p ≠ 2`.
-- **Lean.** `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated`.
+- **Lean.** `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated` (an axiom until
+  2026-10-17; now a theorem in `GQ2/Foundations/TauCetiInstance.lean`).
+- **Proved via Tau Ceti.** Source: `TauCeti.isTopologicallyFinitelyGenerated_absoluteGaloisGroup`
+  (module `TauCeti.NumberTheory.LocalField.Generation.AbsoluteGaloisGroup`) at `K = ℚ_[2]`; its
+  proof produces a `([K:ℚ_p]+2)`-tuple of generators, the (7.4.1) bound.  Adapter:
+  `absGalQ2_isTopologicallyFinitelyGenerated_tauceti`, `GQ2/TauCeti/B1.lean` (`a5ccd575`).
+  Conventions: none to reconcile; Tau Ceti's finite-generation predicate is not exposed, so it is
+  unfolded through its `_iff` lemma.
 - **Used at.** `main_presentation` (`hfgG`), feeding Lemma 2.5.
 
 ### B2. 2-adic cyclotomic character is surjective  ✅ faithful · **DELETED 2026-07-09 (unused)**
@@ -116,14 +221,30 @@ not yet to hand.
   Thm 4(2) values *plus* the local-Galois fact (the Demushkin dualizing character equals the
   cyclotomic character, through *this* quotient map) *plus* the choice of a normalized B4
   isomorphism, and therefore **subsumes a marked B4**.  See its docstring and the classification
-  table (`docs/orchestration/review-packet.md` §2).
+  table (`docs/orchestration/review-packet.md` §2).  `GQ2.dyadicOrientation` was an axiom until
+  2026-10-17; it is now a `noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean`.
+- **B3c proved via Tau Ceti.** Sources: `TauCeti.absoluteGaloisGroupProP_two_ratPadic_marked`
+  (module `TauCeti.NumberTheory.LocalField.ProP.RatPadic`): an isomorphism `G_ℚ₂(2) ≃ₜ* D₀` along
+  which the standard orientation of `D₀` pulls back to the cyclotomic orientation, which is
+  surjective; and `TauCeti.standardD0Orientation_d0A/_d0S/_d0Y`
+  (`TauCeti.Topology.Algebra.Group.Profinite.Demushkin.Orientation`), the values `−1, 1, (−3)⁻¹`.
+  So the three bundled parts above (the values, the cyclotomic compatibility through the quotient
+  map, the normalized isomorphism) all come from Tau Ceti.  Adapter: `dyadicOrientation_tauceti`,
+  `GQ2/TauCeti/B3c.lean` (`b80367b3`).  Conventions: the two maximal pro-2 quotients of `G_ℚ₂` are
+  identified (the same `proPKernel`).  gq2's `D₀` is the maximal pro-2 quotient of the profinite
+  presentation, Tau Ceti's `demushkinD0` the pro-2 presentation; the relators agree, `A²S⁴[S,Y]`
+  with the same commutator convention `[x,y] = x⁻¹y⁻¹xy`, so no inverse is inserted.  `chiTwo` is
+  Tau Ceti's `cyclotomicOrientation` transported (both sides use Mathlib's cyclotomic character,
+  neither inverted).  The adapter keeps private copies of some P1 dictionary pieces (dedupe
+  pending).
 - **Used at.** Lemma 3.4 → Prop 1.1.
 
 #### B3 addendum — "B-Lab", the `Γ_R` classification instance  ✅ **NOT AN AXIOM — proved in-repo 2026-07-26**
 
 *Added at ticket L6.  Reviewers arriving from the README's "exact inputs" pointer: this is the one
 input the `Γ_R` (Roe-candidate) route ever needed beyond the nine census axioms, and it is **not**
-one of them — it is a theorem.  The census is **9 before and after**.*
+one of them — it is a theorem.  The census is **9 before and after**.  (Since 2026-10-17 the
+census is 0: the nine are themselves proved via Tau Ceti, §T.)*
 
 - **The statement.** `GQ2.BLabHypothesis` (`GQ2/Roe/MarkedPro2.lean`, `section Draft`) is exactly
   the *uniqueness half of B3, at the single instance `G := D_R`*:
@@ -175,11 +296,13 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   So the `D_R ≅ D₀` identification is now a theorem of this repository over Mathlib alone.
 - **Consequence — the unconditional capstone.**  `GQ2.main_presentation_literal_roe_unconditional`
   (`GQ2/Roe/Main.lean`) is `Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)` with **no hypotheses**,
-  and prints exactly `std-3 + the nine census axioms` — *the same twelve names as the `Γ_A`
-  capstone `GQ2.main_presentation_literal`*.  Mechanically enforced by `scripts/check_axioms.sh`
-  check 5 (the corollary is in `AUDIT_DECLS`) and by `GQ2/AxiomLedger.lean`'s terminal
-  certificate.  Nothing in §B or §D below changes: the `Γ_R` route widened the trust base by
-  nothing at all.
+  and printed, until the Tau Ceti discharge, exactly `std-3 + the nine census axioms` — *the same
+  twelve names as the `Γ_A` capstone `GQ2.main_presentation_literal`*.  Since ticket C2
+  (2026-10-17) both print exactly the standard three, and the Tau Ceti route has its own copy,
+  `GQ2.main_presentation_literal_roe_tauceti` (`GQ2/TauCeti/Main.lean`).  Mechanically enforced by
+  `scripts/check_axioms.sh` check 5 (the corollary is in `AUDIT_DECLS`) and by
+  `GQ2/AxiomLedger.lean`'s terminal certificate.  Nothing in §B or §D below changes: the `Γ_R`
+  route widened the trust base by nothing at all.
 
 ### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic · **DELETED 2026-07-10 (unused — B3c subsumes a marked B4)**
 - **Statement.** The maximal pro-2 quotient `G_ℚ₂(2)` of the absolute Galois group is a Demushkin
@@ -205,8 +328,24 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   Secondary: **Serre, *Local Fields* [7], Part IV, Ch. XI–XII** (Class Formations / Local CFT)
   `[likely; corrects an earlier "Ch. VI" typo]`. Normalization (uniformizer ↦ arith. Frobenius):
   paper Lemma 3.5.
-- **Lean.** Schematic (CFT provides abstract class-formation reciprocity `reciprocityIso`/`localInv`,
-  but not the specific local Artin map `ℚ₂ˣ → G^{ab}`; `LocalCFT/` is early).
+- **Lean.** Schematic at the freeze (CFT provides abstract class-formation reciprocity
+  `reciprocityIso`/`localInv`, but not the specific local Artin map `ℚ₂ˣ → G^{ab}`; `LocalCFT/` is
+  early).  Stated since as the bundle `GQ2.localReciprocity : LocalReciprocity`
+  (`GQ2/Reciprocity.lean`): `recip : ℚ₂ˣ →* G_ℚ₂^{ab}` continuous with dense range, the unramified
+  coordinate `ν_ur` (normalized geometrically: `ν_ur(rec 2) = −1`), norm reciprocity for finite
+  abelian layers, and the cyclotomic clauses `χ_cyc(rec u) = u⁻¹`, `χ_cyc(rec 2) = 1`.  An axiom
+  until 2026-10-17; now a `noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean`.
+- **Proved via Tau Ceti.** Sources (namespace `TauCeti.ClassFieldTheory`): `artinMap`,
+  `continuous_artinMap`, `denseRange_artinMap`, `artinMap_restrict`
+  (`TauCeti.NumberTheory.ClassFieldTheory.Local.ArtinMap`); `unramifiedCoordinate_artinMap`
+  (`…Local.Unramified`); `localArtinMap_eq_zero_iff` (`…Local.Reciprocity`);
+  `localCyclotomicCharacter_artinMap_padic` (`…Local.ExplicitCyclotomicSymbol.ArtinMap`) and
+  `localCyclotomicCharacter_artinMap_padic_uniformizer` (`…Local.Cyclotomic`).  Adapter:
+  `localReciprocity_tauceti`, `GQ2/TauCeti/B5.lean` (`a395ed6b`, `8a6d969b`).  Conventions: `recip`
+  is Tau Ceti's Artin map with no cast, and both are arithmetic (a uniformizer goes to arithmetic
+  Frobenius).  gq2's `ν_ur` is geometric, so `nu_ur` is the **inverse** of the `ℤ₂`-reduction of Tau
+  Ceti's arithmetic `unramifiedCoordinate`.  Norm reciprocity goes through Tau Ceti's finite-layer
+  `localArtinMap`, with gq2's `normSubgroup L` equal to Tau Ceti's `normGroup`.
 - **Used at.** Lemma 3.5 (marked abelianization, orientation, initial form).
 
 ### B6. Local Tate duality  🟡 schematic  *(base-generalized to all finite `k/ℚ₂`, 2026-07-06)*
@@ -222,13 +361,26 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   `k`** — the Lean encoding was `ℚ₂`-only and is now base-generalized to match (below).
 - **Lean.** The bundle `TateDualityAt G n` over a group `G` realized as an open finite-index local
   Galois subgroup of `G_ℚ₂` (`inv : H²(G,μₙ) ≅ ℤ/n`, the three degree-pair perfectness clauses);
-  axiom `GQ2.tateDualityAt` quantifies over such `G`, gated by an open topological embedding
-  `G ↪ G_ℚ₂` with finite-index image
+  `GQ2.tateDualityAt` (an axiom until 2026-10-17; now a `noncomputable def` in
+  `GQ2/Foundations/TauCetiInstance.lean`) quantifies over such `G`, gated by an open topological
+  embedding `G ↪ G_ℚ₂` with finite-index image
   (identity for `G = G_ℚ₂`, subgroup inclusion for `G = G_K`).  The old `ℚ₂`-only
   `GQ2.tateDuality : TateDuality n` is now an in-repo `def` = the `G = G_ℚ₂` member (no consumer
-  churn: `TateDuality n := TateDualityAt G_ℚ₂ n`).  **Census unchanged** — one axiom, base-generalized
-  in place (the B9/B11 2026-07-03 pattern).  (Same continuous-cohomology encoding decisions as before;
-  Mathlib/CFT lack the continuous duality package, so the perfectness is still asserted, not derived.)
+  churn: `TateDuality n := TateDualityAt G_ℚ₂ n`).  **Census unchanged** (2026-07-06) — one axiom,
+  base-generalized in place (the B9/B11 2026-07-03 pattern).  (Same continuous-cohomology encoding
+  decisions as before; Mathlib/CFT lack the continuous duality package, so until the Tau Ceti
+  discharge the perfectness was asserted, not derived.)
+- **Proved via Tau Ceti.** Sources: `TauCeti.ClassFieldTheory.tateDualityPairing_perfect_mixed`
+  (module `TauCeti.NumberTheory.ClassFieldTheory.Local.Duality.Perfect`) for perfectness, and
+  `TauCeti.ClassFieldTheory.h2MuEquivZMod_mixed` (`TauCeti.NumberTheory.ClassFieldTheory.Brauer.RootsOfUnity`)
+  for `inv`.  Adapter: `tateDualityAt_tauceti`, `GQ2/TauCeti/B6.lean` with
+  `GQ2/TauCeti/DualizingGroup.lean` (`f8676d25`).  Conventions: `DualizingGroup.lean` turns the gate
+  `IsLocalDualizingGroup G n` into a finite `K/ℚ₂`, an isomorphism `G ≃ₜ*` Tau Ceti's absolute
+  Galois group of `K`, and an equivariant identification of `μₙ`.  gq2's explicit `H⁰/H¹/H²` are
+  compared with Tau Ceti's continuous cohomology through the A2 dictionary.  gq2's dual
+  `MuDual n M = Hom(M, μₙ)` (conjugation action) is Tau Ceti's `tateDual`, and the transported gq2
+  cup pairings are Tau Ceti's `tateDualityPairing`.  gq2's `inv` is not normalized (the bundle asserts
+  existence only), so any isomorphism supplied by `h2MuEquivZMod_mixed` serves.
 - **Induced Hilbert pairing** (the symbol-side content used by the K-level consumer): at `n=2`,
   `B := inv_K ∘ cup` is the mod-2 Hilbert pairing on `K^×/2 ≅ H¹(G_K,𝔽₂)`; its **nondegeneracy** is
   **FV [11] Ch. IV §5 Prop (5.1)(6) + Corollary p.145** and **Theorem (5.2)** (perp-biduality
@@ -250,7 +402,21 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   **Serre, *Galois Cohomology*, Ch. II §5.7, Theorem 5** `[✓ verified in the provided source]`
   (`χ(A)=‖a‖_k`, Tate; `χ` defined in §5.4; the `𝔽_p`-coefficient form `ϱ(A)=-N·dim A` is Exercise 2,
   p. 101 — exactly the `|Z¹|=2^{2·dim M}` input of §9.2); Milne, *ADT*, Ch. I, Thm I.2.8.
-- **Lean.** Schematic (same continuous-cohomology gap as B6).
+- **Lean.** Schematic at the freeze (same continuous-cohomology gap as B6).  Stated since as
+  `GQ2.Foundations.absGalQ2_localEulerCharacteristic`: for every finite discrete `G_ℚ₂`-module
+  `M : Type*`, `H⁰, H¹, H²` (the repository's explicit continuous cohomology `GQ2.ContCoh`) are
+  finite and `#H¹ = #H⁰ · #H² · 2^{v₂(#M)}`; conventions in `GQ2/EulerCharacteristic.lean`.  An
+  axiom until 2026-10-17; now a theorem in `GQ2/Foundations/TauCetiInstance.lean`.
+- **Proved via Tau Ceti.** Sources: `TauCeti.ClassFieldTheory.eulerCharacteristic_mixed` (module
+  `TauCeti.NumberTheory.ClassFieldTheory.Local.EulerCharacteristic.Theorem`, Tate's formula) and
+  `TauCeti.ClassFieldTheory.finite_H` (`TauCeti.NumberTheory.ClassFieldTheory.FiniteCohomology.DegreeTwo`,
+  finiteness in degrees `≤ 2`).  Adapter: `absGalQ2_localEulerCharacteristic_tauceti`,
+  `GQ2/TauCeti/B7.lean` (`ea16f29b`).  Conventions: `M` becomes a Tau Ceti coefficient object
+  `GalRep (#M) ℚ_[2]` through its `ZMod (#M)`-module structure, and the cardinalities move through
+  the A2 comparison equivalences.  Tau Ceti's theorem lives in universe 0, so the adapter covers
+  `M : Type` only; the legacy `M : Type*` statement is recovered by transporting `M` to a copy on
+  `Fin (Nat.card M)` (`GQ2.TauCetiBridge.localEulerCharacteristic_of_type`, in
+  `TauCetiInstance.lean`).
 - **Used at.** §9.2 (lifting through the elementary quotient `M`; strict decrease (145)).
 
 ### B7′. Dyadic Hilbert symbol formula  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
@@ -288,7 +454,24 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   (2012), 519–563.) The paper does **not** cite Deligne; the classical *origin* of the cyclotomic
   inertia action is Deligne, *Le groupe fondamental de la droite projective moins trois points*, in
   *Galois Groups over ℚ* (Ihara–Ribet–Serre, eds.), MSRI Publ. 16 (1989), §§8, 15–19.
-- **Lean.** Schematic (no étale/anabelian `π₁` in Mathlib).
+- **Lean.** Schematic in its literal form (no étale/anabelian `π₁` in Mathlib).  Stated since in
+  group-theoretic form as `GQ2.peripheralCyclotomicAction : PeripheralCyclotomicAction`
+  (`GQ2/PeripheralAction.lean`): on `Δ = maxPro2(FreeProfinite (Fin 2))` with peripheral generators
+  `P, T, C`, for every `u ∈ ℤ₂ˣ` a continuous automorphism `aut u` with `aut u (X) = c_X⁻¹ X^{ι u} c_X`
+  (`ι : ℤ₂ˣ → ℤ̂` an exponent embedding carried by the bundle, pinned by `ι 1 = ω₂` and 2-adic
+  component `u`); the deviation from the literal `π₁` statement is flagged there.  An axiom until 2026-10-17; now a `noncomputable def` in
+  `GQ2/Foundations/TauCetiInstance.lean`.
+- **Proved via Tau Ceti.** Source: `TauCeti.Peripheral.exists_peripheralPowerAutomorphism_two`
+  (module `TauCeti.Topology.Algebra.Group.Profinite.Free.Peripheral.Dyadic`): for a marked free
+  pro-2 group of rank two and `u ∈ ℤ₂ˣ`, a continuous automorphism carrying `P, T, C` to conjugates
+  of their `u`-th 2-adic powers, with the conjugator of `P` equal to `1`.  This is a statement about
+  free pro-2 groups, i.e. the group-theoretic form gq2 states, for every unit `u`.  Adapter:
+  `peripheralCyclotomicAction_tauceti`, `GQ2/TauCeti/B8.lean` (`6f68cfe3`), through the P1
+  dictionary (`Δ ≃ₜ*` Tau Ceti's `freeProP 2 (Fin 2)`).  Conventions: to meet the two pinning
+  conditions on `ι`, the adapter takes `ι u = ω₂ · s(u)`, with `s(u)` the profinite integer
+  whose 2-adic component is `u` and whose odd components are `1` (the plan's "trivial odd part" was
+  not provable, since gq2 never shows that the odd components of `ω₂` vanish).  Then gq2's
+  `x ^ᶻ ι u` on `Δ` is Tau Ceti's `padicPow x u`, and `cP u := 1`.
 - **Used at.** Lemma 3.6.
 
 ### B9. Relative Stiefel–Whitney (Evens–Kahn) identity  🟡 schematic · **RESTATED 2026-07-24 (B9-A flip)**
@@ -321,14 +504,16 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   The paper's eq. (111) `w(Tr_{L/k}⟨a⟩) = w(Tr_{L/k}⟨1⟩)(1 + cor_{L/k}[a] + N^{Ev}_{L/k}[a])` is
   Kahn Th. 2 at `q=⟨a⟩` (rank 1) expanded via Evens Th. 1. **Guillot [6]** is a *background* reference
   (in the bibliography only — no body citation).
-- **Lean.** `GQ2.relativeStiefelWhitney_dyadic` (the B9 axiom since 2026-07-24; `GQ2/Foundations/Axioms.lean`).
+- **Lean.** `GQ2.relativeStiefelWhitney_dyadic` (the B9 leaf since 2026-07-24; an axiom in
+  `GQ2/Foundations/Axioms.lean` until 2026-10-17, now a theorem in
+  `GQ2/Foundations/TauCetiInstance.lean`).
   The Stiefel–Whitney classes `swOne k` and `swTwo k htriv` are now **genuine Lean definitions on
   isometry classes** of binary quadratic forms (`GQ2/StiefelWhitney.lean`, on Mathlib
   `QuadraticForm ↥k V` with `QuadraticMap.Equivalent`), evaluated on the twisted trace forms
   `Tr_{k(δ)/k}⟨a⟩`/`Tr_{k(δ)/k}⟨1⟩` of `GQ2/TraceForm.lean`.  **Delzant well-definedness is proved**
   (`swOne_well_defined`, `swTwo_well_defined` — sorry-free, std-3): the degree-1 case is discriminant
   invariance; the degree-2 case is parametrized by the B11a norm criterion as an explicit hypothesis
-  `hnorm` (the Q2 firewall — `GQ2/StiefelWhitney.lean` stays strictly upstream of the axiom file, so
+  `hnorm` (the Q2 firewall — `GQ2/StiefelWhitney.lean` stayed strictly upstream of the axiom file, so
   it takes the criterion as a hypothesis rather than importing it), discharged from
   `hilbertSymbol_normCriterion_finiteDyadic` at the flip site.  Still marked 🟡 because the underlying
   continuous cohomology and SW-class machinery are the repository's own `ContCoh`/`StiefelWhitney`
@@ -341,8 +526,11 @@ one of them — it is a theorem.  The census is **9 before and after**.*
     B7′/B11b/B12/B13 flip pattern).  It is proved by `evensKahn_dyadic_of_rsw`
     (`GQ2/EvensKahnDerived.lean`) from `relativeStiefelWhitney_dyadic` together with B11a: the
     proved trace-form diagonalizations and `swOne_diag`/`swTwo_diag` rewrite the abstract identity
-    into the Kummer-class form.  Its footprint is
+    into the Kummer-class form.  Its footprint at the flip was
     `#print axioms = {relativeStiefelWhitney_dyadic, hilbertSymbol_normCriterion_finiteDyadic, + std-3}`.
+    It now takes its inputs through `[LiteratureInputs]` (explicit dependencies: the B9 and B11a
+    fields) and its `#print axioms` is the standard three; since ticket C2 both fields are proved
+    via Tau Ceti.
     Census **9 → 9**, user-approved 2026-07-24 (B9-A board, `docs/orchestration/b9a-tickets.md`,
     T5 gate; plan `docs/orchestration/b9a-proof-plan.md`).
   - **Deviations** (flagged, unchanged by the flip): truncation to degrees ≤ 2; `N^{Ev}` *defined*
@@ -351,6 +539,17 @@ one of them — it is a theorem.  The census is **9 before and after**.*
     so the statement is locally Kahn's `L/k` setting, per the owner's Q1 decision.
     ~~Delzant well-definedness absorbed into the diagonalization scoping~~ — **REMOVED by the flip**:
     well-definedness of `w₁`/`w₂` is now *proved*, not scoped away.
+- **Proved via Tau Ceti.** Sources: `TauCeti.sw1_eq_add_galoisCor_of_equivalent_traceTransfer`
+  (module `TauCeti.FieldTheory.QuadraticForm.StiefelWhitney.Transfer`) and
+  `TauCeti.sw2_eq_add_galoisEvens_add_cup_of_equivalent_traceTransfer`
+  (`TauCeti.FieldTheory.QuadraticForm.StiefelWhitney.QuadraticExtension`).  Adapter:
+  `relativeStiefelWhitney_dyadic_tauceti`, `GQ2/TauCeti/B9.lean`, with the dictionary
+  `GQ2/TauCeti/StiefelWhitneyDict.lean` (`47477175`).  Conventions: gq2's `swOne`/`swTwo` are read
+  off at a chosen unit diagonalization of `Tr⟨1⟩` and of `Tr⟨a⟩`, and these diagonalizations feed
+  Tau Ceti's two diagonal-presentation theorems.  The resulting identities over Tau Ceti's
+  `Gal(kˢᵉᵖ/k)` are pulled back along A1's `fixingEquivAbsGal` with A2's `cont1F2`/`cont2F2`, which
+  match Kummer classes, `cor`, the Evens norm and cups term by term.  The adapter does not use B11a
+  (no `hnorm`).
 - **Used at.** §6 (Lemmas 6.13 (Evens norm normalization), 6.16 (deep-unit Evens norm)), through the
   derived `evensKahn_dyadic`; the Shapiro–corestriction of Lemma 6.15 is Kahn Th. 2's Shapiro case.
 
@@ -371,6 +570,56 @@ Cor. + Rem. 1) — **B11b discharged 2026-07-09** (B11b board): now a same-name 
 proved in-repo (`GQ2/UnramifiedQuadraticNorms.lean` + `GQ2/TeichmullerLift.lean`) by completing
 the square + a depth-by-depth norm-form approximation against the B13 filtration, so
 `dyadicNormCriterion` now rests on **B11a alone**.
+
+#### B10. Oriented tame quotient of `G_ℚ₂` (Iwasawa; oriented form B10′ since 2026-07-06)  ✅ faithful · composite
+- **Statement.** A closed normal pro-2 subgroup `W ≤ G_ℚ₂` (wild inertia) with
+  `G_ℚ₂/W ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`, oriented against local reciprocity (B5): the
+  unramified coordinate `ν_t` satisfies `ν_t(tameF(rec u)) = 1` for units `u` and
+  `ν_t(tameF(rec 2)) = ztwoOne⁻¹` (arithmetic Frobenius, geometric coordinate).
+- **Citation.** NSW (7.5.3) (Iwasawa) with (7.5.2), wild inertia pro-`p` (Serre *LF* Ch. IV);
+  orientation clauses Serre *LF* Ch. XIII §4 Prop. 13 and its corollary, with Neukirch ANT
+  Ch. V (1.2) / NSW (7.1.2)(i) for units being norms in unramified extensions.  Verification record
+  in §E.
+- **Lean.** `GQ2.tameQuotient : OrientedTameQuotient localReciprocity` (bundle in
+  `GQ2/TameQuotient.lean`, with the NSW convention notes, `σ ↦ σ⁻¹`).  Flagged deviation: `W` is
+  characterized, not constructed, and its maximality (paper Lemma 3.3) is not asserted; the
+  orientation clauses are pinned to the B5 constant.  An axiom until 2026-10-17; now a
+  `noncomputable def` in `GQ2/Foundations/TauCetiInstance.lean`.
+- **Proved via Tau Ceti.** Sources: `TauCeti.wildInertiaSubgroup`, `TauCeti.isProP_wildInertiaSubgroup`
+  (module `TauCeti.NumberTheory.LocalField.WildInertia`), `TauCeti.tameQuotientGeometricEquiv`,
+  `TauCeti.iwasawaCoordinateGeometric` (`TauCeti.NumberTheory.LocalField.Tame.Geometric`), and,
+  for the orientation, B5's Artin-map facts.  Adapter: `tameQuotient_tauceti`, `GQ2/TauCeti/B10.lean`
+  (`a2c2b6ea`), oriented against the B5 adapter's reciprocity datum.  Conventions: the witness `W`
+  is Tau Ceti's wild inertia subgroup (the statement still asserts only existence).  `equiv` is Tau
+  Ceti's geometric Iwasawa isomorphism followed by an identification with gq2's `T_tame`; the
+  relators match (`γ⁻¹τγ(τ^q)⁻¹` with `q = 2`), and both sides' `σ` is geometric Frobenius.  Tau
+  Ceti's coordinate is arithmetic, so gq2's `ν_t` is the **inverse** of its `ℤ₂`-reduction.  Both
+  orientation clauses follow from one lift lemma through B5's `unramifiedCoordinate_artinMap`
+  (valuation `0` at units, `1` at `2`).
+- **Used at.** Prop 3.2 (local side); Prop 3.14 / Cor. 3.12 (the "same natural unramified
+  character").
+
+#### B11a. Dyadic Hilbert-symbol norm criterion over finite bases  ✅ faithful
+- **Statement.** For `k/ℚ₂` finite and `a, b ∈ kˣ`: `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a
+  norm from `k(√a)`, iff `b = x² − a y²` for some `x, y ∈ k` (for `a` a square the norm form is
+  universal, so no non-square hypothesis is needed).
+- **Citation.** Serre *LF* Ch. XIV §2, Proposition 4(iii) (the symbol vanishes iff the second
+  entry is a norm), with Proposition 5 (the symbol is the cup product); over `ℚ_p` also CiA
+  Ch. III §1.1 Prop. 1.  Line-checked by P-20, with the 2026-07-06 numbering correction, in §E.
+- **Lean.** `GQ2.hilbertSymbol_normCriterion_finiteDyadic`, the cup of the repository's Kummer
+  classes `kummerClassK`, with the norm condition encoded as the norm form `b = x² − a y²`.  It is
+  consumed together with the in-repo B11b theorem through `dyadicNormCriterion`
+  (`GQ2/Foundations/Interfaces.lean`).  An axiom until 2026-10-17; now a theorem in
+  `GQ2/Foundations/TauCetiInstance.lean`.
+- **Proved via Tau Ceti.** Source: `TauCeti.cup_kummerClass_eq_zero_iff` (module
+  `TauCeti.FieldTheory.GaloisCohomology.MuTwo.CupNorm`) at `K = ↥k`; it holds for any field in
+  which `2` is invertible, so no local hypothesis is used.  Adapter:
+  `hilbertSymbol_normCriterion_finiteDyadic_tauceti`, `GQ2/TauCeti/B11a.lean` (`230647d9`).
+  Conventions: gq2's Kummer classes and cup are carried to Tau Ceti's by A2's `cont2F2` (an
+  additive equivalence, so it reflects `0`) and its cup and Kummer rules at A1's
+  `fixingEquivAbsGal k`.
+- **Used at.** §6.3 (displays (93)/(94), Lemma 6.16), and the Delzant well-definedness layer behind
+  B9's derived form `evensKahn_dyadic`.
 
 ### B12. Local Kummer theory (surjective half)  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
 - **Statement.** For `k` finite over `ℚ₂`, the Kummer class map descends to an isomorphism
@@ -437,22 +686,27 @@ Two are **tighter** than the claim: **Prop 1.1** is `{B3c, B8}` (not `B3,B4,B5,B
 marked B4, and B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node), and **Prop 5.15** is
 **std-3** (the §C annotation "uses B6" is discharged at `prop_5_16` instead, where `H²` is computed).
 **Prop 3.2** (local) is `{B10}` as §C states — note the `AxiomLedger.lean` header's older
-"Prop 3.2 → B5" predates the B10 census decision.
+"Prop 3.2 → B5" predates the B10 census decision.  These footprints were computed while the leaves
+were axioms.  Since ticket C2 (2026-10-17) every node's `#print axioms` is exactly the standard
+three, so they are now a record of which leaves each node consumes, not of what it is trusted on.
 
 **Interpreting the footprints.**  The descriptions below record field-level literature
 dependencies.  Generic declarations receive those inputs through `[LiteratureInputs]`, so their
-`#print axioms` output contains only the standard three; legacy wrappers select the provider
-assembled from all nine literature axioms and therefore print all nine.  `GQ2/AxiomLedger.lean`
-reports both the legacy axiom dependencies and the declarations carrying `LiteratureInputs`.
+`#print axioms` output contains only the standard three.  Until ticket C2, legacy wrappers selected
+the provider assembled from all nine literature axioms and therefore printed all nine; since C2
+they select `GQ2.tauCetiLiteratureInputs`, assembled from the nine Tau Ceti adapters, and print
+the standard three.  `GQ2/AxiomLedger.lean` reports the declarations carrying `LiteratureInputs`
+(its explicit-input inventory); its legacy-axiom map `bAxioms` is empty since C2.
 
 **B9-A footprint note (added 2026-07-24).**  After the B9-A flip the `B9` entries in the "reduces
 to" column and in the dependency chain below are consumed through the *derived* theorem
-`evensKahn_dyadic`, whose `#print axioms` is now `{relativeStiefelWhitney_dyadic (B9),
+`evensKahn_dyadic`, whose `#print axioms` was then `{relativeStiefelWhitney_dyadic (B9),
 hilbertSymbol_normCriterion_finiteDyadic (B11a), + std-3}`.  So every §6 node that consumed B9
 (Lemmas 6.13, 6.16, and via them Thm 4.2) now surfaces the pair **{B9 = `relativeStiefelWhitney_dyadic`,
 B11a}** in its footprint — the extra B11a co-dependence coming from the Delzant well-definedness
 layer that the derivation traverses (plan node N2, `docs/orchestration/b9a-proof-plan.md`).  Those
 nodes already consumed B11a independently at `lemma_6_16`, so the whole-library census is unchanged.
+(Since C2 neither name is an axiom, and these nodes print the standard three.)
 
 Internal dependency chain feeding **Thm 4.2** (paper App. D), all *paper* lemmas resting on §B:
 5.7/5.8 (Stokes) → 5.10 (Fox–Heisenberg chain map); 5.11/5.13 → 5.15 (elementary-module duality, uses
@@ -464,19 +718,25 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 
 ## D. Status summary
 
+Since 2026-10-17 "proved via Tau Ceti" in the Lean column means: the legacy name is a theorem or
+definition in `GQ2/Foundations/TauCetiInstance.lean` whose body is the named adapter in
+`GQ2/TauCeti/` (§T); until then those entries read "axiom".  The ✅/🟡 marks still classify the
+statement's encoding (legend at the top).
+
 | leaf | precise citation | conf. | Lean |
 |---|---|---|---|
-| B1  `G_ℚ₂` top. f.g. | **NSW (7.4.1)** (`N+2` generators; valid at `p=2`) | ✅ **verified** | ✅ axiom |
+| B1  `G_ℚ₂` top. f.g. | **NSW (7.4.1)** (`N+2` generators; valid at `p=2`) | ✅ **verified** | ✅ **proved via Tau Ceti** (`B1.lean`) |
 | B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ❌ **deleted 2026-07-09** (unused) |
-| B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
+| B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡; B3c form **proved via Tau Ceti** (`B3c.lean`) |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ❌ **deleted 2026-07-10** (unused; B3c subsumes a marked B4) |
-| B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
-| B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 |
-| B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
+| B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B5.lean`) |
+| B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B6.lean`, `DualizingGroup.lean`) |
+| B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 **proved via Tau Ceti** (`B7.lean`) |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | ✅ **proved** (2026-07-09) |
-| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
-| B9  relative Stiefel–Whitney (`relativeStiefelWhitney_dyadic`; **restated 2026-07-24**, `evensKahn_dyadic` now the derived theorem) | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 axiom (SW classes in-repo) |
-| B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
+| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ **proved via Tau Ceti** (bundle; `B8.lean`) |
+| B9  relative Stiefel–Whitney (`relativeStiefelWhitney_dyadic`; **restated 2026-07-24**, `evensKahn_dyadic` now the derived theorem) | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 **proved via Tau Ceti** (SW classes in-repo; `B9.lean`, `StiefelWhitneyDict.lean`) |
+| B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ **proved via Tau Ceti** (bundle; `B10.lean`) |
+| B11a dyadic norm criterion (finite `k/ℚ₂`) | **Serre *LF* XIV §2 Prop. 4(iii)** with Prop. 5 (symbol = cup); over `ℚ_p` CiA III §1.1 Prop. 1 | ✅ **line-checked** (P-20) | ✅ **proved via Tau Ceti** (`B11a.lean`) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
 | — B-Lab (`Γ_R` instance of B3: `D_R ≅ D₀`) | **not cited** — declined as an axiom 2026-07-25, proved in-repo instead (two-central tower + Hopfian) | — | ✅ **proved** (2026-07-26, `GQ2.Roe.Labute.bLab`, std-3; see the B3 addendum) |
@@ -485,9 +745,9 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 repository. `quoted` = taken from the paper's own citation; `confirmed` = checked against a
 reliable secondary source; `~` = identification made without the primary source to hand.)
 
-**Bottom line for review.** The whole theorem rests on **nine** active classical interfaces
-(B1, B3c, B5–B11a — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
-P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
+**Bottom line for review.** Until 2026-10-17 the whole theorem rested on **nine** active
+classical interfaces, stated as axioms (B1, B3c, B5–B11a — B10 added post-kickoff by the P-06
+census decision, B11–B13 by the P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
 unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′, B13, and B11b likewise
 discharged in-repo** (B13 a same-name `noncomputable def` over the `UnitFiltrationTop`/`Counts`
 lane; B11b a same-name theorem over the norm-form engine `UnramifiedQuadraticNorms`/`TeichmullerLift`;
@@ -499,16 +759,23 @@ identity `relativeStiefelWhitney_dyadic`, its former composite statement now the
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved.  The later `Γ_R` ("Replacement theorem") campaign needed **one** further classical-looking
 input, the B3 classification at the instance `D_R`; it was **declined as a tenth axiom** and
-**proved in-repo** instead (2026-07-26 — see the B3 addendum above), so the census below is the
-whole trust base for *both* candidate groups.  The active declarations are faithful project
-interfaces over the repository's encodings;
+**proved in-repo** instead (2026-07-26 — see the B3 addendum above), so the nine were the
+whole trust base beyond the standard three for *both* candidate groups.  **Since ticket C2
+(2026-10-17) all nine are proved via Tau Ceti and the census is 0**: for both candidate groups the
+trust base is Lean's standard three axioms plus Tau Ceti's proofs at revision `706344c35` (§T).
+The active declarations are faithful project interfaces over the repository's encodings;
 B3c, B5, B8, B9, and B10 are composite interfaces whose cited ingredients require the explicit
 normalization/dictionary steps documented in their sections, rather than verbatim statements of a
-single published theorem.
+single published theorem.  Those statements are unchanged by the discharge: Tau Ceti proves
+exactly them, through the adapters' conventions recorded in each §B entry.
 
 ---
 
 ## E. Verification status (against cited source PDFs; audit copies not vendored)
+
+This audit checks that each leaf's statement matches the cited theorem.  It was done while the
+leaves were axioms.  Since the Tau Ceti discharge the proofs rest on Tau Ceti rather than on these
+citations; the citations now document which published theorem each Tau Ceti proof establishes.
 
 **✅ Verified against the cited sources (exact theorem number + statement checked):**
 - **B1** — NSW **(7.4.1)**: for a `p`-adic local field of degree `N`, `G_k` is generated by
@@ -608,6 +875,7 @@ B3's Theorem 8 at `d=1` reproduces the paper's `D₀`; B11a/B11b were line-check
 The exact Kozlowski 1984 paper was not independently obtainable in this audit, but Kahn's
 Theorem 2 is the direct load-bearing source for the formula and a later paper by Kozlowski
 corroborates the attribution.  The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2,
-Schur–Zassenhaus) are proved in the formalization.  Of the fifteen historical leaves,
-**nine remain axioms**: B12, B7′, B13, and B11b are discharged, while the never-consumed B2
-and B4 are deleted.
+Schur–Zassenhaus) are proved in the formalization.  Of the fifteen historical leaves, B12, B7′,
+B13, and B11b were discharged in-repo and the never-consumed B2 and B4 deleted (2026-07-09/10),
+leaving nine axioms.  On 2026-10-17 (ticket C2) those nine were proved via Tau Ceti, and **none
+remains an axiom** (census 0).
